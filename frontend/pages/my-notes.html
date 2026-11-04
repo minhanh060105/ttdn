@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghi chú của tôi | Substack Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Main content -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
+            
+            <div>
+                <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
+                    <i class="fa-regular fa-note-sticky text-substackOrange"></i>
+                    <span>Ghi chú của tôi</span>
+                </h1>
+                <p class="text-xs text-gray-400 mt-1">Xuất bản các ý tưởng ngắn, cập nhật tức thì tới những người theo dõi bạn.</p>
+            </div>
+
+            <!-- Khối tạo ghi chú nhanh -->
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 shadow-sm space-y-3">
+                <div class="flex items-start space-x-3">
+                    <img id="myNoteAvatar" src="https://i.pravatar.cc/150?u=hhoanganh0710" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-borderDark flex-shrink-0">
+                    <div class="flex-1 space-y-2">
+                        <textarea id="noteContentInput" oninput="updateCharCount(this.value)" rows="3" maxlength="280" placeholder="Bạn đang nghĩ gì? Hãy chia sẻ suy nghĩ ngắn tới độc giả..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange resize-none"></textarea>
+                        
+                        <!-- Nhập ảnh tùy chọn -->
+                        <div id="noteImageInputRow" class="hidden flex items-center space-x-2">
+                            <i class="fa-regular fa-image text-gray-400 text-xs"></i>
+                            <input type="url" id="noteImageUrlInput" placeholder="Dán link ảnh (https://...)" class="flex-1 bg-darkBg border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-substackOrange">
+                            <button onclick="toggleImageInput(false)" class="text-gray-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-borderDark">
+                    <div class="flex items-center space-x-3 text-xs text-gray-400">
+                        <button type="button" onclick="toggleImageInput(true)" class="hover:text-substackOrange transition flex items-center space-x-1">
+                            <i class="fa-regular fa-image"></i>
+                            <span>Thêm ảnh</span>
+                        </button>
+                        <span id="charCountDisplay" class="text-[11px] text-gray-500">0 / 280 ký tự</span>
+                    </div>
+
+                    <button onclick="publishQuickNote()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2 rounded-xl transition shadow">
+                        Đăng ghi chú
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danh sách ghi chú của tôi -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-borderDark pb-2">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider">Lịch sử ghi chú đã đăng</h2>
+                    <span id="myNotesCountBadge" class="text-xs text-gray-400"></span>
+                </div>
+
+                <div id="myNotesContainer" class="space-y-4">
+                    <!-- Render qua JS -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal sửa ghi chú -->
+    <div id="editNoteModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <h3 class="font-bold text-white text-sm">Chỉnh sửa ghi chú</h3>
+                <button onclick="closeEditNoteModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <textarea id="editNoteContent" rows="4" class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Link ảnh:</label>
+                    <input type="url" id="editNoteImageUrl" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-substackOrange">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                <button onclick="closeEditNoteModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
+                <button onclick="saveEditNote()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-xl shadow">Lưu cập nhật</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        let editingNoteId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('my-notes', 'appSidebar');
+            Layout.renderBottomNav('', 'appBottomNav');
+
+            const user = Layout.getCurrentUser();
+            if (user?.avatar_url) {
+                document.getElementById('myNoteAvatar').src = user.avatar_url;
+            }
+
+            renderNotesList();
+
+            window.addEventListener('demoStateChanged', () => {
+                renderNotesList();
+            });
+        });
+
+        function updateCharCount(val) {
+            const display = document.getElementById('charCountDisplay');
+            display.textContent = `${val.length} / 280 ký tự`;
+            if (val.length >= 260) {
+                display.className = "text-[11px] text-amber-400 font-bold";
+            } else {
+                display.className = "text-[11px] text-gray-500";
+            }
+        }
+
+        function toggleImageInput(show) {
+            const row = document.getElementById('noteImageInputRow');
+            if (show) row.classList.remove('hidden');
+            else {
+                row.classList.add('hidden');
+                document.getElementById('noteImageUrlInput').value = '';
+            }
+        }
+
+        function publishQuickNote() {
+            const content = document.getElementById('noteContentInput').value.trim();
+            const imageUrl = document.getElementById('noteImageUrlInput').value.trim();
+
+            if (!content) {
+                Layout.showToast('Vui lòng nhập nội dung ghi chú.', 'warning');
+                return;
+            }
+
+            const currentUser = Layout.getCurrentUser();
+            const newNote = {
+                id: Date.now(),
+                author_id: currentUser ? currentUser.id : 3,
+                content: content,
+                image_url: imageUrl || null,
+                created_at: new Date().toISOString()
+            };
+
+            MockData.notes.unshift(newNote);
+            document.getElementById('noteContentInput').value = '';
+            toggleImageInput(false);
+            updateCharCount('');
+            Layout.showToast('Đã xuất bản ghi chú thành công!', 'success');
+            renderNotesList();
+        }
+
+        function renderNotesList() {
+            const state = Layout.getDemoState();
+            const container = document.getElementById('myNotesContainer');
+            const currentUser = Layout.getCurrentUser();
+            const authorId = currentUser ? currentUser.id : 3;
+
+            // 1. Loading
+            if (state === 'loading') {
+                container.innerHTML = Array(2).fill(0).map(() => `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-3 animate-pulse">
+                        <div class="w-1/3 h-4 bg-borderDark rounded"></div>
+                        <div class="w-full h-12 bg-borderDark rounded"></div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
+                        <h3 class="text-sm font-bold text-white">Lỗi tải danh sách ghi chú</h3>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let notes = MockData.notes.filter(n => n.author_id === authorId);
+
+            // 3. Demo Empty
+            if (state === 'empty') notes = [];
+
+            document.getElementById('myNotesCountBadge').textContent = `${notes.length} ghi chú`;
+
+            if (notes.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-2">
+                        <i class="fa-regular fa-note-sticky text-3xl text-gray-500"></i>
+                        <h3 class="text-sm font-bold text-white">Bạn chưa có ghi chú nào</h3>
+                        <p class="text-xs text-gray-400">Hãy viết ghi chú đầu tiên ở khung soạn thảo bên trên!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = notes.map(note => `
+                <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 sm:p-5 space-y-3 shadow-sm" id="note-card-${note.id}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-400">${Layout.formatDate(note.created_at)}</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs">
+                            <button onclick="openEditNote(${note.id})" class="px-2.5 py-1 bg-cardBg hover:bg-borderDark text-gray-300 rounded-lg border border-borderDark">
+                                <i class="fa-regular fa-pen-to-square mr-1"></i> Sửa
+                            </button>
+                            <button onclick="deleteNote(${note.id})" class="px-2.5 py-1 bg-cardBg hover:bg-red-950/60 text-gray-400 hover:text-red-400 rounded-lg border border-borderDark">
+                                <i class="fa-regular fa-trash-can mr-1"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-gray-200 leading-relaxed">${note.content}</p>
+
+                    ${note.image_url ? `
+                        <div class="rounded-xl overflow-hidden max-h-60 border border-borderDark">
+                            <img src="${note.image_url}" alt="Ảnh ghi chú" class="w-full h-full object-cover">
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function openEditNote(id) {
+            const note = MockData.notes.find(n => n.id === id);
+            if (!note) return;
+            editingNoteId = id;
+            document.getElementById('editNoteContent').value = note.content;
+            document.getElementById('editNoteImageUrl').value = note.image_url || '';
+            document.getElementById('editNoteModal').classList.remove('hidden');
+        }
+
+        function closeEditNoteModal() {
+            document.getElementById('editNoteModal').classList.add('hidden');
+            editingNoteId = null;
+        }
+
+        function saveEditNote() {
+            const note = MockData.notes.find(n => n.id === editingNoteId);
+            if (note) {
+                const newContent = document.getElementById('editNoteContent').value.trim();
+                const newImg = document.getElementById('editNoteImageUrl').value.trim();
+                if (!newContent) {
+                    Layout.showToast('Nội dung ghi chú không thể để trống.', 'warning');
+                    return;
+                }
+                note.content = newContent;
+                note.image_url = newImg || null;
+                closeEditNoteModal();
+                Layout.showToast('Đã cập nhật ghi chú thành công!', 'success');
+                renderNotesList();
+            }
+        }
+
+        function deleteNote(id) {
+            Layout.showConfirmModal({
+                title: 'Xóa ghi chú',
+                message: 'Bạn có chắc chắn muốn xóa ghi chú này không?',
+                confirmText: 'Xác nhận xóa',
+                onConfirm: () => {
+                    const idx = MockData.notes.findIndex(n => n.id === id);
+                    if (idx !== -1) {
+                        MockData.notes.splice(idx, 1);
+                        Layout.showToast('Đã xóa ghi chú!', 'success');
+                        renderNotesList();
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

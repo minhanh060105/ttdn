@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyên mục Thẻ | Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Main content -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
+            
+            <!-- Header thông tin Thẻ -->
+            <div id="tagHeaderBox" class="bg-sidebarBg border border-borderDark rounded-2xl p-6 shadow-sm">
+                <!-- Render qua JS -->
+            </div>
+
+            <!-- Danh sách bài viết theo Thẻ -->
+            <div id="tagPostList" class="space-y-4">
+                <!-- Render qua JS -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('tag', 'appSidebar');
+            Layout.renderBottomNav('tag', 'appBottomNav');
+
+            renderTagPage();
+
+            window.addEventListener('demoStateChanged', () => {
+                renderTagPage();
+            });
+        });
+
+        function renderTagPage() {
+            const state = Layout.getDemoState();
+            const headerBox = document.getElementById('tagHeaderBox');
+            const listContainer = document.getElementById('tagPostList');
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug') || 'cong-nghe';
+
+            // 1. Loading
+            if (state === 'loading') {
+                headerBox.innerHTML = `
+                    <div class="animate-pulse space-y-3">
+                        <div class="w-32 h-6 bg-borderDark rounded"></div>
+                        <div class="w-64 h-4 bg-borderDark rounded"></div>
+                    </div>
+                `;
+                listContainer.innerHTML = Array(3).fill(0).map(() => `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-3 animate-pulse">
+                        <div class="w-2/3 h-5 bg-borderDark rounded"></div>
+                        <div class="w-full h-12 bg-borderDark rounded"></div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                headerBox.innerHTML = `<h2 class="text-lg font-bold text-rose-400">Không thể tải thông tin chủ đề</h2>`;
+                listContainer.innerHTML = `
+                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
+                        <h3 class="text-sm font-bold text-white">Lỗi kết nối máy chủ</h3>
+                        <p class="text-xs text-gray-400">Không thể lấy danh sách bài viết theo chủ đề.</p>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const tag = MockData.tags.find(t => t.slug === slug);
+            if (!tag) {
+                headerBox.innerHTML = `
+                    <div class="text-center py-4">
+                        <h1 class="text-xl font-bold text-white mb-2">Chủ đề không tồn tại</h1>
+                        <p class="text-xs text-gray-400">Thẻ hashtag bạn đang tìm không có trong hệ thống.</p>
+                    </div>
+                `;
+                listContainer.innerHTML = '';
+                return;
+            }
+
+            // Tìm bài viết có tag này
+            const postIds = MockData.post_tags.filter(pt => pt.tag_id === tag.id).map(pt => pt.post_id);
+            let posts = MockData.posts.filter(p => postIds.includes(p.id) && p.status === 'published' && !p.deleted_at);
+
+            // 3. Demo Empty
+            if (state === 'empty') posts = [];
+
+            // Header info
+            headerBox.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1.5">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-8 h-8 rounded-xl bg-substackOrange/10 border border-substackOrange/30 text-substackOrange flex items-center justify-center font-bold">#</span>
+                            <h1 class="text-2xl font-extrabold text-white">${tag.name}</h1>
+                        </div>
+                        <p class="text-xs text-gray-400 max-w-md leading-relaxed">${tag.description || 'Các bài viết và thảo luận chuyên sâu liên quan đến ' + tag.name}</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-darkBg border border-borderDark px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-300">
+                            ${posts.length} bài viết
+                        </span>
+                        <a href="search.html" class="bg-cardBg hover:bg-borderDark border border-borderDark text-xs text-gray-300 px-3 py-1.5 rounded-xl transition">
+                            Tất cả thẻ
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            // List posts
+            if (posts.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-3">
+                        <i class="fa-regular fa-folder-open text-3xl text-gray-500"></i>
+                        <h3 class="text-sm font-bold text-white">Chưa có bài viết nào trong chủ đề này</h3>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Hãy quay lại sau hoặc khám phá các chủ đề khác trên hệ thống.</p>
+                        <a href="index.html" class="inline-block mt-2 text-xs text-substackOrange hover:underline font-medium">Về Trang chủ</a>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = posts.map(post => {
+                const author = MockData.users.find(u => u.id === post.author_id) || {
+                    display_name: 'Tác giả',
+                    handle: 'author',
+                    avatar_url: 'https://i.pravatar.cc/150'
+                };
+
+                return `
+                    <article class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
+                        <div class="flex items-center space-x-2.5">
+                            <img src="${author.avatar_url}" alt="${author.display_name}" class="w-7 h-7 rounded-full object-cover">
+                            <span class="text-xs font-bold text-white">${author.display_name}</span>
+                            <span class="text-xs text-gray-500">•</span>
+                            <span class="text-[11px] text-gray-400">${Layout.formatDate(post.published_at)}</span>
+                        </div>
+
+                        <a href="post-detail.html?slug=${post.slug}" class="block group">
+                            <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2 leading-snug">
+                                ${post.title}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
+                                ${post.content.replace(/<[^>]*>?/gm, '')}
+                            </p>
+                        </a>
+
+                        <div class="flex items-center justify-between text-xs text-gray-400 pt-1">
+                            <span class="text-[11px] text-gray-500">
+                                <i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)} lượt xem
+                            </span>
+                            <a href="post-detail.html?slug=${post.slug}" class="text-substackOrange hover:underline font-medium">
+                                Đọc bài viết <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+                            </a>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

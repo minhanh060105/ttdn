@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình soạn thảo bài viết | Substack Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Main Editor -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-4xl mx-auto w-full space-y-6">
+            
+            <!-- Top bar của Editor -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
+                <div class="flex items-center space-x-3">
+                    <a href="my-posts.html" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-borderDark transition" title="Quay lại">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h1 id="editorPageTitle" class="text-xl sm:text-2xl font-bold text-white tracking-tight">Soạn bài viết mới</h1>
+                        <p id="editorStatusSubtitle" class="text-xs text-gray-400">Trạng thái hiện tại: Chưa lưu</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2.5">
+                    <button onclick="savePost('draft')" class="bg-cardBg hover:bg-borderDark border border-borderDark text-gray-200 text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5">
+                        <i class="fa-regular fa-floppy-disk"></i>
+                        <span>Lưu nháp</span>
+                    </button>
+                    <button onclick="savePost('pending')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span id="submitReviewBtnText">Gửi duyệt bài</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Banner lý do bị từ chối (Chỉ hiện khi sửa bài rejected) -->
+            <div id="rejectedReasonBanner" class="hidden p-4 bg-rose-950/50 border border-rose-500/50 rounded-2xl space-y-2 text-xs">
+                <div class="flex items-center space-x-2 text-rose-400 font-bold">
+                    <i class="fa-solid fa-circle-exclamation text-base"></i>
+                    <span>Bài viết này đã bị Ban quản trị từ chối phê duyệt</span>
+                </div>
+                <p id="rejectedReasonText" class="text-gray-200 leading-relaxed italic bg-darkBg/60 p-3 rounded-xl border border-rose-900/30"></p>
+                <p class="text-rose-300">Vui lòng điều chỉnh lại tiêu đề, nội dung hoặc gỡ bỏ các yếu tố vi phạm theo yêu cầu ở trên trước khi bấm "Gửi duyệt bài" lại.</p>
+            </div>
+
+            <!-- Form Soạn Thảo -->
+            <div class="space-y-5">
+                <!-- Tiêu đề -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Tiêu đề bài viết *</label>
+                    <input type="text" id="postTitle" oninput="handleTitleInput(this.value)" placeholder="Nhập tiêu đề ấn tượng và rõ nghĩa..." class="w-full bg-sidebarBg border border-borderDark focus:border-substackOrange rounded-2xl px-4 py-3.5 text-base sm:text-lg font-bold text-white placeholder-gray-500 focus:outline-none shadow transition">
+                </div>
+
+                <!-- Slug tự sinh -->
+                <div class="flex items-center space-x-2 text-xs text-gray-400 bg-sidebarBg p-2.5 rounded-xl border border-borderDark">
+                    <span class="font-mono text-gray-500">Đường dẫn tĩnh (Slug):</span>
+                    <span class="text-gray-500">/</span>
+                    <input type="text" id="postSlug" placeholder="duong-dan-bai-viet" class="flex-1 bg-transparent border-none text-substackOrange font-mono text-xs focus:outline-none">
+                    <button type="button" onclick="regenerateSlug()" class="text-gray-400 hover:text-white text-xs" title="Tạo lại từ tiêu đề"><i class="fa-solid fa-rotate"></i></button>
+                </div>
+
+                <!-- Cấu hình bài viết (Ngôn ngữ, Thẻ, Nhóm, Thumbnail) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
+                    <div>
+                        <label class="block text-gray-400 font-semibold mb-1">Ngôn ngữ bài viết *</label>
+                        <select id="postLanguageSelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                            <!-- Render qua JS -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 font-semibold mb-1">Nhóm bài viết (Group ID)</label>
+                        <select id="postGroupSelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                            <option value="101">Nhóm 101: Chuyên mục Công nghệ</option>
+                            <option value="102">Nhóm 102: Chuyên mục Hạ tầng & Cloud</option>
+                            <option value="103">Nhóm 103: Chuyên mục Design & UX</option>
+                            <option value="104">Nhóm 104: Kiến thức tổng quát</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-400 font-semibold mb-1">Ảnh đại diện (Thumbnail URL)</label>
+                        <input type="url" id="postThumbnail" placeholder="https://picsum.photos/..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                    </div>
+                </div>
+
+                <!-- Chọn Thẻ Tags (Nhiều thẻ) -->
+                <div class="bg-sidebarBg p-4 rounded-2xl border border-borderDark space-y-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Gắn thẻ chủ đề (chọn nhiều) *</label>
+                    <div id="editorTagCheckboxes" class="flex flex-wrap gap-2 text-xs">
+                        <!-- Render tags qua JS -->
+                    </div>
+                </div>
+
+                <!-- Thanh công cụ định dạng & Soạn thảo -->
+                <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-md">
+                    <!-- Toolbar -->
+                    <div class="flex items-center justify-between border-b border-borderDark p-2 bg-cardBg/60 text-xs">
+                        <div class="flex items-center space-x-1 flex-wrap">
+                            <button type="button" onclick="insertTag('<b>', '</b>')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 font-bold" title="In đậm">B</button>
+                            <button type="button" onclick="insertTag('<i>', '</i>')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 italic font-serif" title="In nghiêng">I</button>
+                            <span class="text-gray-600">|</span>
+                            <button type="button" onclick="insertTag('<h3>', '</h3>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300 font-bold" title="Tiêu đề H3">H3</button>
+                            <button type="button" onclick="insertTag('<blockquote>', '</blockquote>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" title="Trích dẫn"><i class="fa-solid fa-quote-left"></i></button>
+                            <button type="button" onclick="insertTag('<code>', '</code>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300 font-mono" title="Mã code">&lt;/&gt;</button>
+                            <button type="button" onclick="insertTag('<p>', '</p>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" title="Đoạn văn">P</button>
+                        </div>
+
+                        <!-- Chuyển đổi Soạn / Xem trước -->
+                        <div class="flex space-x-1 bg-darkBg p-0.5 rounded-lg border border-borderDark">
+                            <button type="button" id="modeEditBtn" onclick="switchEditorMode('edit')" class="px-3 py-1 rounded-md bg-substackOrange text-white font-medium transition">
+                                <i class="fa-solid fa-code mr-1"></i> Soạn thảo
+                            </button>
+                            <button type="button" id="modePreviewBtn" onclick="switchEditorMode('preview')" class="px-3 py-1 rounded-md text-gray-400 hover:text-white font-medium transition">
+                                <i class="fa-regular fa-eye mr-1"></i> Xem trước
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Vùng Textarea Soạn Thảo -->
+                    <div id="editorEditPane" class="p-4">
+                        <textarea id="postContent" rows="14" placeholder="Viết nội dung bài viết bằng HTML hoặc văn bản tại đây..." class="w-full bg-transparent border-none text-sm text-gray-200 focus:outline-none resize-y leading-relaxed font-sans"></textarea>
+                    </div>
+
+                    <!-- Vùng Xem trước Preview -->
+                    <div id="editorPreviewPane" class="hidden p-6 prose prose-invert max-w-none text-sm sm:text-base leading-relaxed min-h-[300px] bg-darkBg/50">
+                        <!-- Preview HTML -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        let editingPostId = null;
+        let selectedTagIds = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('my-posts', 'appSidebar');
+            Layout.renderBottomNav('create', 'appBottomNav');
+
+            renderLanguages();
+            renderTagCheckboxes();
+            checkEditMode();
+        });
+
+        function renderLanguages() {
+            const select = document.getElementById('postLanguageSelect');
+            if (!select || !MockData.languages) return;
+            select.innerHTML = MockData.languages
+                .filter(l => l.is_active)
+                .map(l => `<option value="${l.id}">${l.name} (${l.code.toUpperCase()})</option>`)
+                .join('');
+        }
+
+        function renderTagCheckboxes() {
+            const container = document.getElementById('editorTagCheckboxes');
+            if (!container || !MockData.tags) return;
+            container.innerHTML = MockData.tags.map(t => `
+                <label class="flex items-center space-x-1.5 px-3 py-1.5 bg-cardBg border border-borderDark rounded-xl cursor-pointer hover:border-substackOrange transition">
+                    <input type="checkbox" value="${t.id}" onchange="handleTagToggle(${t.id}, this.checked)" class="rounded text-substackOrange bg-darkBg border-borderDark">
+                    <span class="text-gray-300"># ${t.name}</span>
+                </label>
+            `).join('');
+        }
+
+        function handleTagToggle(tagId, checked) {
+            if (checked) {
+                if (!selectedTagIds.includes(tagId)) selectedTagIds.push(tagId);
+            } else {
+                selectedTagIds = selectedTagIds.filter(id => id !== tagId);
+            }
+        }
+
+        function checkEditMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idParam = urlParams.get('id');
+
+            if (idParam) {
+                editingPostId = parseInt(idParam, 10);
+                const post = MockData.posts.find(p => p.id === editingPostId);
+                if (post) {
+                    document.getElementById('editorPageTitle').textContent = `Chỉnh sửa: ${post.title}`;
+                    document.getElementById('editorStatusSubtitle').innerHTML = `Trạng thái: <span class="uppercase font-bold text-substackOrange">${post.status}</span>`;
+                    document.getElementById('postTitle').value = post.title;
+                    document.getElementById('postSlug').value = post.slug;
+                    document.getElementById('postContent').value = post.content;
+                    document.getElementById('postLanguageSelect').value = post.language_id;
+                    document.getElementById('postGroupSelect').value = post.group_id;
+                    document.getElementById('postThumbnail').value = post.thumbnail_url || '';
+
+                    // Nạp tags
+                    const currentTags = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
+                    selectedTagIds = [...currentTags];
+                    document.querySelectorAll('#editorTagCheckboxes input').forEach(cb => {
+                        cb.checked = selectedTagIds.includes(parseInt(cb.value, 10));
+                    });
+
+                    // Kiểm tra rejected
+                    if (post.status === 'rejected') {
+                        document.getElementById('rejectedReasonBanner').classList.remove('hidden');
+                        document.getElementById('rejectedReasonText').textContent = post.reject_reason || 'Vi phạm tiêu chuẩn cộng đồng.';
+                        document.getElementById('submitReviewBtnText').textContent = 'Gửi lại kiểm duyệt';
+                    }
+                }
+            }
+        }
+
+        function handleTitleInput(val) {
+            if (!editingPostId) {
+                document.getElementById('postSlug').value = generateSlug(val);
+            }
+        }
+
+        function regenerateSlug() {
+            const title = document.getElementById('postTitle').value;
+            document.getElementById('postSlug').value = generateSlug(title);
+        }
+
+        function generateSlug(text) {
+            return text
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        function insertTag(open, close) {
+            const textarea = document.getElementById('postContent');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selected = text.substring(start, end);
+            textarea.value = text.substring(0, start) + open + selected + close + text.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + open.length, end + open.length);
+        }
+
+        function switchEditorMode(mode) {
+            const editBtn = document.getElementById('modeEditBtn');
+            const previewBtn = document.getElementById('modePreviewBtn');
+            const editPane = document.getElementById('editorEditPane');
+            const previewPane = document.getElementById('editorPreviewPane');
+
+            if (mode === 'preview') {
+                editBtn.className = "px-3 py-1 rounded-md text-gray-400 hover:text-white font-medium transition";
+                previewBtn.className = "px-3 py-1 rounded-md bg-substackOrange text-white font-medium transition";
+                editPane.classList.add('hidden');
+                previewPane.classList.remove('hidden');
+                previewPane.innerHTML = document.getElementById('postContent').value || '<p class="text-gray-500 italic">Chưa có nội dung để xem trước.</p>';
+            } else {
+                previewBtn.className = "px-3 py-1 rounded-md text-gray-400 hover:text-white font-medium transition";
+                editBtn.className = "px-3 py-1 rounded-md bg-substackOrange text-white font-medium transition";
+                previewPane.classList.add('hidden');
+                editPane.classList.remove('hidden');
+            }
+        }
+
+        function savePost(newStatus) {
+            const title = document.getElementById('postTitle').value.trim();
+            const slug = document.getElementById('postSlug').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+            const languageId = parseInt(document.getElementById('postLanguageSelect').value, 10);
+            const groupId = parseInt(document.getElementById('postGroupSelect').value, 10);
+            let thumbnail = document.getElementById('postThumbnail').value.trim();
+
+            if (!title) {
+                Layout.showToast('Vui lòng nhập tiêu đề bài viết.', 'warning');
+                return;
+            }
+            if (!content) {
+                Layout.showToast('Vui lòng soạn nội dung bài viết.', 'warning');
+                return;
+            }
+            if (!thumbnail) {
+                thumbnail = `https://picsum.photos/seed/${slug || 'post'}/800/450`;
+            }
+
+            const currentUser = Layout.getCurrentUser();
+            const authorId = currentUser ? currentUser.id : 3;
+
+            if (editingPostId) {
+                // Chỉnh sửa bài có sẵn
+                const post = MockData.posts.find(p => p.id === editingPostId);
+                if (post) {
+                    post.title = title;
+                    post.slug = slug;
+                    post.content = content;
+                    post.language_id = languageId;
+                    post.group_id = groupId;
+                    post.thumbnail_url = thumbnail;
+                    post.status = newStatus; // draft hoặc pending
+                    if (newStatus === 'pending') {
+                        post.reject_reason = null; // xóa lý do cũ khi gửi lại
+                    }
+                }
+            } else {
+                // Tạo bài mới
+                const newId = Date.now();
+                const newPost = {
+                    id: newId,
+                    author_id: authorId,
+                    group_id: groupId,
+                    language_id: languageId,
+                    title: title,
+                    slug: slug || generateSlug(title),
+                    content: content,
+                    thumbnail_url: thumbnail,
+                    status: newStatus,
+                    reviewed_by: null,
+                    reviewed_at: null,
+                    reject_reason: null,
+                    published_at: null,
+                    created_at: new Date().toISOString(),
+                    deleted_at: null,
+                    views_count: 0
+                };
+                MockData.posts.unshift(newPost);
+                editingPostId = newId;
+
+                // Thêm tags
+                selectedTagIds.forEach(tid => {
+                    MockData.post_tags.push({ post_id: newId, tag_id: tid });
+                });
+            }
+
+            const msg = newStatus === 'pending' 
+                ? 'Đã gửi bài viết vào hàng đợi phê duyệt của Admin!' 
+                : 'Đã lưu bản nháp thành công!';
+            Layout.showToast(msg, 'success');
+
+            setTimeout(() => {
+                window.location.href = 'my-posts.html';
+            }, 800);
+        }
+    </script>
+</body>
+</html>

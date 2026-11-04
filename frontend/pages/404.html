@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Không tìm thấy trang | Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Main content 404 -->
+        <main class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div class="max-w-md space-y-6">
+                <div class="relative inline-block">
+                    <span class="text-8xl sm:text-9xl font-black text-borderDark tracking-widest select-none">404</span>
+                    <div class="absolute inset-0 flex items-center justify-center text-substackOrange text-4xl">
+                        <i class="fa-solid fa-compass-drafting animate-bounce"></i>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Trang bạn tìm không tồn tại</h1>
+                    <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                        Đường dẫn có thể đã bị thay đổi, bài viết đã bị gỡ bỏ hoặc bạn đã nhập sai địa chỉ URL trên trình duyệt.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-3 justify-center pt-2">
+                    <a href="index.html" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition shadow flex items-center space-x-2">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Về Trang chủ</span>
+                    </a>
+                    <a href="search.html" class="bg-cardBg hover:bg-borderDark border border-borderDark text-gray-200 text-xs font-semibold px-5 py-2.5 rounded-xl transition flex items-center space-x-2">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Tìm kiếm bài viết</span>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('', 'appSidebar');
+            Layout.renderBottomNav('', 'appBottomNav');
+        });
+    </script>
+</body>
+</html>

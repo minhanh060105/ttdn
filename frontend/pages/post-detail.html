@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết bài viết | Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <!-- Khung chính -->
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Nội dung bài viết ở giữa -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full">
+            <div id="postDetailContainer">
+                <!-- Nội dung bài viết render qua JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Báo Cáo Vi Phạm -->
+    <div id="reportModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <div class="flex items-center space-x-2 text-rose-400">
+                    <i class="fa-solid fa-flag"></i>
+                    <h3 class="font-bold text-white text-base">Báo cáo vi phạm</h3>
+                </div>
+                <button onclick="closeReportModal()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-400">Vui lòng chọn lý do bạn báo cáo nội dung này để Ban quản trị xem xét:</p>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                    <input type="radio" name="reportReason" value="Spam, quảng cáo trái phép" checked class="text-substackOrange">
+                    <span>Spam, tin nhắn rác hoặc quảng cáo trái phép</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                    <input type="radio" name="reportReason" value="Lừa đảo, tin giả mạo" class="text-substackOrange">
+                    <span>Lừa đảo tài chính hoặc lan truyền thông tin sai lệch</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                    <input type="radio" name="reportReason" value="Nội dung xúc phạm, quấy rối" class="text-substackOrange">
+                    <span>Ngôn từ thù địch, xúc phạm danh dự hoặc quấy rối</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                    <input type="radio" name="reportReason" value="Vi phạm bản quyền sở hữu trí tuệ" class="text-substackOrange">
+                    <span>Vi phạm bản quyền sở hữu trí tuệ tác giả</span>
+                </label>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Chi tiết bổ sung (tùy chọn):</label>
+                <textarea id="reportNoteInput" rows="2" placeholder="Cung cấp thêm ngữ cảnh cho kiểm duyệt viên..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeReportModal()" class="px-4 py-2 bg-cardBg hover:bg-borderDark text-gray-300 text-xs rounded-xl border border-borderDark transition">Hủy</button>
+                <button onclick="submitReport()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow transition">Gửi báo cáo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Nạp dữ liệu & Script -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        let currentPost = null;
+        let reportingTarget = null; // { type: 'post'|'comment', id: number }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('home', 'appSidebar');
+            Layout.renderBottomNav('home', 'appBottomNav');
+
+            loadPostDetail();
+
+            window.addEventListener('demoStateChanged', () => {
+                loadPostDetail();
+            });
+        });
+
+        function loadPostDetail() {
+            const state = Layout.getDemoState();
+            const container = document.getElementById('postDetailContainer');
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug') || 'kien-truc-he-thong-phan-tan-hien-dai';
+
+            // 1. Loading
+            if (state === 'loading') {
+                container.innerHTML = `
+                    <div class="space-y-6 animate-pulse">
+                        <div class="w-3/4 h-8 bg-borderDark rounded"></div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-borderDark rounded-full"></div>
+                            <div class="space-y-2">
+                                <div class="w-32 h-4 bg-borderDark rounded"></div>
+                                <div class="w-20 h-3 bg-borderDark rounded"></div>
+                            </div>
+                        </div>
+                        <div class="w-full h-64 bg-borderDark rounded-2xl"></div>
+                        <div class="space-y-3">
+                            <div class="w-full h-4 bg-borderDark rounded"></div>
+                            <div class="w-5/6 h-4 bg-borderDark rounded"></div>
+                            <div class="w-4/6 h-4 bg-borderDark rounded"></div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-4">
+                        <div class="w-12 h-12 bg-rose-950/60 text-rose-500 rounded-full flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-white">Không thể tải nội dung bài viết</h3>
+                        <p class="text-xs text-gray-400">Đã xảy ra lỗi đường truyền mạng. Vui lòng thử lại sau.</p>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-lg">
+                            Thử lại
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Tìm bài viết
+            const post = MockData.posts.find(p => p.slug === slug);
+
+            // 3. Bài deleted/chưa publish/không tìm thấy hoặc demo empty -> 404
+            if (!post || post.deleted_at || post.status !== 'published' || state === 'empty') {
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-4 my-10">
+                        <div class="w-16 h-16 bg-borderDark/60 text-gray-500 rounded-full flex items-center justify-center mx-auto text-3xl">
+                            <i class="fa-regular fa-file-circle-xmark"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-white">Không tìm thấy bài viết</h2>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">Bài viết này không tồn tại, đã bị tác giả gỡ bỏ hoặc chưa được phê duyệt xuất bản công khai.</p>
+                        <a href="index.html" class="inline-flex items-center space-x-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Quay về Trang chủ</span>
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            currentPost = post;
+            renderPostContent(post);
+        }
+
+        function renderPostContent(post) {
+            const container = document.getElementById('postDetailContainer');
+            const author = MockData.users.find(u => u.id === post.author_id) || {
+                display_name: 'Tác giả',
+                handle: 'author',
+                avatar_url: 'https://i.pravatar.cc/150'
+            };
+
+            const postTagIds = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
+            const postTags = MockData.tags.filter(t => postTagIds.includes(t.id));
+
+            // Đếm các loại phản ứng (4 loại)
+            const postReactions = MockData.reactions.filter(r => r.target_type === 'post' && r.post_id === post.id);
+            const counts = {
+                like: postReactions.filter(r => r.type === 'like').length,
+                love: postReactions.filter(r => r.type === 'love').length,
+                insightful: postReactions.filter(r => r.type === 'insightful').length,
+                funny: postReactions.filter(r => r.type === 'funny').length
+            };
+
+            container.innerHTML = `
+                <article class="space-y-6">
+                    <!-- Thẻ Tag -->
+                    <div class="flex flex-wrap gap-2">
+                        ${postTags.map(t => `
+                            <a href="tag.html?slug=${t.slug}" class="bg-cardBg hover:bg-borderDark text-substackOrange border border-borderDark px-3 py-1 rounded-full text-xs font-medium transition">
+                                # ${t.name}
+                            </a>
+                        `).join('')}
+                    </div>
+
+                    <!-- Tiêu đề lớn -->
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                        ${post.title}
+                    </h1>
+
+                    <!-- Tác giả bar & Theo dõi -->
+                    <div class="flex items-center justify-between border-y border-borderDark py-4">
+                        <div class="flex items-center space-x-3">
+                            <a href="profile.html?handle=${author.handle}">
+                                <img src="${author.avatar_url}" alt="${author.display_name}" class="w-11 h-11 rounded-full object-cover border border-borderDark">
+                            </a>
+                            <div>
+                                <a href="profile.html?handle=${author.handle}" class="font-bold text-white text-sm hover:underline block">
+                                    ${author.display_name}
+                                </a>
+                                <div class="flex items-center space-x-2 text-xs text-gray-400 mt-0.5">
+                                    <span>@${author.handle}</span>
+                                    <span>•</span>
+                                    <span>${Layout.formatDate(post.published_at)}</span>
+                                    <span>•</span>
+                                    <span><i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleFollowAuthor(${author.id}, this)" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-1.5 rounded-full transition shadow">
+                                Theo dõi
+                            </button>
+                            <button onclick="openReportModal('post', ${post.id})" class="text-gray-400 hover:text-rose-400 p-2 text-sm" title="Báo cáo bài viết này">
+                                <i class="fa-regular fa-flag"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ảnh đại diện bài viết nếu có -->
+                    ${post.thumbnail_url ? `
+                        <div class="rounded-2xl overflow-hidden aspect-video border border-borderDark shadow-xl">
+                            <img src="${post.thumbnail_url}" alt="${post.title}" class="w-full h-full object-cover">
+                        </div>
+                    ` : ''}
+
+                    <!-- Thân bài viết HTML -->
+                    <div class="prose prose-invert max-w-none text-gray-200 leading-relaxed text-sm sm:text-base space-y-4 pt-2">
+                        ${post.content}
+                    </div>
+
+                    <!-- Thanh 4 Cảm Xúc (Like, Love, Insightful, Funny) -->
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-md my-8">
+                        <div class="flex items-center space-x-2 flex-wrap gap-2">
+                            <button onclick="reactToPost('like')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                                <i class="fa-regular fa-thumbs-up text-blue-400"></i>
+                                <span>Thích</span>
+                                <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.like}</span>
+                            </button>
+                            <button onclick="reactToPost('love')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                                <i class="fa-solid fa-heart text-rose-500"></i>
+                                <span>Yêu thích</span>
+                                <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.love}</span>
+                            </button>
+                            <button onclick="reactToPost('insightful')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                                <i class="fa-regular fa-lightbulb text-amber-400"></i>
+                                <span>Sâu sắc</span>
+                                <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.insightful}</span>
+                            </button>
+                            <button onclick="reactToPost('funny')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                                <i class="fa-regular fa-face-laugh-squint text-emerald-400"></i>
+                                <span>Hài hước</span>
+                                <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.funny}</span>
+                            </button>
+                        </div>
+
+                        <button onclick="openReportModal('post', ${post.id})" class="text-xs text-gray-400 hover:text-rose-400 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span data-i18n="common.report">Báo cáo vi phạm</span>
+                        </button>
+                    </div>
+
+                    <!-- KHU VỰC BÌNH LUẬN (Lồng 1 cấp) -->
+                    <section id="comments" class="pt-6 border-t border-borderDark space-y-6">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                                <i class="fa-regular fa-comments text-substackOrange"></i>
+                                <span>Thảo luận & Bình luận</span>
+                            </h3>
+                            <span id="commentTotalCountBadge" class="text-xs text-gray-400 font-medium"></span>
+                        </div>
+
+                        <!-- Ô nhập bình luận mới -->
+                        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 shadow-sm space-y-3">
+                            <textarea id="newCommentInput" rows="3" placeholder="Chia sẻ góc nhìn hoặc đặt câu hỏi cho tác giả..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange"></textarea>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] text-gray-500">Giữ văn minh và tôn trọng trong tranh luận</span>
+                                <button onclick="submitNewComment()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow">
+                                    Gửi bình luận
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách bình luận -->
+                        <div id="commentList" class="space-y-4">
+                            <!-- Render qua JS -->
+                        </div>
+                    </section>
+                </article>
+            `;
+
+            renderComments(post.id);
+        }
+
+        // Render bình luận lồng 1 cấp
+        function renderComments(postId) {
+            const container = document.getElementById('commentList');
+            const role = Layout.getDemoRole();
+            const currentUser = Layout.getCurrentUser();
+            const post = MockData.posts.find(p => p.id === postId);
+
+            const allComments = MockData.comments.filter(c => c.post_id === postId && !c.deleted_at);
+            document.getElementById('commentTotalCountBadge').textContent = `${allComments.length} bình luận`;
+
+            // Lọc bình luận gốc (parent_id === null)
+            const rootComments = allComments.filter(c => !c.parent_id);
+
+            if (rootComments.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500 text-xs border border-dashed border-borderDark rounded-2xl">
+                        Chưa có bình luận nào. Hãy là người đầu tiên để lại ý kiến!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = rootComments.map(comment => {
+                const commentUser = MockData.users.find(u => u.id === comment.user_id) || {
+                    display_name: 'Độc giả',
+                    handle: 'guest',
+                    avatar_url: 'https://i.pravatar.cc/150'
+                };
+
+                // Kiểm tra quyền xóa: Là người tạo cmt HOẶC là Blogger tác giả của bài viết HOẶC là Admin
+                const isAuthorOfPost = currentUser && post && post.author_id === currentUser.id;
+                const isOwnerOfComment = currentUser && currentUser.id === comment.user_id;
+                const canDelete = isOwnerOfComment || isAuthorOfPost || (role === 'admin');
+                const canEdit = isOwnerOfComment;
+
+                // Lấy các replies (bình luận con)
+                const replies = allComments.filter(c => c.parent_id === comment.id);
+
+                return `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 space-y-3" id="comment-block-${comment.id}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <img src="${commentUser.avatar_url}" alt="${commentUser.display_name}" class="w-8 h-8 rounded-full object-cover border border-borderDark">
+                                <div>
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="font-bold text-xs text-white">${commentUser.display_name}</span>
+                                        ${post.author_id === comment.user_id ? '<span class="bg-substackOrange/20 text-substackOrange text-[10px] font-bold px-1.5 py-0.2 rounded">Tác giả</span>' : ''}
+                                    </div>
+                                    <span class="text-[10px] text-gray-500">${Layout.formatDate(comment.created_at)}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2 text-xs text-gray-400">
+                                ${canEdit ? `
+                                    <button onclick="editComment(${comment.id})" class="hover:text-white" title="Sửa bình luận"><i class="fa-regular fa-pen-to-square"></i></button>
+                                ` : ''}
+                                ${canDelete ? `
+                                    <button onclick="deleteComment(${comment.id})" class="hover:text-red-400" title="Xóa bình luận"><i class="fa-regular fa-trash-can"></i></button>
+                                ` : ''}
+                                <button onclick="openReportModal('comment', ${comment.id})" class="hover:text-rose-400" title="Báo cáo bình luận"><i class="fa-regular fa-flag"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung comment -->
+                        <div id="comment-content-${comment.id}" class="text-xs sm:text-sm text-gray-200 leading-relaxed">
+                            ${comment.content}
+                        </div>
+
+                        <!-- Nút trả lời -->
+                        <div class="pt-1 flex items-center space-x-3 text-xs text-gray-400">
+                            <button onclick="showReplyBox(${comment.id})" class="text-substackOrange hover:underline font-medium">
+                                <i class="fa-solid fa-reply mr-1"></i> Trả lời
+                            </button>
+                        </div>
+
+                        <!-- Hộp nhập reply (ẩn mặc định) -->
+                        <div id="reply-box-${comment.id}" class="hidden pt-2 pl-4 border-l-2 border-borderDark space-y-2">
+                            <input type="text" id="reply-input-${comment.id}" placeholder="Viết phản hồi của bạn..." class="w-full bg-darkBg border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-substackOrange">
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="hideReplyBox(${comment.id})" class="px-2.5 py-1 text-gray-400 hover:text-white text-xs">Hủy</button>
+                                <button onclick="submitReply(${comment.id})" class="px-3 py-1 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-lg shadow">Gửi</button>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách replies lồng 1 cấp -->
+                        ${replies.length > 0 ? `
+                            <div class="pt-3 pl-4 border-l-2 border-borderDark space-y-3 mt-3">
+                                ${replies.map(reply => {
+                                    const replyUser = MockData.users.find(u => u.id === reply.user_id) || {
+                                        display_name: 'Độc giả',
+                                        avatar_url: 'https://i.pravatar.cc/150'
+                                    };
+                                    const canDeleteReply = (currentUser && currentUser.id === reply.user_id) || isAuthorOfPost || (role === 'admin');
+                                    const canEditReply = currentUser && currentUser.id === reply.user_id;
+
+                                    return `
+                                        <div class="bg-cardBg/60 border border-borderDark/60 rounded-xl p-3 space-y-2" id="comment-block-${reply.id}">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center space-x-2">
+                                                    <img src="${replyUser.avatar_url}" alt="${replyUser.display_name}" class="w-6 h-6 rounded-full object-cover">
+                                                    <div>
+                                                        <span class="font-bold text-xs text-white">${replyUser.display_name}</span>
+                                                        ${post.author_id === reply.user_id ? '<span class="bg-substackOrange/20 text-substackOrange text-[9px] font-bold px-1 rounded ml-1">Tác giả</span>' : ''}
+                                                        <span class="text-[10px] text-gray-500 ml-1">• ${Layout.formatDate(reply.created_at)}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center space-x-2 text-xs text-gray-400">
+                                                    ${canEditReply ? `<button onclick="editComment(${reply.id})" class="hover:text-white"><i class="fa-regular fa-pen-to-square"></i></button>` : ''}
+                                                    ${canDeleteReply ? `<button onclick="deleteComment(${reply.id})" class="hover:text-red-400"><i class="fa-regular fa-trash-can"></i></button>` : ''}
+                                                    <button onclick="openReportModal('comment', ${reply.id})" class="hover:text-rose-400"><i class="fa-regular fa-flag"></i></button>
+                                                </div>
+                                            </div>
+                                            <div id="comment-content-${reply.id}" class="text-xs text-gray-300">
+                                                ${reply.content}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function submitNewComment() {
+            Layout.requireAuth(() => {
+                const input = document.getElementById('newCommentInput');
+                const content = input.value.trim();
+                if (!content) {
+                    Layout.showToast('Vui lòng nhập nội dung bình luận.', 'warning');
+                    return;
+                }
+                const user = Layout.getCurrentUser();
+                const newComment = {
+                    id: Date.now(),
+                    post_id: currentPost.id,
+                    user_id: user.id,
+                    parent_id: null,
+                    content: content,
+                    created_at: new Date().toISOString(),
+                    deleted_at: null
+                };
+                MockData.comments.push(newComment);
+                input.value = '';
+                Layout.showToast('Đã gửi bình luận thành công!', 'success');
+                renderComments(currentPost.id);
+            });
+        }
+
+        function showReplyBox(commentId) {
+            Layout.requireAuth(() => {
+                document.getElementById(`reply-box-${commentId}`).classList.remove('hidden');
+            });
+        }
+
+        function hideReplyBox(commentId) {
+            document.getElementById(`reply-box-${commentId}`).classList.add('hidden');
+        }
+
+        function submitReply(parentId) {
+            Layout.requireAuth(() => {
+                const input = document.getElementById(`reply-input-${parentId}`);
+                const content = input.value.trim();
+                if (!content) {
+                    Layout.showToast('Vui lòng nhập phản hồi.', 'warning');
+                    return;
+                }
+                const user = Layout.getCurrentUser();
+                const newReply = {
+                    id: Date.now(),
+                    post_id: currentPost.id,
+                    user_id: user.id,
+                    parent_id: parentId,
+                    content: content,
+                    created_at: new Date().toISOString(),
+                    deleted_at: null
+                };
+                MockData.comments.push(newReply);
+                Layout.showToast('Đã gửi trả lời thành công!', 'success');
+                renderComments(currentPost.id);
+            });
+        }
+
+        function editComment(commentId) {
+            const comment = MockData.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            const contentBox = document.getElementById(`comment-content-${commentId}`);
+            contentBox.innerHTML = `
+                <div class="space-y-2 pt-1">
+                    <textarea id="edit-input-${commentId}" rows="2" class="w-full bg-darkBg border border-borderDark rounded-lg p-2 text-xs text-white focus:outline-none focus:border-substackOrange">${comment.content}</textarea>
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="renderComments(${currentPost.id})" class="px-2.5 py-1 text-gray-400 text-xs">Hủy</button>
+                        <button onclick="saveEditComment(${commentId})" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">Lưu</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function saveEditComment(commentId) {
+            const input = document.getElementById(`edit-input-${commentId}`);
+            const comment = MockData.comments.find(c => c.id === commentId);
+            if (comment && input.value.trim()) {
+                comment.content = input.value.trim();
+                Layout.showToast('Đã cập nhật bình luận.', 'success');
+                renderComments(currentPost.id);
+            }
+        }
+
+        function deleteComment(commentId) {
+            Layout.showConfirmModal({
+                title: 'Xóa bình luận',
+                message: 'Bạn có chắc chắn muốn xóa bình luận này vĩnh viễn?',
+                confirmText: 'Xóa ngay',
+                onConfirm: () => {
+                    const c = MockData.comments.find(item => item.id === commentId);
+                    if (c) c.deleted_at = new Date().toISOString();
+                    Layout.showToast('Đã xóa bình luận thành công!', 'success');
+                    renderComments(currentPost.id);
+                }
+            });
+        }
+
+        function reactToPost(type) {
+            Layout.requireAuth(() => {
+                const user = Layout.getCurrentUser();
+                MockData.reactions.push({
+                    user_id: user.id,
+                    target_type: 'post',
+                    post_id: currentPost.id,
+                    note_id: null,
+                    comment_id: null,
+                    type: type
+                });
+                Layout.showToast(`Bạn đã thể hiện cảm xúc: ${type.toUpperCase()}!`, 'success');
+                renderPostContent(currentPost);
+            });
+        }
+
+        function toggleFollowAuthor(authorId, btn) {
+            Layout.requireAuth(() => {
+                if (btn.classList.contains('followed')) {
+                    btn.classList.remove('followed', 'bg-cardBg', 'border-borderDark');
+                    btn.classList.add('bg-substackOrange');
+                    btn.textContent = 'Theo dõi';
+                    Layout.showToast('Đã hủy theo dõi.', 'info');
+                } else {
+                    btn.classList.add('followed', 'bg-cardBg', 'border-borderDark');
+                    btn.classList.remove('bg-substackOrange');
+                    btn.textContent = 'Đang theo dõi';
+                    Layout.showToast('Đã theo dõi tác giả!', 'success');
+                }
+            });
+        }
+
+        // Modal Báo cáo
+        function openReportModal(targetType, targetId) {
+            Layout.requireAuth(() => {
+                reportingTarget = { type: targetType, id: targetId };
+                document.getElementById('reportModal').classList.remove('hidden');
+            });
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function submitReport() {
+            const selectedReason = document.querySelector('input[name="reportReason"]:checked')?.value || 'Nội dung không phù hợp';
+            const note = document.getElementById('reportNoteInput').value;
+            const user = Layout.getCurrentUser();
+
+            const newReport = {
+                id: Date.now(),
+                reporter_id: user.id,
+                target_type: reportingTarget.type,
+                post_id: reportingTarget.type === 'post' ? reportingTarget.id : null,
+                note_id: null,
+                comment_id: reportingTarget.type === 'comment' ? reportingTarget.id : null,
+                reason: selectedReason + (note ? ` (${note})` : ''),
+                status: 'pending',
+                action: null,
+                handle_note: null,
+                handled_by: null,
+                handled_at: null,
+                created_at: new Date().toISOString()
+            };
+
+            MockData.reports.push(newReport);
+            closeReportModal();
+            Layout.showToast('Cảm ơn bạn! Báo cáo vi phạm đã được gửi đến Ban quản trị kiểm duyệt.', 'success');
+        }
+    </script>
+</body>
+</html>

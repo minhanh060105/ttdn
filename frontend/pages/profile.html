@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <title>Hồ sơ cá nhân | Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Top Bar -->
+    <header id="appHeader"></header>
+
+    <!-- Main Container -->
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        
+        <!-- Navigation bên trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Nội dung Profile ở giữa -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
+            
+            <!-- Phần Header Profile -->
+            <div id="profileHeaderSection" class="bg-sidebarBg border border-borderDark rounded-2xl p-6 shadow-sm">
+                <!-- Render qua JS -->
+            </div>
+
+            <!-- Tabs: 2 Tab chính: Bài viết / Ghi chú -->
+            <div class="border-b border-borderDark flex space-x-6 text-sm font-semibold">
+                <button id="tabPostsBtn" onclick="switchTab('posts')" class="pb-3 text-white border-b-2 border-substackOrange flex items-center space-x-2">
+                    <i class="fa-regular fa-newspaper"></i>
+                    <span>Bài viết</span>
+                    <span id="tabPostsCount" class="bg-darkBg px-2 py-0.5 rounded-full text-xs text-gray-400">0</span>
+                </button>
+                <button id="tabNotesBtn" onclick="switchTab('notes')" class="pb-3 text-gray-400 hover:text-white flex items-center space-x-2">
+                    <i class="fa-regular fa-note-sticky"></i>
+                    <span>Ghi chú</span>
+                    <span id="tabNotesCount" class="bg-darkBg px-2 py-0.5 rounded-full text-xs text-gray-400">0</span>
+                </button>
+            </div>
+
+            <!-- Khu vực nội dung Tab -->
+            <div id="profileTabContent" class="space-y-4">
+                <!-- Render động qua JavaScript -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL CHỈNH SỬA HỒ SƠ (Chỉ chủ tài khoản thấy) -->
+    <div id="editProfileModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-user-pen text-substackOrange"></i>
+                    <span>Chỉnh sửa hồ sơ cá nhân</span>
+                </h3>
+                <button onclick="closeEditProfileModal()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-400 mb-1">Tên hiển thị *</label>
+                    <input type="text" id="editDisplayName" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Tên định danh (Handle) *</label>
+                    <input type="text" id="editHandle" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Tiểu sử (Bio)</label>
+                    <textarea id="editBio" rows="3" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Đường dẫn ảnh đại diện (Avatar URL)</label>
+                    <input type="url" id="editAvatarUrl" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                <button onclick="closeEditProfileModal()" class="px-4 py-2 bg-cardBg text-gray-300 rounded-xl hover:bg-borderDark">Hủy</button>
+                <button onclick="saveProfileChanges()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold rounded-xl shadow">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Báo Cáo Ghi Chú -->
+    <div id="noteReportModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4 text-xs">
+            <h3 class="font-bold text-white text-sm flex items-center space-x-2 text-rose-400">
+                <i class="fa-solid fa-flag"></i>
+                <span>Báo cáo ghi chú vi phạm</span>
+            </h3>
+            <p class="text-gray-400">Chọn lý do báo cáo ghi chú này:</p>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-2 p-2 bg-darkBg rounded-lg cursor-pointer">
+                    <input type="radio" name="noteReportReason" value="Spam hoặc quảng cáo phiền toái" checked>
+                    <span>Spam hoặc quảng cáo phiền toái</span>
+                </label>
+                <label class="flex items-center space-x-2 p-2 bg-darkBg rounded-lg cursor-pointer">
+                    <input type="radio" name="noteReportReason" value="Nội dung quấy rối hoặc xúc phạm">
+                    <span>Nội dung quấy rối hoặc xúc phạm</span>
+                </label>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="document.getElementById('noteReportModal').classList.add('hidden')" class="px-3 py-1.5 bg-cardBg rounded-lg text-gray-300">Hủy</button>
+                <button onclick="submitNoteReport()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg">Gửi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        let currentProfileUser = null;
+        let activeTab = 'posts';
+        let reportingNoteId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('profile', 'appSidebar');
+            Layout.renderBottomNav('profile', 'appBottomNav');
+
+            loadProfile();
+
+            window.addEventListener('demoStateChanged', () => {
+                loadProfile();
+            });
+        });
+
+        function loadProfile() {
+            const state = Layout.getDemoState();
+            const headerBox = document.getElementById('profileHeaderSection');
+            const contentArea = document.getElementById('profileTabContent');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentUser = Layout.getCurrentUser();
+            const handleParam = urlParams.get('handle') || (currentUser ? currentUser.handle : 'hhoanganh0710');
+
+            // 1. Loading
+            if (state === 'loading') {
+                headerBox.innerHTML = `
+                    <div class="animate-pulse space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-20 h-20 bg-borderDark rounded-full"></div>
+                            <div class="space-y-2 flex-1">
+                                <div class="w-40 h-6 bg-borderDark rounded"></div>
+                                <div class="w-24 h-4 bg-borderDark rounded"></div>
+                            </div>
+                        </div>
+                        <div class="w-full h-8 bg-borderDark rounded"></div>
+                    </div>
+                `;
+                contentArea.innerHTML = Array(2).fill(0).map(() => `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-3 animate-pulse">
+                        <div class="w-1/2 h-5 bg-borderDark rounded"></div>
+                        <div class="w-full h-12 bg-borderDark rounded"></div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                headerBox.innerHTML = `<h2 class="text-base font-bold text-rose-400">Lỗi không thể tải thông tin hồ sơ</h2>`;
+                contentArea.innerHTML = `
+                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
+                        <h3 class="text-sm font-bold text-white">Không thể kết nối máy chủ</h3>
+                        <p class="text-xs text-gray-400">Vui lòng thử lại sau.</p>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Tìm user
+            const user = MockData.users.find(u => u.handle.toLowerCase() === handleParam.toLowerCase());
+
+            // 3. User không tồn tại hoặc Demo Empty
+            if (!user || state === 'empty') {
+                headerBox.innerHTML = `
+                    <div class="text-center py-6 space-y-2">
+                        <i class="fa-regular fa-user text-3xl text-gray-500"></i>
+                        <h2 class="text-lg font-bold text-white">Người dùng không tồn tại</h2>
+                        <p class="text-xs text-gray-400">Không tìm thấy tài khoản với tên định danh @${handleParam}</p>
+                    </div>
+                `;
+                contentArea.innerHTML = '';
+                return;
+            }
+
+            currentProfileUser = user;
+            const isOwner = currentUser && (currentUser.id === user.id);
+
+            // Đếm follow
+            const followersCount = MockData.follows.filter(f => f.following_id === user.id).length;
+            const followingCount = MockData.follows.filter(f => f.follower_id === user.id).length;
+
+            headerBox.innerHTML = `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                    <div class="flex items-start sm:items-center space-x-4">
+                        <img src="${user.avatar_url}" alt="${user.display_name}" class="w-20 h-20 rounded-full object-cover border-2 border-borderDark shadow-lg flex-shrink-0">
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <h1 class="text-xl sm:text-2xl font-bold text-white">${user.display_name}</h1>
+                                ${user.role_id === 1 ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">ADMIN</span>' : ''}
+                                ${user.role_id === 2 ? '<span class="bg-substackOrange/20 text-substackOrange border border-substackOrange/30 text-[10px] font-bold px-2 py-0.5 rounded-full">BLOGGER</span>' : ''}
+                            </div>
+                            <p class="text-xs text-gray-400">@${user.handle}</p>
+                            <div class="flex items-center space-x-4 text-xs text-gray-400 pt-1">
+                                <span><strong class="text-white">${followersCount}</strong> người theo dõi</span>
+                                <span>•</span>
+                                <span><strong class="text-white">${followingCount}</strong> đang theo dõi</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút hành động -->
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        ${isOwner ? `
+                            <button onclick="openEditProfileModal()" class="w-full sm:w-auto bg-cardBg hover:bg-borderDark border border-borderDark text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Chỉnh sửa hồ sơ</span>
+                            </button>
+                        ` : `
+                            <button onclick="toggleFollowProfile(this)" class="w-full sm:w-auto bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition shadow">
+                                Theo dõi
+                            </button>
+                        `}
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="mt-4 pt-4 border-t border-borderDark text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    ${user.bio || 'Chưa cập nhật phần tự giới thiệu bản thân.'}
+                </div>
+            `;
+
+            renderTabContent();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const postsBtn = document.getElementById('tabPostsBtn');
+            const notesBtn = document.getElementById('tabNotesBtn');
+
+            if (tab === 'posts') {
+                postsBtn.className = "pb-3 text-white border-b-2 border-substackOrange flex items-center space-x-2";
+                notesBtn.className = "pb-3 text-gray-400 hover:text-white flex items-center space-x-2";
+            } else {
+                notesBtn.className = "pb-3 text-white border-b-2 border-substackOrange flex items-center space-x-2";
+                postsBtn.className = "pb-3 text-gray-400 hover:text-white flex items-center space-x-2";
+            }
+            renderTabContent();
+        }
+
+        function renderTabContent() {
+            if (!currentProfileUser) return;
+            const container = document.getElementById('profileTabContent');
+
+            // 1. Tab BÀI VIẾT
+            if (activeTab === 'posts') {
+                const posts = MockData.posts.filter(p => p.author_id === currentProfileUser.id && p.status === 'published' && !p.deleted_at);
+                document.getElementById('tabPostsCount').textContent = posts.length;
+
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-2">
+                            <i class="fa-regular fa-newspaper text-3xl text-gray-500"></i>
+                            <h3 class="text-sm font-bold text-white">Chưa có bài viết nào được xuất bản</h3>
+                            <p class="text-xs text-gray-400">Tác giả chưa đăng tải bài viết công khai nào.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = posts.map(post => `
+                    <div class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-5 transition shadow-sm space-y-2.5">
+                        <span class="text-[11px] text-gray-500">${Layout.formatDate(post.published_at)}</span>
+                        <a href="post-detail.html?slug=${post.slug}" class="block group">
+                            <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2">
+                                ${post.title}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
+                                ${post.content.replace(/<[^>]*>?/gm, '')}
+                            </p>
+                        </a>
+                        <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-borderDark">
+                            <span class="text-[11px] text-gray-500"><i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)}</span>
+                            <a href="post-detail.html?slug=${post.slug}" class="text-substackOrange hover:underline font-medium">Đọc tiếp →</a>
+                        </div>
+                    </div>
+                `).join('');
+            } 
+            // 2. Tab GHI CHÚ
+            else {
+                const notes = MockData.notes.filter(n => n.author_id === currentProfileUser.id);
+                document.getElementById('tabNotesCount').textContent = notes.length;
+
+                if (notes.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-2">
+                            <i class="fa-regular fa-note-sticky text-3xl text-gray-500"></i>
+                            <h3 class="text-sm font-bold text-white">Chưa có ghi chú nào</h3>
+                            <p class="text-xs text-gray-400">Tác giả chưa chia sẻ ghi chú nhanh nào.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = notes.map(note => {
+                    const noteReactions = MockData.reactions.filter(r => r.target_type === 'note' && r.note_id === note.id);
+                    return `
+                        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 sm:p-5 space-y-3 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2.5">
+                                    <img src="${currentProfileUser.avatar_url}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+                                    <div>
+                                        <p class="font-bold text-xs text-white">${currentProfileUser.display_name}</p>
+                                        <span class="text-[10px] text-gray-500">${Layout.formatDate(note.created_at)}</span>
+                                    </div>
+                                </div>
+                                <button onclick="openNoteReport(${note.id})" class="text-gray-500 hover:text-rose-400 text-xs" title="Báo cáo ghi chú">
+                                    <i class="fa-regular fa-flag"></i>
+                                </button>
+                            </div>
+
+                            <p class="text-xs sm:text-sm text-gray-200 leading-relaxed">${note.content}</p>
+
+                            ${note.image_url ? `
+                                <div class="rounded-xl overflow-hidden max-h-56 border border-borderDark">
+                                    <img src="${note.image_url}" alt="Ảnh ghi chú" class="w-full h-full object-cover">
+                                </div>
+                            ` : ''}
+
+                            <div class="pt-2 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                                <button onclick="reactToNote(${note.id})" class="flex items-center space-x-1 hover:text-rose-400 transition">
+                                    <i class="fa-regular fa-heart"></i>
+                                    <span>${noteReactions.length} Thích</span>
+                                </button>
+                                <span class="text-[10px] text-gray-500">Ghi chú ngắn</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function toggleFollowProfile(btn) {
+            Layout.requireAuth(() => {
+                if (btn.classList.contains('followed')) {
+                    btn.classList.remove('followed', 'bg-cardBg', 'border', 'border-borderDark');
+                    btn.classList.add('bg-substackOrange');
+                    btn.textContent = 'Theo dõi';
+                    Layout.showToast('Đã hủy theo dõi.', 'info');
+                } else {
+                    btn.classList.add('followed', 'bg-cardBg', 'border', 'border-borderDark');
+                    btn.classList.remove('bg-substackOrange');
+                    btn.textContent = 'Đang theo dõi';
+                    Layout.showToast('Đã theo dõi người dùng!', 'success');
+                }
+            });
+        }
+
+        function reactToNote(noteId) {
+            Layout.requireAuth(() => {
+                const user = Layout.getCurrentUser();
+                MockData.reactions.push({
+                    user_id: user.id,
+                    target_type: 'note',
+                    post_id: null,
+                    note_id: noteId,
+                    comment_id: null,
+                    type: 'like'
+                });
+                Layout.showToast('Đã thích ghi chú!', 'success');
+                renderTabContent();
+            });
+        }
+
+        function openNoteReport(noteId) {
+            Layout.requireAuth(() => {
+                reportingNoteId = noteId;
+                document.getElementById('noteReportModal').classList.remove('hidden');
+            });
+        }
+
+        function submitNoteReport() {
+            const reason = document.querySelector('input[name="noteReportReason"]:checked')?.value || 'Nội dung không phù hợp';
+            const user = Layout.getCurrentUser();
+            MockData.reports.push({
+                id: Date.now(),
+                reporter_id: user.id,
+                target_type: 'note',
+                post_id: null,
+                note_id: reportingNoteId,
+                comment_id: null,
+                reason: reason,
+                status: 'pending',
+                action: null,
+                handle_note: null,
+                handled_by: null,
+                handled_at: null,
+                created_at: new Date().toISOString()
+            });
+            document.getElementById('noteReportModal').classList.add('hidden');
+            Layout.showToast('Đã gửi báo cáo ghi chú đến Quản trị viên.', 'success');
+        }
+
+        // Modal Edit Profile
+        function openEditProfileModal() {
+            if (!currentProfileUser) return;
+            document.getElementById('editDisplayName').value = currentProfileUser.display_name;
+            document.getElementById('editHandle').value = currentProfileUser.handle;
+            document.getElementById('editBio').value = currentProfileUser.bio || '';
+            document.getElementById('editAvatarUrl').value = currentProfileUser.avatar_url;
+            document.getElementById('editProfileModal').classList.remove('hidden');
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').classList.add('hidden');
+        }
+
+        function saveProfileChanges() {
+            const newName = document.getElementById('editDisplayName').value.trim();
+            const newHandle = document.getElementById('editHandle').value.trim();
+            const newBio = document.getElementById('editBio').value.trim();
+            const newAvatar = document.getElementById('editAvatarUrl').value.trim();
+
+            if (!newName || !newHandle) {
+                Layout.showToast('Tên hiển thị và Handle không được để trống.', 'warning');
+                return;
+            }
+
+            currentProfileUser.display_name = newName;
+            currentProfileUser.handle = newHandle;
+            currentProfileUser.bio = newBio;
+            if (newAvatar) currentProfileUser.avatar_url = newAvatar;
+
+            localStorage.setItem('userHandle', newHandle);
+            closeEditProfileModal();
+            Layout.showToast('Cập nhật hồ sơ thành công!', 'success');
+            loadProfile();
+        }
+    </script>
+</body>
+</html>

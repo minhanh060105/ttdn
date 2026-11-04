@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mục lục giao diện hệ thống | Substack Clone</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col justify-between p-4 sm:p-8">
+
+    <div class="max-w-6xl mx-auto w-full space-y-8">
+        
+        <!-- Header Banner -->
+        <header class="bg-sidebarBg border border-borderDark rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div class="space-y-2">
+                    <div class="inline-flex items-center space-x-2 text-substackOrange bg-substackOrange/10 px-3 py-1 rounded-full text-xs font-bold border border-substackOrange/20">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>SƠ ĐỒ GIAO DIỆN HỆ THỐNG</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Mục Lục Giao Diện Màn Hình</h1>
+                    <p class="text-xs sm:text-sm text-gray-400 max-w-2xl leading-relaxed">
+                        Toàn bộ 17 màn hình giao diện tĩnh (Mock Data) chuẩn theo phân quyền người dùng của dự án Substack Blog. Dùng thanh điều khiển demo ở góc dưới phải để chuyển đổi vai trò và trạng thái dữ liệu.
+                    </p>
+                </div>
+
+                <div class="bg-cardBg border border-borderDark rounded-2xl p-5 text-center min-w-[200px] shadow-lg flex-shrink-0">
+                    <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Tiến độ hoàn thiện</div>
+                    <div class="text-3xl font-extrabold text-emerald-400 my-1">17 / 17</div>
+                    <div class="w-full bg-darkBg h-2 rounded-full overflow-hidden border border-borderDark">
+                        <div class="bg-emerald-500 h-full w-full"></div>
+                    </div>
+                    <div class="text-[11px] text-emerald-400 font-medium mt-1.5 flex items-center justify-center space-x-1">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Đã hoàn thành 100%</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- BẢNG 1: DÀNH CHO PUBLIC & TÀI KHOẢN (9 màn) -->
+        <section class="space-y-3">
+            <div class="flex items-center space-x-2 text-white font-bold text-base sm:text-lg">
+                <span class="w-2.5 h-2.5 rounded-full bg-substackOrange"></span>
+                <h2>1. Nhóm Public & Tài khoản (Độc giả & Khách)</h2>
+                <span class="text-xs text-gray-500 font-normal">(9 màn hình)</span>
+            </div>
+
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
+                                <th class="p-3.5 w-12 text-center">#</th>
+                                <th class="p-3.5">Màn hình (Bấm để xem)</th>
+                                <th class="p-3.5">Tên file</th>
+                                <th class="p-3.5">Vai trò xem được</th>
+                                <th class="p-3.5">Mô tả tóm tắt</th>
+                                <th class="p-3.5 w-32 text-center">Người làm</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-borderDark">
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">1</td>
+                                <td class="p-3.5">
+                                    <a href="index.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-house text-substackOrange"></i>
+                                        <span>Trang chủ Substack</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">index.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Tất cả vai trò</span></td>
+                                <td class="p-3.5 text-gray-300">Danh sách bài published theo ngôn ngữ, lọc theo thẻ, phân trang, khối đọc nhiều, chuyển vi/en.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">2</td>
+                                <td class="p-3.5">
+                                    <a href="post-detail.html?slug=kien-truc-he-thong-phan-tan-hien-dai" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-regular fa-file-lines text-substackOrange"></i>
+                                        <span>Chi tiết bài viết</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">post-detail.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Tất cả vai trò</span></td>
+                                <td class="p-3.5 text-gray-300">Chi tiết bài, theo dõi tác giả, thanh 4 cảm xúc, modal báo cáo, bình luận lồng 1 cấp có sửa/xóa.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">3</td>
+                                <td class="p-3.5">
+                                    <a href="search.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-magnifying-glass text-substackOrange"></i>
+                                        <span>Tìm kiếm & Khám phá</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">search.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Tất cả vai trò</span></td>
+                                <td class="p-3.5 text-gray-300">Ô tìm theo từ khóa, chip thẻ tag lọc nhanh, đếm số kết quả và sắp xếp.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">4</td>
+                                <td class="p-3.5">
+                                    <a href="tag.html?slug=cong-nghe" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-hashtag text-substackOrange"></i>
+                                        <span>Danh sách bài theo Thẻ</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">tag.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Tất cả vai trò</span></td>
+                                <td class="p-3.5 text-gray-300">Lọc danh sách bài viết theo thẻ hashtag, thông tin thẻ và đếm số lượng bài.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">5</td>
+                                <td class="p-3.5">
+                                    <a href="login.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-arrow-right-to-bracket text-substackOrange"></i>
+                                        <span>Đăng nhập</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">login.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Guest & Người dùng</span></td>
+                                <td class="p-3.5 text-gray-300">Email, pass, hiện/ẩn pass, báo lỗi sai mật khẩu, báo lỗi tài khoản bị ban kèm lý do, nút demo lỗi.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">6</td>
+                                <td class="p-3.5">
+                                    <a href="register.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-user-plus text-substackOrange"></i>
+                                        <span>Đăng ký</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">register.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Guest</span></td>
+                                <td class="p-3.5 text-gray-300">Email, password, confirm pass, đo độ mạnh mật khẩu, validation client, chuyển tiếp onboarding.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">7</td>
+                                <td class="p-3.5">
+                                    <a href="onboarding.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-compass text-substackOrange"></i>
+                                        <span>Thiết lập ban đầu (Onboarding)</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">onboarding.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Người dùng mới</span></td>
+                                <td class="p-3.5 text-gray-300">Chọn 3 chủ đề yêu thích, xác nhận email, điền display_name, handle và tiểu sử bio.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">8</td>
+                                <td class="p-3.5">
+                                    <a href="profile.html?handle=hhoanganh0710" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-regular fa-user text-substackOrange"></i>
+                                        <span>Hồ sơ cá nhân</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">profile.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Tất cả vai trò</span></td>
+                                <td class="p-3.5 text-gray-300">Hồ sơ công khai theo handle, 2 tab Bài viết/Ghi chú, modal sửa profile chính chủ, reaction & báo cáo note.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">9</td>
+                                <td class="p-3.5">
+                                    <a href="404.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-triangle-exclamation text-substackOrange"></i>
+                                        <span>Không tìm thấy trang (404)</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">404.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-emerald-400 font-medium">Tất cả vai trò</span></td>
+                                <td class="p-3.5 text-gray-300">Giao diện lỗi chuẩn, nút quay về trang chủ và tìm kiếm.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- BẢNG 2: DÀNH CHO BLOGGER (3 màn) -->
+        <section class="space-y-3">
+            <div class="flex items-center space-x-2 text-white font-bold text-base sm:text-lg">
+                <span class="w-2.5 h-2.5 rounded-full bg-substackOrange"></span>
+                <h2>2. Nhóm Tác Giả & Sáng Tạo Nội Dung (Blogger)</h2>
+                <span class="text-xs text-gray-500 font-normal">(3 màn hình)</span>
+            </div>
+
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
+                                <th class="p-3.5 w-12 text-center">#</th>
+                                <th class="p-3.5">Màn hình (Bấm để xem)</th>
+                                <th class="p-3.5">Tên file</th>
+                                <th class="p-3.5">Vai trò xem được</th>
+                                <th class="p-3.5">Mô tả tóm tắt</th>
+                                <th class="p-3.5 w-32 text-center">Người làm</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-borderDark">
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">10</td>
+                                <td class="p-3.5">
+                                    <a href="my-posts.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-regular fa-newspaper text-substackOrange"></i>
+                                        <span>Bài viết của tôi</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">my-posts.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-substackOrange/20 border border-substackOrange/40 text-substackOrange font-bold">Blogger, Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Bảng bài của tôi, tab lọc 4 status (Nháp / Chờ duyệt / Đã đăng / Bị từ chối), hiện reject_reason, nút Sửa & gửi lại.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">11</td>
+                                <td class="p-3.5">
+                                    <a href="post-editor.html?new=true" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-pen-to-square text-substackOrange"></i>
+                                        <span>Trình soạn thảo bài viết</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">post-editor.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-substackOrange/20 border border-substackOrange/40 text-substackOrange font-bold">Blogger, Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Tạo mới (?new) và sửa (?id=), tự sinh slug, toolbar định dạng + xem trước preview, banner lý do rejected.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">12</td>
+                                <td class="p-3.5">
+                                    <a href="my-notes.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-regular fa-note-sticky text-substackOrange"></i>
+                                        <span>Ghi chú của tôi</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">my-notes.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-substackOrange/20 border border-substackOrange/40 text-substackOrange font-bold">Blogger, Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Đăng ghi chú nhanh kèm đếm ký tự và link ảnh, danh sách ghi chú cá nhân, sửa và xóa ghi chú.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- BẢNG 3: DÀNH CHO QUẢN TRỊ VIÊN (Admin - 5 màn) -->
+        <section class="space-y-3">
+            <div class="flex items-center space-x-2 text-white font-bold text-base sm:text-lg">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <h2>3. Nhóm Quản Trị Hệ Thống (Admin Control Panel)</h2>
+                <span class="text-xs text-gray-500 font-normal">(5 màn hình)</span>
+            </div>
+
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
+                                <th class="p-3.5 w-12 text-center">#</th>
+                                <th class="p-3.5">Màn hình (Bấm để xem)</th>
+                                <th class="p-3.5">Tên file</th>
+                                <th class="p-3.5">Vai trò xem được</th>
+                                <th class="p-3.5">Mô tả tóm tắt</th>
+                                <th class="p-3.5 w-32 text-center">Người làm</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-borderDark">
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">13</td>
+                                <td class="p-3.5">
+                                    <a href="admin/post-review.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-list-check text-rose-400"></i>
+                                        <span>Duyệt bài viết</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">admin/post-review.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">Chỉ Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Hàng đợi bài pending, xem nhanh nội dung, duyệt bài, từ chối bài (bắt buộc nhập lý do), thanh demo đổi hàng đợi.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">14</td>
+                                <td class="p-3.5">
+                                    <a href="admin/reports.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-flag text-rose-400"></i>
+                                        <span>Xử lý báo cáo vi phạm</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">admin/reports.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">Chỉ Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Bảng báo cáo, lọc theo status & target_type, modal xử lý: Xóa nội dung/Cảnh cáo/Ban/Bác bỏ kèm handle_note.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">15</td>
+                                <td class="p-3.5">
+                                    <a href="admin/users.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-users-gear text-rose-400"></i>
+                                        <span>Quản lý người dùng</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">admin/users.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">Chỉ Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Tìm kiếm, lọc vai trò/trạng thái, Ban modal (nhập lý do), Unban, hiển thị ban_reason, admin không tự ban mình.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">16</td>
+                                <td class="p-3.5">
+                                    <a href="admin/languages.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-language text-rose-400"></i>
+                                        <span>Quản lý ngôn ngữ</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">admin/languages.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">Chỉ Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Thêm ngôn ngữ mới (code, name), bật/tắt is_active, đặt mặc định duy nhất, không tắt được ngôn ngữ mặc định.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 text-center font-bold text-gray-500">17</td>
+                                <td class="p-3.5">
+                                    <a href="admin/ui-translations.html" class="font-bold text-white hover:text-substackOrange transition flex items-center space-x-2">
+                                        <i class="fa-solid fa-book-atlas text-rose-400"></i>
+                                        <span>Từ điển giao diện</span>
+                                    </a>
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-400">admin/ui-translations.html</td>
+                                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">Chỉ Admin</span></td>
+                                <td class="p-3.5 text-gray-300">Chọn ngôn ngữ, bảng key/giá trị, sửa trực tiếp từng dòng inline, tìm kiếm key, đánh dấu key còn thiếu.</td>
+                                <td class="p-3.5 text-center border-l border-borderDark"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto w-full text-center text-xs text-gray-500 pt-8 pb-4">
+        Substack Clone Mockup System © 2026. Xây dựng hoàn chỉnh với HTML, Tailwind CSS & Vanilla JavaScript.
+    </footer>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+</body>
+</html>

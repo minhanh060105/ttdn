@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Từ điển giao diện | Admin Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar Admin -->
+        <aside id="adminSidebar"></aside>
+
+        <!-- Main content -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-6xl mx-auto w-full space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
+                        <i class="fa-solid fa-book-atlas text-substackOrange"></i>
+                        <span>Quản lý từ điển giao diện (UI Translations)</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-1">Quản lý và chỉnh sửa trực tiếp các nhãn từ vựng hiển thị đa ngôn ngữ trên toàn hệ thống.</p>
+                </div>
+
+                <button onclick="openAddKeyModal()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Thêm khóa từ mới</span>
+                </button>
+            </div>
+
+            <!-- Thanh chọn Ngôn ngữ & Tìm kiếm Key -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
+                <!-- Chọn ngôn ngữ -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-400 font-semibold whitespace-nowrap">Ngôn ngữ:</span>
+                    <select id="transLangSelect" onchange="renderTranslationsTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none focus:border-substackOrange">
+                        <!-- Render qua JS -->
+                    </select>
+                </div>
+
+                <!-- Tìm kiếm Key -->
+                <div class="relative sm:col-span-2">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500"></i>
+                    <input type="text" id="transSearchInput" oninput="renderTranslationsTable()" placeholder="Tìm kiếm theo Translation Key hoặc Giá trị chuỗi..." class="w-full bg-darkBg border border-borderDark rounded-xl pl-8 pr-3 py-2 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+            </div>
+
+            <!-- Thống kê tiến độ dịch -->
+            <div id="transStatsBar" class="flex items-center justify-between text-xs text-gray-400 px-1">
+                <!-- Render qua JS -->
+            </div>
+
+            <!-- Bảng Từ Điển -->
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
+                                <th class="p-3.5 w-1/3">Translation Key</th>
+                                <th class="p-3.5 w-1/2">Giá trị bản dịch (Nhấp vào ô để sửa trực tiếp)</th>
+                                <th class="p-3.5 text-right">Trạng thái & Lưu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="translationsTableBody" class="divide-y divide-borderDark">
+                            <!-- Render qua JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL THÊM TRANSLATION KEY MỚI -->
+    <div id="addKeyModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-key text-substackOrange"></i>
+                    <span>Thêm khóa dịch giao diện mới</span>
+                </h3>
+                <button onclick="closeAddKeyModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-gray-300 mb-1">Translation Key *</label>
+                    <input type="text" id="newKeyInput" placeholder="ví dụ: modal.confirm_btn..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white font-mono focus:outline-none focus:border-substackOrange">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-300 mb-1">Giá trị Tiếng Việt (VI) *</label>
+                    <input type="text" id="newValueVi" placeholder="Bản dịch tiếng Việt..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-300 mb-1">Giá trị English (EN) *</label>
+                    <input type="text" id="newValueEn" placeholder="English translation..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                <button onclick="closeAddKeyModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
+                <button onclick="submitNewKey()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-xl shadow">Thêm khóa dịch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script & Mock Data -->
+    <script src="../../assets/js/mock-data.js"></script>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/layout.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderAdminSidebar('translations', 'adminSidebar');
+
+            renderLangOptions();
+            renderTranslationsTable();
+
+            window.addEventListener('demoStateChanged', () => {
+                renderTranslationsTable();
+            });
+        });
+
+        function renderLangOptions() {
+            const select = document.getElementById('transLangSelect');
+            if (!select || !MockData.languages) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialLangId = urlParams.get('lang_id') || 1;
+
+            select.innerHTML = MockData.languages
+                .map(l => `<option value="${l.id}" ${l.id == initialLangId ? 'selected' : ''}>${l.name} (${l.code.toUpperCase()})</option>`)
+                .join('');
+        }
+
+        function renderTranslationsTable() {
+            const state = Layout.getDemoState();
+            const tbody = document.getElementById('translationsTableBody');
+            const langSelect = document.getElementById('transLangSelect');
+            const search = (document.getElementById('transSearchInput').value || '').trim().toLowerCase();
+            const statsBar = document.getElementById('transStatsBar');
+
+            const selectedLangId = parseInt(langSelect.value, 10);
+            const currentLang = MockData.languages.find(l => l.id === selectedLangId) || MockData.languages[0];
+
+            // 1. Loading
+            if (state === 'loading') {
+                tbody.innerHTML = Array(4).fill(0).map(() => `
+                    <tr><td colspan="3" class="p-4"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-rose-400">Lỗi không thể nạp từ điển giao diện.</td></tr>`;
+                return;
+            }
+
+            // Tập hợp tất cả các key duy nhất hiện có trong hệ thống
+            const allKeys = Array.from(new Set(MockData.ui_translations.map(t => t.translation_key)));
+
+            // 3. Demo Empty
+            let filteredKeys = state === 'empty' ? [] : [...allKeys];
+
+            // Lọc theo search
+            if (search) {
+                filteredKeys = filteredKeys.filter(k => {
+                    const transItem = MockData.ui_translations.find(t => t.language_id === selectedLangId && t.translation_key === k);
+                    const val = transItem ? transItem.translation_value.toLowerCase() : '';
+                    return k.toLowerCase().includes(search) || val.includes(search);
+                });
+            }
+
+            // Đếm số key thiếu bản dịch
+            let missingCount = 0;
+            allKeys.forEach(k => {
+                const item = MockData.ui_translations.find(t => t.language_id === selectedLangId && t.translation_key === k);
+                if (!item || !item.translation_value.trim()) missingCount++;
+            });
+
+            statsBar.innerHTML = `
+                <div>Đang hiển thị <strong class="text-white">${filteredKeys.length}</strong> / ${allKeys.length} khóa từ cho <span class="text-substackOrange font-bold">${currentLang.name}</span></div>
+                <div>${missingCount > 0 ? `<span class="text-amber-400 font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Còn thiếu ${missingCount} bản dịch</span>` : '<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check mr-1"></i>Đã dịch đầy đủ 100%</span>'}</div>
+            `;
+
+            if (filteredKeys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-gray-500">Không tìm thấy khóa dịch nào phù hợp.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredKeys.map(key => {
+                const item = MockData.ui_translations.find(t => t.language_id === selectedLangId && t.translation_key === key);
+                const value = item ? item.translation_value : '';
+                const isMissing = !value.trim();
+
+                return `
+                    <tr class="hover:bg-cardBg/40 transition ${isMissing ? 'bg-amber-950/20' : ''}">
+                        <td class="p-3.5 font-mono text-xs text-gray-300">
+                            <span class="text-substackOrange">#</span> ${key}
+                        </td>
+                        <td class="p-3.5">
+                            <input type="text" id="trans-input-${key}" value="${escapeHtml(value)}" placeholder="${isMissing ? 'CHƯA CÓ BẢN DỊCH CHO NGÔN NGỮ NÀY...' : ''}" class="w-full bg-darkBg border ${isMissing ? 'border-amber-500/60 placeholder-amber-400/60' : 'border-borderDark'} rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-substackOrange transition">
+                        </td>
+                        <td class="p-3.5 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end space-x-2">
+                                ${isMissing ? `
+                                    <span class="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/50 text-amber-400 text-[10px] font-bold">THIẾU</span>
+                                ` : `
+                                    <span class="px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-[10px] font-bold">XONG</span>
+                                `}
+                                <button onclick="saveRowTranslation('${key}')" class="px-3 py-1.5 bg-substackOrange hover:bg-substackOrangeHover text-white rounded-xl text-xs font-semibold shadow transition">
+                                    Lưu dòng
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(string) {
+            return String(string).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function saveRowTranslation(key) {
+            const input = document.getElementById(`trans-input-${key}`);
+            const newVal = input.value.trim();
+            const langSelect = document.getElementById('transLangSelect');
+            const selectedLangId = parseInt(langSelect.value, 10);
+
+            let item = MockData.ui_translations.find(t => t.language_id === selectedLangId && t.translation_key === key);
+
+            if (item) {
+                item.translation_value = newVal;
+            } else {
+                MockData.ui_translations.push({
+                    language_id: selectedLangId,
+                    translation_key: key,
+                    translation_value: newVal
+                });
+            }
+
+            Layout.showToast(`Đã lưu bản dịch cho "${key}" thành công!`, 'success');
+            renderTranslationsTable();
+        }
+
+        function openAddKeyModal() {
+            document.getElementById('newKeyInput').value = '';
+            document.getElementById('newValueVi').value = '';
+            document.getElementById('newValueEn').value = '';
+            document.getElementById('addKeyModal').classList.remove('hidden');
+        }
+
+        function closeAddKeyModal() {
+            document.getElementById('addKeyModal').classList.add('hidden');
+        }
+
+        function submitNewKey() {
+            const key = document.getElementById('newKeyInput').value.trim();
+            const valVi = document.getElementById('newValueVi').value.trim();
+            const valEn = document.getElementById('newValueEn').value.trim();
+
+            if (!key || !valVi || !valEn) {
+                Layout.showToast('Vui lòng nhập đầy đủ Key và bản dịch cho cả 2 ngôn ngữ.', 'warning');
+                return;
+            }
+
+            const exists = MockData.ui_translations.some(t => t.translation_key === key);
+            if (exists) {
+                Layout.showToast('Translation Key này đã tồn tại trong từ điển.', 'warning');
+                return;
+            }
+
+            MockData.ui_translations.push(
+                { language_id: 1, translation_key: key, translation_value: valVi },
+                { language_id: 2, translation_key: key, translation_value: valEn }
+            );
+
+            closeAddKeyModal();
+            Layout.showToast(`Đã thêm khóa từ "${key}" vào từ điển hệ thống!`, 'success');
+            renderTranslationsTable();
+        }
+    </script>
+</body>
+</html>

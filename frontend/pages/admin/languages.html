@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý ngôn ngữ | Admin Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar Admin -->
+        <aside id="adminSidebar"></aside>
+
+        <!-- Main content -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-5xl mx-auto w-full space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
+                        <i class="fa-solid fa-language text-substackOrange"></i>
+                        <span>Quản trị danh mục ngôn ngữ</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-1">Cấu hình các ngôn ngữ hỗ trợ xuất bản và chuyển đổi giao diện trong hệ thống.</p>
+                </div>
+
+                <button onclick="openAddLangModal()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Thêm ngôn ngữ mới</span>
+                </button>
+            </div>
+
+            <!-- Bảng Ngôn Ngữ -->
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
+                                <th class="p-3.5">Mã Code</th>
+                                <th class="p-3.5">Tên hiển thị</th>
+                                <th class="p-3.5">Mặc định hệ thống</th>
+                                <th class="p-3.5">Trạng thái hoạt động</th>
+                                <th class="p-3.5 text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="languagesTableBody" class="divide-y divide-borderDark">
+                            <!-- Render qua JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL THÊM NGÔN NGỮ MỚI -->
+    <div id="addLangModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-globe text-substackOrange"></i>
+                    <span>Thêm ngôn ngữ hỗ trợ</span>
+                </h3>
+                <button onclick="closeAddLangModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-gray-300 mb-1">Mã code ngôn ngữ (ISO 639-1) *</label>
+                    <input type="text" id="langCodeInput" placeholder="ví dụ: fr, de, ko..." maxlength="5" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white uppercase focus:outline-none focus:border-substackOrange">
+                    <p class="text-[10px] text-gray-500 mt-0.5">Mã 2 ký tự viết thường (vi, en, ja, fr...)</p>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-300 mb-1">Tên ngôn ngữ *</label>
+                    <input type="text" id="langNameInput" placeholder="ví dụ: Français (Pháp)..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                <button onclick="closeAddLangModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
+                <button onclick="submitNewLanguage()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-xl shadow">Thêm vào hệ thống</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script & Mock Data -->
+    <script src="../../assets/js/mock-data.js"></script>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/layout.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderAdminSidebar('languages', 'adminSidebar');
+
+            renderLanguagesTable();
+
+            window.addEventListener('demoStateChanged', () => {
+                renderLanguagesTable();
+            });
+        });
+
+        function renderLanguagesTable() {
+            const state = Layout.getDemoState();
+            const tbody = document.getElementById('languagesTableBody');
+
+            // 1. Loading
+            if (state === 'loading') {
+                tbody.innerHTML = Array(3).fill(0).map(() => `
+                    <tr><td colspan="5" class="p-4 text-center"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">Lỗi không thể tải bảng ngôn ngữ.</td></tr>`;
+                return;
+            }
+
+            let languages = [...MockData.languages];
+
+            // 3. Demo Empty
+            if (state === 'empty') languages = [];
+
+            if (languages.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Chưa có dữ liệu ngôn ngữ.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = languages.map(lang => {
+                const isDefault = !!lang.is_default;
+
+                return `
+                    <tr class="hover:bg-cardBg/40 transition">
+                        <td class="p-3.5 font-mono text-sm font-bold text-white uppercase">${lang.code}</td>
+                        <td class="p-3.5 font-bold text-gray-200">${lang.name}</td>
+                        <td class="p-3.5">
+                            ${isDefault ? `
+                                <span class="px-2.5 py-1 bg-substackOrange/20 border border-substackOrange/40 text-substackOrange text-[10px] font-bold rounded-lg flex items-center space-x-1 w-max">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span>MẶC ĐỊNH</span>
+                                </span>
+                            ` : `
+                                <button onclick="setDefaultLanguage(${lang.id})" class="text-xs text-gray-400 hover:text-white underline">
+                                    Đặt làm mặc định
+                                </button>
+                            `}
+                        </td>
+                        <td class="p-3.5">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" ${lang.is_active ? 'checked' : ''} ${isDefault ? 'disabled' : ''} onchange="toggleLangActive(${lang.id}, this.checked)" class="sr-only peer">
+                                <div class="w-9 h-5 bg-borderDark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 ${isDefault ? 'opacity-60 cursor-not-allowed' : ''}"></div>
+                                <span class="ml-2 text-xs font-medium ${lang.is_active ? 'text-emerald-400' : 'text-gray-500'}">
+                                    ${lang.is_active ? 'Bật (Active)' : 'Tắt'}
+                                </span>
+                            </label>
+                        </td>
+                        <td class="p-3.5 text-right whitespace-nowrap">
+                            <a href="ui-translations.html?lang_id=${lang.id}" class="px-3 py-1.5 bg-cardBg hover:bg-borderDark text-gray-300 border border-borderDark rounded-xl transition text-xs">
+                                <i class="fa-solid fa-book-atlas mr-1"></i> Xem từ điển
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setDefaultLanguage(langId) {
+            MockData.languages.forEach(l => {
+                if (l.id === langId) {
+                    l.is_default = true;
+                    l.is_active = true; // Ngôn ngữ mặc định bắt buộc phải bật
+                } else {
+                    l.is_default = false;
+                }
+            });
+            Layout.showToast('Đã đặt ngôn ngữ mặc định mới cho hệ thống!', 'success');
+            renderLanguagesTable();
+        }
+
+        function toggleLangActive(langId, active) {
+            const lang = MockData.languages.find(l => l.id === langId);
+            if (!lang) return;
+
+            if (lang.is_default && !active) {
+                Layout.showToast('Không thể tắt ngôn ngữ đang là mặc định của hệ thống!', 'warning');
+                renderLanguagesTable();
+                return;
+            }
+
+            lang.is_active = active;
+            Layout.showToast(`Đã ${active ? 'kích hoạt' : 'vô hiệu hóa'} ngôn ngữ ${lang.name}!`, 'info');
+            renderLanguagesTable();
+        }
+
+        function openAddLangModal() {
+            document.getElementById('langCodeInput').value = '';
+            document.getElementById('langNameInput').value = '';
+            document.getElementById('addLangModal').classList.remove('hidden');
+        }
+
+        function closeAddLangModal() {
+            document.getElementById('addLangModal').classList.add('hidden');
+        }
+
+        function submitNewLanguage() {
+            const code = document.getElementById('langCodeInput').value.trim().toLowerCase();
+            const name = document.getElementById('langNameInput').value.trim();
+
+            if (!code || !name) {
+                Layout.showToast('Vui lòng nhập đầy đủ mã code và tên ngôn ngữ.', 'warning');
+                return;
+            }
+
+            const exists = MockData.languages.find(l => l.code === code);
+            if (exists) {
+                Layout.showToast('Mã ngôn ngữ này đã tồn tại trong hệ thống.', 'warning');
+                return;
+            }
+
+            const newLang = {
+                id: Date.now(),
+                code: code,
+                name: name,
+                is_active: true,
+                is_default: false
+            };
+            MockData.languages.push(newLang);
+
+            closeAddLangModal();
+            Layout.showToast(`Đã thêm ngôn ngữ ${name} thành công!`, 'success');
+            renderLanguagesTable();
+        }
+    </script>
+</body>
+</html>

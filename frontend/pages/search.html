@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm & Khám phá bài viết | Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <!-- Khung chính -->
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar trái -->
+        <aside id="appSidebar"></aside>
+
+        <!-- Main content -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full">
+            
+            <div class="space-y-6">
+                <!-- Tiêu đề & Ô tìm kiếm lớn -->
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Tìm kiếm & Khám phá</h1>
+                    <p class="text-xs sm:text-sm text-gray-400">Khám phá các bài phân tích chuyên sâu, tác giả và chủ đề nổi bật trên toàn hệ thống.</p>
+                </div>
+
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm (tiêu đề, nội dung, tên tác giả)..." class="w-full bg-sidebarBg border border-borderDark focus:border-substackOrange rounded-2xl pl-11 pr-24 py-3 text-sm text-white placeholder-gray-500 focus:outline-none shadow-md transition">
+                    <button onclick="executeSearch()" class="absolute right-2 top-2 bg-substackOrange hover:bg-substackOrangeHover text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition shadow">
+                        Tìm kiếm
+                    </button>
+                </div>
+
+                <!-- Chip Thẻ Tags để lọc nhanh -->
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-2">Lọc theo chủ đề:</span>
+                    <div id="searchTagChips" class="flex flex-wrap gap-2 text-xs">
+                        <!-- Render tags qua JS -->
+                    </div>
+                </div>
+
+                <!-- Thống kê kết quả -->
+                <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                    <div id="searchResultStats" class="text-xs text-gray-400 font-medium">
+                        Đang hiển thị tất cả bài viết đã xuất bản
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs">
+                        <span class="text-gray-500">Sắp xếp:</span>
+                        <select id="sortSelect" onchange="executeSearch()" class="bg-cardBg border border-borderDark rounded-lg px-2 py-1 text-gray-300 focus:outline-none">
+                            <option value="newest">Mới nhất</option>
+                            <option value="popular">Đọc nhiều nhất</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Danh sách kết quả -->
+                <div id="searchResultsList" class="space-y-4">
+                    <!-- Render qua JS -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bottom Nav Mobile -->
+    <nav id="appBottomNav"></nav>
+
+    <!-- Script & Mock Data -->
+    <script src="../assets/js/mock-data.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/layout.js"></script>
+
+    <script>
+        let selectedTagSlug = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderSidebar('search', 'appSidebar');
+            Layout.renderBottomNav('search', 'appBottomNav');
+
+            // Đọc param ?q= hoặc ?tag= từ URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialQuery = urlParams.get('q') || '';
+            const initialTag = urlParams.get('tag') || null;
+
+            if (initialQuery) {
+                document.getElementById('searchInput').value = initialQuery;
+            }
+            selectedTagSlug = initialTag;
+
+            renderTagChips();
+            executeSearch();
+
+            // Enter để search
+            document.getElementById('searchInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') executeSearch();
+            });
+
+            window.addEventListener('demoStateChanged', () => {
+                executeSearch();
+            });
+        });
+
+        function renderTagChips() {
+            const container = document.getElementById('searchTagChips');
+            if (!container || !MockData.tags) return;
+
+            container.innerHTML = `
+                <button onclick="toggleTagFilter(null)" class="px-3 py-1.5 rounded-full border ${!selectedTagSlug ? 'bg-substackOrange border-substackOrange text-white' : 'bg-cardBg border-borderDark text-gray-300 hover:border-substackOrange'} transition font-medium">
+                    Tất cả
+                </button>
+                ${MockData.tags.map(t => `
+                    <button onclick="toggleTagFilter('${t.slug}')" class="px-3 py-1.5 rounded-full border ${selectedTagSlug === t.slug ? 'bg-substackOrange border-substackOrange text-white' : 'bg-cardBg border-borderDark text-gray-300 hover:border-substackOrange'} transition font-medium">
+                        # ${t.name}
+                    </button>
+                `).join('')}
+            `;
+        }
+
+        function toggleTagFilter(slug) {
+            selectedTagSlug = slug;
+            renderTagChips();
+            executeSearch();
+        }
+
+        function executeSearch() {
+            const state = Layout.getDemoState();
+            const container = document.getElementById('searchResultsList');
+            const stats = document.getElementById('searchResultStats');
+            const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            const sortBy = document.getElementById('sortSelect').value;
+
+            // 1. Loading
+            if (state === 'loading') {
+                stats.textContent = 'Đang tìm kiếm kết quả...';
+                container.innerHTML = Array(3).fill(0).map(() => `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-3 animate-pulse">
+                        <div class="w-1/2 h-5 bg-borderDark rounded"></div>
+                        <div class="w-full h-12 bg-borderDark rounded"></div>
+                        <div class="w-1/4 h-3 bg-borderDark rounded"></div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                stats.textContent = 'Không thể tải kết quả';
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
+                        <h3 class="text-sm font-bold text-white">Lỗi truy vấn tìm kiếm</h3>
+                        <p class="text-xs text-gray-400">Không thể thực hiện truy vấn cơ sở dữ liệu. Vui lòng bấm thử lại.</p>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-lg">Thử lại</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Lọc posts
+            let results = MockData.posts.filter(p => p.status === 'published' && !p.deleted_at);
+
+            // 3. Demo Empty
+            if (state === 'empty') {
+                results = [];
+            } else {
+                // Lọc theo tag
+                if (selectedTagSlug) {
+                    const tagObj = MockData.tags.find(t => t.slug === selectedTagSlug);
+                    if (tagObj) {
+                        const postIdsWithTag = MockData.post_tags.filter(pt => pt.tag_id === tagObj.id).map(pt => pt.post_id);
+                        results = results.filter(p => postIdsWithTag.includes(p.id));
+                    }
+                }
+
+                // Lọc theo từ khóa tìm kiếm
+                if (query) {
+                    results = results.filter(p => {
+                        const author = MockData.users.find(u => u.id === p.author_id);
+                        const authorName = author ? author.display_name.toLowerCase() : '';
+                        const authorHandle = author ? author.handle.toLowerCase() : '';
+                        return p.title.toLowerCase().includes(query) ||
+                               p.content.toLowerCase().includes(query) ||
+                               authorName.includes(query) ||
+                               authorHandle.includes(query);
+                    });
+                }
+
+                // Sắp xếp
+                if (sortBy === 'popular') {
+                    results.sort((a, b) => b.views_count - a.views_count);
+                } else {
+                    results.sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at));
+                }
+            }
+
+            // Trạng thái Rỗng
+            if (results.length === 0) {
+                stats.textContent = `Tìm thấy 0 kết quả phù hợp`;
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-3">
+                        <div class="w-12 h-12 bg-borderDark/60 text-gray-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-white">Không tìm thấy bài viết nào phù hợp</h3>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Hãy thử tìm với các từ khóa khác ngắn gọn hơn hoặc bỏ bớt bộ lọc theo chủ đề.</p>
+                        <button onclick="resetSearch()" class="text-xs text-substackOrange font-medium hover:underline inline-block mt-2">
+                            Xóa bộ lọc & xem tất cả
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            stats.innerHTML = `Tìm thấy <strong class="text-white">${results.length}</strong> bài viết phù hợp`;
+
+            container.innerHTML = results.map(post => {
+                const author = MockData.users.find(u => u.id === post.author_id) || {
+                    display_name: 'Tác giả',
+                    handle: 'author',
+                    avatar_url: 'https://i.pravatar.cc/150'
+                };
+                const postTagIds = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
+                const postTags = MockData.tags.filter(t => postTagIds.includes(t.id));
+
+                return `
+                    <div class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
+                        <div class="flex items-center space-x-2.5">
+                            <img src="${author.avatar_url}" alt="${author.display_name}" class="w-7 h-7 rounded-full object-cover">
+                            <span class="text-xs font-bold text-white">${author.display_name}</span>
+                            <span class="text-xs text-gray-500">•</span>
+                            <span class="text-[11px] text-gray-400">${Layout.formatDate(post.published_at)}</span>
+                        </div>
+
+                        <a href="post-detail.html?slug=${post.slug}" class="block group">
+                            <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2 leading-snug">
+                                ${post.title}
+                            </h3>
+                            <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
+                                ${post.content.replace(/<[^>]*>?/gm, '')}
+                            </p>
+                        </a>
+
+                        <div class="flex items-center justify-between text-xs text-gray-400 pt-1">
+                            <div class="flex items-center space-x-1.5 flex-wrap">
+                                ${postTags.map(t => `
+                                    <span class="bg-cardBg border border-borderDark px-2 py-0.5 rounded-full text-[10px] text-gray-300">
+                                        # ${t.name}
+                                    </span>
+                                `).join('')}
+                            </div>
+                            <span class="text-[11px] text-gray-500">
+                                <i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            selectedTagSlug = null;
+            renderTagChips();
+            executeSearch();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xử lý báo cáo vi phạm | Admin Substack</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#121212',
+                        sidebarBg: '#181818',
+                        cardBg: '#1e1e1e',
+                        substackOrange: '#ff6719',
+                        substackOrangeHover: '#e05b15',
+                        borderDark: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col relative pb-16 md:pb-0">
+
+    <!-- Header dùng chung -->
+    <header id="appHeader"></header>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <!-- Sidebar Admin -->
+        <aside id="adminSidebar"></aside>
+
+        <!-- Main content -->
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-6xl mx-auto w-full space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
+                        <i class="fa-solid fa-shield-halved text-substackOrange"></i>
+                        <span>Quản lý & Xử lý báo cáo vi phạm</span>
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-1">Kiểm duyệt các khiếu nại về bài viết, ghi chú và bình luận từ độc giả trong cộng đồng.</p>
+                </div>
+            </div>
+
+            <!-- Bộ lọc: Trạng thái & Loại đối tượng -->
+            <div class="flex flex-wrap items-center justify-between gap-3 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
+                <!-- Lọc theo Status -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-400 font-semibold">Trạng thái:</span>
+                    <select id="reportStatusFilter" onchange="renderReportsTable()" class="bg-darkBg border border-borderDark rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="pending" selected>Đang chờ xử lý (Pending)</option>
+                        <option value="resolved">Đã xử lý (Resolved)</option>
+                        <option value="dismissed">Đã bác bỏ (Dismissed)</option>
+                    </select>
+                </div>
+
+                <!-- Lọc theo Target Type -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-gray-400 font-semibold">Đối tượng:</span>
+                    <select id="reportTypeFilter" onchange="renderReportsTable()" class="bg-darkBg border border-borderDark rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                        <option value="all">Tất cả loại đối tượng</option>
+                        <option value="post">Bài viết (Post)</option>
+                        <option value="note">Ghi chú (Note)</option>
+                        <option value="comment">Bình luận (Comment)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bảng Báo Cáo -->
+            <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Đối tượng & Nội dung vi phạm</th>
+                                <th class="p-3.5">Người báo cáo & Lý do</th>
+                                <th class="p-3.5">Trạng thái</th>
+                                <th class="p-3.5">Kết quả xử lý</th>
+                                <th class="p-3.5 text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody" class="divide-y divide-borderDark">
+                            <!-- Render qua JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL XỬ LÝ BÁO CÁO -->
+    <div id="handleReportModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-lg p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <h3 class="font-bold text-white text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-gavel text-substackOrange"></i>
+                    <span>Xử lý báo cáo vi phạm</span>
+                </h3>
+                <button onclick="closeHandleModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="modalReportInfo" class="p-3 bg-darkBg rounded-xl border border-borderDark text-xs space-y-1.5">
+                <!-- Thông tin tóm tắt báo cáo -->
+            </div>
+
+            <!-- Lựa chọn hành động xử lý -->
+            <div class="space-y-2 text-xs">
+                <label class="block font-bold text-gray-300">Biện pháp xử lý *</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center space-x-2 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportAction" value="delete_content" checked class="text-rose-500">
+                        <span class="text-rose-300 font-medium">Xóa nội dung</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportAction" value="warn" class="text-amber-500">
+                        <span class="text-amber-300 font-medium">Gửi cảnh cáo</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportAction" value="ban_user" class="text-red-500">
+                        <span class="text-red-400 font-medium">Khóa tài khoản (Ban)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportAction" value="dismiss" class="text-gray-400">
+                        <span class="text-gray-300 font-medium">Bác bỏ (Hợp lệ)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Ghi chú xử lý (Bắt buộc) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-300 mb-1">Ghi chú xử lý kiểm duyệt (handle_note) *</label>
+                <textarea id="modalHandleNote" rows="3" placeholder="Nhập căn cứ xử lý hoặc lý do bác bỏ khiếu nại..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
+                <p id="noteErrorMsg" class="hidden text-[11px] text-rose-400 mt-1 font-semibold">Vui lòng nhập ghi chú xử lý để lưu hồ sơ kiểm duyệt.</p>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                <button onclick="closeHandleModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
+                <button onclick="submitHandleReport()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-xl shadow">Xác nhận xử lý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script & Mock Data -->
+    <script src="../../assets/js/mock-data.js"></script>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/layout.js"></script>
+
+    <script>
+        let currentHandlingReportId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Layout.renderHeader('appHeader');
+            Layout.renderAdminSidebar('reports', 'adminSidebar');
+
+            renderReportsTable();
+
+            window.addEventListener('demoStateChanged', () => {
+                renderReportsTable();
+            });
+        });
+
+        function renderReportsTable() {
+            const state = Layout.getDemoState();
+            const tbody = document.getElementById('reportsTableBody');
+            const statusFilter = document.getElementById('reportStatusFilter').value;
+            const typeFilter = document.getElementById('reportTypeFilter').value;
+
+            // 1. Loading
+            if (state === 'loading') {
+                tbody.innerHTML = Array(3).fill(0).map(() => `
+                    <tr>
+                        <td colspan="6" class="p-4 text-center">
+                            <div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div>
+                        </td>
+                    </tr>
+                `).join('');
+                return;
+            }
+
+            // 2. Error
+            if (state === 'error') {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-rose-400">
+                            <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 block"></i>
+                            Lỗi tải danh sách báo cáo. Vui lòng bấm thử lại từ thanh Demo.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let reports = [...MockData.reports];
+
+            // 3. Demo Empty
+            if (state === 'empty') reports = [];
+
+            // Lọc theo status
+            if (statusFilter !== 'all') {
+                reports = reports.filter(r => r.status === statusFilter);
+            }
+
+            // Lọc theo target_type
+            if (typeFilter !== 'all') {
+                reports = reports.filter(r => r.target_type === typeFilter);
+            }
+
+            if (reports.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-gray-500">
+                            Không có báo cáo nào phù hợp với bộ lọc hiện tại.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = reports.map(report => {
+                const reporter = MockData.users.find(u => u.id === report.reporter_id) || { display_name: 'Ẩn danh', handle: 'unknown' };
+                const handler = report.handled_by ? (MockData.users.find(u => u.id === report.handled_by) || { display_name: 'Admin' }) : null;
+
+                // Lấy thông tin đối tượng
+                let targetPreview = '';
+                if (report.target_type === 'post') {
+                    const post = MockData.posts.find(p => p.id === report.post_id);
+                    targetPreview = post ? `<a href="../post-detail.html?slug=${post.slug}" target="_blank" class="text-white font-bold hover:underline line-clamp-1">${post.title}</a>` : 'Bài viết không tìm thấy';
+                } else if (report.target_type === 'note') {
+                    const note = MockData.notes.find(n => n.id === report.note_id);
+                    targetPreview = note ? `<span class="text-gray-300 italic line-clamp-1">"${note.content}"</span>` : 'Ghi chú không tìm thấy';
+                } else if (report.target_type === 'comment') {
+                    const comment = MockData.comments.find(c => c.id === report.comment_id);
+                    targetPreview = comment ? `<span class="text-gray-300 italic line-clamp-1">"${comment.content}"</span>` : 'Bình luận không tìm thấy';
+                }
+
+                const statusBadges = {
+                    pending: '<span class="px-2 py-0.5 bg-amber-950/60 border border-amber-500/40 text-amber-400 font-bold rounded">CHỜ XỬ LÝ</span>',
+                    resolved: '<span class="px-2 py-0.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 font-bold rounded">ĐÃ XỬ LÝ</span>',
+                    dismissed: '<span class="px-2 py-0.5 bg-gray-800 border border-borderDark text-gray-400 font-bold rounded">BÁC BỎ</span>'
+                };
+
+                const actionBadges = {
+                    delete_content: '<span class="text-rose-400 font-semibold"><i class="fa-solid fa-trash-can mr-1"></i>Xóa nội dung</span>',
+                    warn: '<span class="text-amber-400 font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Cảnh cáo</span>',
+                    ban_user: '<span class="text-red-500 font-bold"><i class="fa-solid fa-ban mr-1"></i>Khóa tài khoản</span>'
+                };
+
+                return `
+                    <tr class="hover:bg-cardBg/40 transition">
+                        <td class="p-3.5 font-mono text-gray-500">#${report.id}</td>
+                        <td class="p-3.5 max-w-xs">
+                            <span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-[10px] uppercase font-bold text-substackOrange inline-block mb-1">
+                                ${report.target_type}
+                            </span>
+                            <div>${targetPreview}</div>
+                        </td>
+                        <td class="p-3.5 max-w-xs">
+                            <div class="font-bold text-white">${reporter.display_name}</div>
+                            <div class="text-gray-400 line-clamp-2 mt-0.5">Lý do: "${report.reason}"</div>
+                        </td>
+                        <td class="p-3.5 whitespace-nowrap">
+                            ${statusBadges[report.status] || ''}
+                        </td>
+                        <td class="p-3.5 max-w-xs text-[11px]">
+                            ${report.status !== 'pending' ? `
+                                <div>${actionBadges[report.action] || '<span class="text-gray-400">Không vi phạm</span>'}</div>
+                                <div class="text-gray-400 italic line-clamp-1 mt-0.5">Ghi chú: ${report.handle_note || 'N/A'}</div>
+                                <div class="text-gray-500 text-[10px] mt-0.5">Bởi: ${handler ? handler.display_name : 'Admin'} • ${Layout.formatDate(report.handled_at)}</div>
+                            ` : '<span class="text-gray-500 italic">Chưa giải quyết</span>'}
+                        </td>
+                        <td class="p-3.5 text-right whitespace-nowrap">
+                            ${report.status === 'pending' ? `
+                                <button onclick="openHandleModal(${report.id})" class="bg-substackOrange hover:bg-substackOrangeHover text-white px-3 py-1.5 rounded-xl font-semibold shadow transition text-xs">
+                                    Xử lý ngay
+                                </button>
+                            ` : `
+                                <button onclick="openHandleModal(${report.id})" class="bg-cardBg hover:bg-borderDark text-gray-300 border border-borderDark px-3 py-1.5 rounded-xl transition text-xs">
+                                    Xem lại
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openHandleModal(reportId) {
+            currentHandlingReportId = reportId;
+            const report = MockData.reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            document.getElementById('modalHandleNote').value = report.handle_note || '';
+            document.getElementById('noteErrorMsg').classList.add('hidden');
+
+            const reporter = MockData.users.find(u => u.id === report.reporter_id) || { display_name: 'Ẩn danh' };
+            document.getElementById('modalReportInfo').innerHTML = `
+                <div><strong class="text-white">Loại đối tượng:</strong> <span class="uppercase text-substackOrange font-bold">${report.target_type}</span></div>
+                <div><strong class="text-white">Người báo cáo:</strong> ${reporter.display_name}</div>
+                <div><strong class="text-white">Lý do phản ánh:</strong> <span class="text-rose-300">"${report.reason}"</span></div>
+            `;
+
+            document.getElementById('handleReportModal').classList.remove('hidden');
+        }
+
+        function closeHandleModal() {
+            document.getElementById('handleReportModal').classList.add('hidden');
+            currentHandlingReportId = null;
+        }
+
+        function submitHandleReport() {
+            const handleNote = document.getElementById('modalHandleNote').value.trim();
+            if (!handleNote) {
+                document.getElementById('noteErrorMsg').classList.remove('hidden');
+                return;
+            }
+
+            const action = document.querySelector('input[name="reportAction"]:checked')?.value || 'dismiss';
+            const report = MockData.reports.find(r => r.id === currentHandlingReportId);
+
+            if (report) {
+                const currentUser = Layout.getCurrentUser();
+                report.handled_by = currentUser ? currentUser.id : 1;
+                report.handled_at = new Date().toISOString();
+                report.handle_note = handleNote;
+
+                if (action === 'dismiss') {
+                    report.status = 'dismissed';
+                    report.action = null;
+                } else {
+                    report.status = 'resolved';
+                    report.action = action;
+
+                    // Nếu action là delete_content -> Xóa nội dung
+                    if (action === 'delete_content') {
+                        if (report.target_type === 'post') {
+                            const post = MockData.posts.find(p => p.id === report.post_id);
+                            if (post) post.deleted_at = new Date().toISOString();
+                        } else if (report.target_type === 'comment') {
+                            const comment = MockData.comments.find(c => c.id === report.comment_id);
+                            if (comment) comment.deleted_at = new Date().toISOString();
+                        } else if (report.target_type === 'note') {
+                            const noteIdx = MockData.notes.findIndex(n => n.id === report.note_id);
+                            if (noteIdx !== -1) MockData.notes.splice(noteIdx, 1);
+                        }
+                    }
+                    // Nếu action là ban_user -> Khóa người vi phạm
+                    else if (action === 'ban_user') {
+                        let offenderId = null;
+                        if (report.target_type === 'comment') {
+                            const comment = MockData.comments.find(c => c.id === report.comment_id);
+                            if (comment) offenderId = comment.user_id;
+                        } else if (report.target_type === 'post') {
+                            const post = MockData.posts.find(p => p.id === report.post_id);
+                            if (post) offenderId = post.author_id;
+                        }
+                        if (offenderId) {
+                            const offender = MockData.users.find(u => u.id === offenderId);
+                            if (offender) {
+                                offender.is_active = false;
+                                offender.ban_reason = handleNote;
+                                offender.banned_at = new Date().toISOString();
+                            }
+                        }
+                    }
+                }
+
+                closeHandleModal();
+                Layout.showToast('Đã lưu kết quả xử lý báo cáo vi phạm!', 'success');
+                renderReportsTable();
+                Layout.renderAdminSidebar('reports', 'adminSidebar');
+            }
+        }
+    </script>
+</body>
+</html>
