@@ -416,9 +416,9 @@ window.Layout = (function () {
 
             <div class="flex items-center space-x-3 text-gray-400">
                 ${role === 'guest' ? `
-                    <button onclick="Layout.openAuthModal()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-1.5 rounded-full transition shadow">
-                        Đăng nhập
-                    </button>
+                    <button onclick="Layout.openAuthModal()" data-i18n="auth.login" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-1.5 rounded-full transition shadow">
+        ${window.I18n ? I18n.t('auth.login', 'Đăng nhập') : 'Đăng nhập'}
+    </button>
                 ` : `
                     <a href="${basePath}my-notes.html" class="hover:text-white text-sm" title="Ghi chú nhanh"><i class="fa-regular fa-bell"></i></a>
                     <div class="relative group">
@@ -510,7 +510,7 @@ window.Layout = (function () {
                     </a>
                     <a href="${basePath}tag.html?slug=cong-nghe" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition font-medium ${activeNav === 'tag' ? 'bg-borderDark text-white' : 'text-gray-400 hover:bg-borderDark hover:text-white'}">
                         <i class="fa-solid fa-hashtag w-5"></i>
-                        <span>Chủ đề nổi bật</span>
+                        <span data-i18n="nav.featured_topics">Chủ đề nổi bật</span>
                     </a>
                     <a href="${role === 'guest' ? '#' : basePath + 'profile.html?handle=' + (user?.handle || 'hhoanganh0710')}" onclick="${role === 'guest' ? 'Layout.openAuthModal()' : ''}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition font-medium ${activeNav === 'profile' ? 'bg-borderDark text-white' : 'text-gray-400 hover:bg-borderDark hover:text-white'}">
                         <i class="fa-regular fa-user w-5"></i>

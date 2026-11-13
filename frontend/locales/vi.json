@@ -1,15 +1,28 @@
 {
   "nav.home": "Trang chủ",
   "nav.explore": "Khám phá & Tìm kiếm",
+  "nav.featured_topics": "Chủ đề nổi bật",
   "nav.my_posts": "Bài viết của tôi",
   "nav.my_notes": "Ghi chú của tôi",
   "nav.profile": "Hồ sơ cá nhân",
   "nav.create": "Viết bài mới",
+  "nav.screens": "Mục lục 17 giao diện",
+  "nav.footer_note": "Substack Clone © 2026. Giao diện HTML tĩnh chuẩn hoá.",
+  
+  "auth.login": "Đăng nhập",
+  "auth.register": "Đăng ký",
+  "auth.start_writing": "Bắt đầu viết trên Substack",
+  
   "banner.title": "Kiếm tiền từ công việc bạn tin tưởng",
   "banner.subtitle": "Nền tảng xuất bản độc lập giúp bạn tự do sáng tạo và kết nối sâu sắc với độc giả.",
+  
+  "common.explore_topics": "Chủ đề khám phá:",
+  "common.all_topics": "Tất cả chủ đề",
   "common.popular": "Đọc nhiều nhất",
-  "common.empty_posts": "Chưa có bài viết nào ở ngôn ngữ này.",
-  "common.read_more": "Đọc tiếp",
-  "common.filter_all": "Tất cả chủ đề",
-  "common.report": "Báo cáo vi phạm"
+  "common.recommended_authors": "Tác giả đề xuất",
+  "common.view_more": "Xem thêm",
+  "common.follow": "Theo dõi",
+  "common.following": "Đang theo dõi",
+  "common.views": "lượt xem",
+  "common.read_more": "Đọc tiếp"
 }

@@ -1,15 +1,28 @@
 {
   "nav.home": "Home",
   "nav.explore": "Explore & Search",
+  "nav.featured_topics": "Featured Topics",
   "nav.my_posts": "My Posts",
   "nav.my_notes": "My Notes",
   "nav.profile": "Profile",
   "nav.create": "New Post",
+  "nav.screens": "17 Screens Sitemap",
+  "nav.footer_note": "Substack Clone © 2026. Standard static HTML UI.",
+  
+  "auth.login": "Sign In",
+  "auth.register": "Get Started",
+  "auth.start_writing": "Start writing on Substack",
+  
   "banner.title": "Make money doing the work you believe in",
   "banner.subtitle": "An independent publishing platform where you create freely and connect deeply.",
+  
+  "common.explore_topics": "Explore Topics:",
+  "common.all_topics": "All topics",
   "common.popular": "Popular stories",
-  "common.empty_posts": "No posts found for this language.",
-  "common.read_more": "Read more",
-  "common.filter_all": "All topics",
-  "common.report": "Report"
+  "common.recommended_authors": "Recommended Authors",
+  "common.view_more": "See more",
+  "common.follow": "Follow",
+  "common.following": "Following",
+  "common.views": "views",
+  "common.read_more": "Read more"
 }
