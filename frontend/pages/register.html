@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký tài khoản | Substack</title>
+    <title>Substack - Onboarding</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,8 +13,8 @@
                 extend: {
                     colors: {
                         darkBg: '#121212',
-                        sidebarBg: '#181818',
                         cardBg: '#1e1e1e',
+                        sidebarBg: '#181818',
                         substackOrange: '#ff6719',
                         substackOrangeHover: '#e05b15',
                         borderDark: '#2a2a2a'
@@ -26,201 +26,297 @@
     <link rel="stylesheet" href="../styles/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-darkBg text-gray-200 min-h-screen flex flex-col justify-between p-4">
+<body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Top nav -->
-    <header class="max-w-4xl mx-auto w-full flex items-center justify-between py-4">
-        <a href="index.html" class="text-substackOrange text-2xl font-bold flex items-center space-x-2">
-            <i class="fa-solid fa-book-bookmark"></i>
-            <span class="text-white text-base tracking-tight font-extrabold">Substack</span>
-        </a>
-        <div class="flex items-center space-x-3 text-xs">
-            <span>Đã có tài khoản?</span>
-            <a href="login.html" class="text-substackOrange font-semibold hover:underline">Đăng nhập</a>
+    <!-- Logo chung -->
+    <div class="text-substackOrange text-3xl mb-4 bg-borderDark p-3 rounded-full cursor-pointer hover:scale-105 transition" onclick="window.location.href='index.html'" title="Trang chủ Substack">
+        <i class="fa-solid fa-book-bookmark"></i>
+    </div>
+
+    <!-- BƯỚC 1: Chọn chủ đề quan tâm -->
+    <div id="step1" class="w-full max-w-xl text-center space-y-5">
+        <div class="space-y-1">
+            <h2 class="text-2xl font-bold text-white">Chọn tối thiểu 3 chủ đề bạn quan tâm</h2>
+            <p class="text-xs text-gray-400">Chúng tôi sẽ gợi ý những bài viết phù hợp nhất cho dòng thời gian của bạn.</p>
         </div>
-    </header>
+        
+        <div class="bg-cardBg border border-borderDark rounded-2xl p-6 flex flex-wrap gap-2.5 justify-center max-h-72 overflow-y-auto">
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Văn hóa & Đời sống</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Công nghệ & Phần mềm</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Trí tuệ nhân tạo (AI)</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Kinh doanh & Khởi nghiệp</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Tài chính cá nhân</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Thiết kế UI/UX</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Khoa học & Kỹ thuật</button>
+            <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Triết học & Tư duy</button>
+        </div>
 
-    <!-- Main Card -->
-    <main class="w-full max-w-md mx-auto my-auto py-6">
-        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
-            
-            <div class="text-center space-y-2">
-                <div class="w-12 h-12 bg-substackOrange/10 border border-substackOrange/30 text-substackOrange rounded-2xl flex items-center justify-center mx-auto text-xl">
-                    <i class="fa-solid fa-user-plus"></i>
-                </div>
-                <h1 class="text-2xl font-bold text-white tracking-tight">Tạo tài khoản mới</h1>
-                <p class="text-xs text-gray-400">Bắt đầu hành trình đọc & viết bài trên Substack</p>
+        <button id="step1Btn" type="button" onclick="goToStep(2)" disabled class="w-full max-w-md mx-auto block bg-gray-700 text-gray-400 font-semibold py-3 px-4 rounded-xl transition text-sm cursor-not-allowed">
+            Chọn thêm 3 chủ đề nữa để tiếp tục
+        </button>
+    </div>
+
+    <!-- BƯỚC 2: Xác nhận Email & Điều khoản -->
+    <div id="step2" class="w-full max-w-md text-center space-y-5 hidden">
+        <div class="space-y-1">
+            <h2 class="text-2xl font-bold text-white">Xác nhận email tài khoản</h2>
+            <p class="text-xs text-gray-400">Đã có tài khoản sẵn? <a href="login.html" class="text-substackOrange hover:underline">Đăng nhập</a></p>
+        </div>
+        
+        <div class="bg-cardBg border border-borderDark rounded-2xl p-6 text-left space-y-4">
+            <div>
+                <label class="text-xs text-gray-400 block mb-1.5 font-medium">Địa chỉ email *</label>
+                <input type="email" id="userEmail" placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
+                <p id="userEmailError" class="field-error-message hidden text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i><span></span>
+                </p>
+            </div>
+            <div>
+                <label class="flex items-start space-x-2 text-xs text-gray-400 cursor-pointer">
+                    <input type="checkbox" id="termsCheckbox" checked class="mt-0.5 rounded bg-darkBg border-borderDark cursor-pointer text-substackOrange">
+                    <span class="leading-relaxed">Tôi đồng ý với Điều khoản sử dụng và Chính sách của Substack.</span>
+                </label>
+                <p id="termsError" class="field-error-message hidden text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i><span></span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- NÚT TIẾP TỤC BƯỚC 2 -->
+        <button id="step2Btn" type="button" onclick="submitStep2()" class="w-full max-w-md mx-auto block bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition text-sm shadow cursor-pointer">
+            Tiếp tục bước tiếp theo <i class="fa-solid fa-arrow-right ml-1"></i>
+        </button>
+    </div>
+
+    <!-- BƯỚC 3: Điền Profile (Tên, Handle, Bio, Avatar upload) -->
+    <div id="step3" class="w-full max-w-md text-center space-y-5 hidden">
+        <div class="space-y-1">
+            <h2 class="text-2xl font-bold text-white">Giới thiệu về bạn</h2>
+            <p class="text-xs text-gray-400">Thêm tên hiển thị, tên định danh handle và tiểu sử ngắn của bạn.</p>
+        </div>
+        
+        <div class="bg-cardBg border border-borderDark rounded-2xl p-6 text-left space-y-4">
+            <!-- Tên hiển thị -->
+            <div>
+                <label class="text-xs text-gray-400 block mb-1 font-medium">Tên hiển thị *</label>
+                <input type="text" id="userName" value="Độc Giả Mới" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
+                <p id="userNameError" class="field-error-message hidden text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i><span></span>
+                </p>
             </div>
 
-            <!-- Banner Lỗi -->
-            <div id="registerErrorAlert" class="hidden p-3.5 bg-red-950/60 border border-red-500/50 text-red-200 rounded-xl text-xs space-y-1">
-                <div class="flex items-center space-x-2 font-bold">
-                    <i class="fa-solid fa-circle-exclamation text-red-400"></i>
-                    <span>Thông tin chưa hợp lệ</span>
+            <!-- Handle -->
+            <div>
+                <label class="text-xs text-gray-400 block mb-1 font-medium">Tên định danh (Handle) *</label>
+                <div id="handleWrapper" class="flex items-center bg-darkBg border border-borderDark rounded-xl px-3 transition focus-within:border-substackOrange">
+                    <span class="text-gray-500 text-xs">@</span>
+                    <input type="text" id="userHandle" value="docgia_moi" class="w-full bg-transparent border-none px-2 py-2 text-xs sm:text-sm text-white focus:outline-none">
                 </div>
-                <div id="registerErrorDesc" class="leading-relaxed"></div>
+                <p id="userHandleError" class="field-error-message hidden text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i><span></span>
+                </p>
             </div>
 
-            <form onsubmit="handleRegisterSubmit(event)" class="space-y-4" novalidate>
-                <!-- Email -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Địa chỉ Email *</label>
-                    <input type="email" id="regEmail" required placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
-                </div>
-
-                <!-- Password -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Mật khẩu (tối thiểu 8 ký tự) *</label>
-                    <div class="relative">
-                        <input type="password" id="regPassword" required oninput="checkPasswordStrength(this.value)" placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
-                        <button type="button" onclick="togglePass('regPassword', 'passEyeIcon1')" class="absolute right-3.5 top-3 text-gray-400 hover:text-white text-sm">
-                            <i id="passEyeIcon1" class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                    <!-- Thanh đo độ mạnh mật khẩu -->
-                    <div class="mt-2 space-y-1">
-                        <div class="w-full bg-darkBg h-1.5 rounded-full overflow-hidden border border-borderDark">
-                            <div id="strengthBar" class="h-full w-0 bg-red-500 transition-all duration-300"></div>
-                        </div>
-                        <p id="strengthText" class="text-[10px] text-gray-500">Độ bảo mật: Chưa nhập</p>
-                    </div>
-                </div>
-
-                <!-- Confirm Password -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Xác nhận mật khẩu *</label>
-                    <div class="relative">
-                        <input type="password" id="regConfirmPassword" required placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
-                        <button type="button" onclick="togglePass('regConfirmPassword', 'passEyeIcon2')" class="absolute right-3.5 top-3 text-gray-400 hover:text-white text-sm">
-                            <i id="passEyeIcon2" class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Checkbox Điều khoản -->
-                <div class="pt-1">
-                    <label class="flex items-start space-x-2 text-xs text-gray-400 cursor-pointer">
-                        <input type="checkbox" id="regTerms" class="mt-0.5 rounded bg-darkBg border-borderDark text-substackOrange">
-                        <span class="leading-relaxed">Tôi đồng ý với <a href="#" class="text-substackOrange hover:underline">Điều khoản dịch vụ</a> và <a href="#" class="text-substackOrange hover:underline">Chính sách quyền riêng tư</a> của nền tảng Substack.</span>
-                    </label>
-                </div>
-
-                <button type="submit" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg text-xs sm:text-sm">
-                    Tiếp tục thiết lập hồ sơ <i class="fa-solid fa-arrow-right ml-1"></i>
-                </button>
-            </form>
-
+            <!-- Tiểu sử Bio -->
+            <div>
+                <label class="text-xs text-gray-400 block mb-1 font-medium">Tiểu sử ngắn (Bio)</label>
+                <textarea id="userBio" rows="2" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition resize-none">Yêu thích đọc sách và cập nhật tin tức công nghệ trên Substack.</textarea>
+                <p id="userBioError" class="field-error-message hidden text-[11px] text-rose-400 mt-1 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i><span></span>
+                </p>
+            </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-gray-500 py-4">
-        Substack Clone © 2026. Mọi quyền được bảo lưu.
-    </footer>
+        <!-- NÚT HOÀN TẤT THIẾT LẬP BƯỚC 3 -->
+        <button id="step3Btn" type="button" onclick="submitOnboardingData()" class="w-full max-w-md mx-auto block bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition text-sm shadow cursor-pointer">
+            Hoàn tất thiết lập <i class="fa-solid fa-check ml-1"></i>
+        </button>
+    </div>
 
-    <!-- Script & Mock Data -->
+    <!-- BƯỚC 4: Hoàn tất (Done) -->
+    <div id="step4" class="w-full max-w-md text-center space-y-5 hidden">
+        <div class="w-16 h-16 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl mb-2">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="space-y-1">
+            <h2 class="text-2xl font-bold text-white">Bạn đã hoàn tất!</h2>
+            <p class="text-xs text-gray-400 leading-relaxed max-w-xs mx-auto">Chào mừng bạn gia nhập cộng đồng Substack. Bắt đầu khám phá những bản tin chất lượng cao ngay bây giờ.</p>
+        </div>
+        
+        <button type="button" onclick="finishRegistration()" class="w-full max-w-md mx-auto block bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition text-sm shadow cursor-pointer">
+            Bắt đầu khám phá ngay
+        </button>
+    </div>
+
     <script src="../assets/js/mock-data.js"></script>
-    <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
-        function togglePass(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-regular fa-eye-slash text-substackOrange';
+        let selectedTopicsCount = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pendingEmail = sessionStorage.getItem('pending_register_email');
+            if (pendingEmail) {
+                document.getElementById('userEmail').value = pendingEmail;
+            }
+            bindStepValidation();
+        });
+
+        function toggleTopic(btn) {
+            btn.classList.toggle('bg-substackOrange');
+            btn.classList.toggle('text-white');
+            btn.classList.toggle('border-substackOrange');
+            
+            selectedTopicsCount += btn.classList.contains('bg-substackOrange') ? 1 : -1;
+            const btnStep1 = document.getElementById('step1Btn');
+            if (selectedTopicsCount >= 3) {
+                btnStep1.disabled = false;
+                btnStep1.className = "w-full max-w-md mx-auto block bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition text-sm shadow cursor-pointer";
+                btnStep1.textContent = "Tiếp tục bước tiếp theo";
             } else {
-                input.type = 'password';
-                icon.className = 'fa-regular fa-eye';
+                btnStep1.disabled = true;
+                btnStep1.className = "w-full max-w-md mx-auto block bg-gray-700 text-gray-400 font-semibold py-3 px-4 rounded-xl transition text-sm cursor-not-allowed";
+                btnStep1.textContent = `Chọn thêm ${3 - selectedTopicsCount} chủ đề nữa để tiếp tục`;
             }
         }
 
-        function checkPasswordStrength(val) {
-            const bar = document.getElementById('strengthBar');
-            const text = document.getElementById('strengthText');
-            if (!val) {
-                bar.style.width = '0%';
-                text.textContent = 'Độ bảo mật: Chưa nhập';
-                text.className = 'text-[10px] text-gray-500';
-                return;
-            }
-
-            let score = 0;
-            if (val.length >= 8) score++;
-            if (/[A-Z]/.test(val)) score++;
-            if (/[0-9]/.test(val)) score++;
-            if (/[^A-Za-z0-9]/.test(val)) score++;
-
-            if (score <= 1) {
-                bar.style.width = '25%';
-                bar.className = 'h-full bg-red-500';
-                text.textContent = 'Độ bảo mật: Yếu';
-                text.className = 'text-[10px] text-red-400';
-            } else if (score === 2) {
-                bar.style.width = '50%';
-                bar.className = 'h-full bg-amber-500';
-                text.textContent = 'Độ bảo mật: Trung bình';
-                text.className = 'text-[10px] text-amber-400';
-            } else if (score === 3) {
-                bar.style.width = '75%';
-                bar.className = 'h-full bg-blue-500';
-                text.textContent = 'Độ bảo mật: Khá tốt';
-                text.className = 'text-[10px] text-blue-400';
+        function setInputErr(inputEl, errElId, msg, isWrapper = false) {
+            const target = isWrapper ? inputEl.parentElement : inputEl;
+            const errEl = document.getElementById(errElId);
+            if (msg) {
+                target.classList.add('border-rose-500');
+                target.classList.remove('border-borderDark');
+                errEl.querySelector('span').textContent = msg;
+                errEl.classList.remove('hidden');
+                return false;
             } else {
-                bar.style.width = '100%';
-                bar.className = 'h-full bg-emerald-500';
-                text.textContent = 'Độ bảo mật: Rất mạnh!';
-                text.className = 'text-[10px] text-emerald-400';
+                target.classList.remove('border-rose-500');
+                target.classList.add('border-borderDark');
+                errEl.classList.add('hidden');
+                return true;
             }
         }
 
-        function handleRegisterSubmit(e) {
-            e.preventDefault();
-            const alert = document.getElementById('registerErrorAlert');
-            const desc = document.getElementById('registerErrorDesc');
-            alert.classList.add('hidden');
+        function bindStepValidation() {
+            const emailEl = document.getElementById('userEmail');
+            const nameEl = document.getElementById('userName');
+            const handleEl = document.getElementById('userHandle');
+            const bioEl = document.getElementById('userBio');
 
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirmPassword').value;
-            const terms = document.getElementById('regTerms').checked;
+            emailEl.addEventListener('input', () => {
+                const val = emailEl.value.trim();
+                if (!val) return setInputErr(emailEl, 'userEmailError', 'Email không được để trống.');
+                if (typeof containsHTML === 'function' && containsHTML(val)) return setInputErr(emailEl, 'userEmailError', 'Không được nhập thẻ HTML.');
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return setInputErr(emailEl, 'userEmailError', 'Email chưa đúng định dạng.');
+                return setInputErr(emailEl, 'userEmailError', '');
+            });
 
-            // 1. Kiểm tra Email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email || !emailRegex.test(email)) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Vui lòng nhập định dạng email hợp lệ (ví dụ: yourname@domain.com).';
+            nameEl.addEventListener('input', () => {
+                const val = nameEl.value.trim();
+                if (!val) return setInputErr(nameEl, 'userNameError', 'Tên hiển thị không được để trống.');
+                if (typeof containsHTML === 'function' && containsHTML(val)) return setInputErr(nameEl, 'userNameError', 'Không được nhập thẻ HTML.');
+                return setInputErr(nameEl, 'userNameError', '');
+            });
+
+            handleEl.addEventListener('input', () => {
+                const val = handleEl.value.trim();
+                if (!val) return setInputErr(handleEl, 'userHandleError', 'Handle không được để trống.', true);
+                if (typeof containsHTML === 'function' && containsHTML(val)) return setInputErr(handleEl, 'userHandleError', 'Không được nhập thẻ HTML.', true);
+                if (!/^[a-zA-Z0-9_]+$/.test(val)) return setInputErr(handleEl, 'userHandleError', 'Handle chỉ gồm chữ cái, số và dấu gạch dưới (_).', true);
+                return setInputErr(handleEl, 'userHandleError', '', true);
+            });
+
+            bioEl.addEventListener('input', () => {
+                const val = bioEl.value.trim();
+                if (typeof containsHTML === 'function' && containsHTML(val)) return setInputErr(bioEl, 'userBioError', 'Tiểu sử không được nhập thẻ HTML.');
+                return setInputErr(bioEl, 'userBioError', '');
+            });
+        }
+
+        function goToStep(stepNumber) {
+            document.querySelectorAll('[id^="step"]').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`step${stepNumber}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+        }
+
+        function submitStep2() {
+            const emailEl = document.getElementById('userEmail');
+            const termsEl = document.getElementById('termsCheckbox');
+            const termsErr = document.getElementById('termsError');
+            const val = emailEl.value.trim();
+
+            if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || (typeof containsHTML === 'function' && containsHTML(val))) {
+                setInputErr(emailEl, 'userEmailError', 'Vui lòng kiểm tra lại địa chỉ email hợp lệ.');
+                emailEl.focus();
                 return;
             }
 
-            // 2. Kiểm tra độ dài mật khẩu
-            if (password.length < 8) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Mật khẩu phải có độ dài tối thiểu từ 8 ký tự trở lên.';
+            if (!termsEl.checked) {
+                termsErr.querySelector('span').textContent = 'Bạn cần đồng ý với Điều khoản dịch vụ để tiếp tục.';
+                termsErr.classList.remove('hidden');
+                return;
+            }
+            termsErr.classList.add('hidden');
+
+            goToStep(3);
+        }
+
+        function submitOnboardingData() {
+            const nameEl = document.getElementById('userName');
+            const handleEl = document.getElementById('userHandle');
+            const bioEl = document.getElementById('userBio');
+
+            const name = nameEl.value.trim();
+            const handle = handleEl.value.trim();
+            const bio = bioEl.value.trim();
+
+            if (!name || (typeof containsHTML === 'function' && containsHTML(name))) {
+                setInputErr(nameEl, 'userNameError', 'Vui lòng nhập tên hiển thị hợp lệ.');
+                nameEl.focus();
                 return;
             }
 
-            // 3. Kiểm tra khớp mật khẩu
-            if (password !== confirm) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Mật khẩu xác nhận không trùng khớp với mật khẩu đã nhập.';
+            if (!handle || !/^[a-zA-Z0-9_]+$/.test(handle) || (typeof containsHTML === 'function' && containsHTML(handle))) {
+                setInputErr(handleEl, 'userHandleError', 'Vui lòng nhập handle hợp lệ (chỉ gồm chữ, số, dấu _).', true);
+                handleEl.focus();
                 return;
             }
 
-            // 4. Kiểm tra điều khoản
-            if (!terms) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư để tiếp tục.';
+            if (typeof containsHTML === 'function' && containsHTML(bio)) {
+                setInputErr(bioEl, 'userBioError', 'Tiểu sử không được chứa thẻ HTML.');
+                bioEl.focus();
                 return;
             }
 
-            // Lưu email tạm thời sang onboarding
-            sessionStorage.setItem('pending_register_email', email);
-            Layout.showToast('Đăng ký tài khoản bước 1 thành công! Đang chuyển sang thiết lập hồ sơ...', 'success');
-            setTimeout(() => {
-                window.location.href = 'onboarding.html';
-            }, 500);
+            // Lưu thông tin người dùng mới vào MockData & localStorage
+            const email = document.getElementById('userEmail').value.trim() || 'user@substack.vn';
+            if (window.MockData && Array.isArray(window.MockData.users)) {
+                const newUser = {
+                    id: Date.now(),
+                    email: email,
+                    handle: handle,
+                    display_name: name,
+                    bio: bio,
+                    avatar_url: `https://i.pravatar.cc/150?u=${handle}`,
+                    role_id: 3, // user
+                    is_active: true,
+                    ban_reason: null,
+                    banned_at: null,
+                    created_at: new Date().toISOString()
+                };
+                window.MockData.users.push(newUser);
+            }
+
+            localStorage.setItem('userHandle', handle);
+            sessionStorage.removeItem('pending_register_email');
+            goToStep(4);
+        }
+
+        function finishRegistration() {
+            Layout.setDemoRole('user');
+            window.location.href = 'index.html';
         }
     </script>
 </body>

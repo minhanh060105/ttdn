@@ -1,120 +1,110 @@
 /**
- * i18n.js - Quản lý đa ngôn ngữ (Tiếng Việt & Tiếng Anh)
- * Hỗ trợ fallback linh hoạt khi không kết nối Backend Next.js
+ * assets/js/i18n.js
+ * Quản lý đa ngôn ngữ tĩnh phía Frontend qua file JSON / từ điển nội bộ
  */
-
 window.I18n = (function () {
+    const STORAGE_KEY = 'preferred_lang';
     const DEFAULT_LANG = 'vi';
 
-    // Lấy ngôn ngữ hiện tại từ localStorage
-    function getCurrentLang() {
-        return localStorage.getItem('preferred_lang') || DEFAULT_LANG;
-    }
-
-    // Lấy từ điển dựa trên MockData
-    function buildDictionary(langCode) {
-        const dict = {};
-        if (window.MockData && window.MockData.languages && window.MockData.ui_translations) {
-            const lang = window.MockData.languages.find(l => l.code === langCode);
-            if (lang) {
-                window.MockData.ui_translations
-                    .filter(item => item.language_id === lang.id)
-                    .forEach(item => {
-                        dict[item.translation_key] = item.translation_value;
-                    });
-            }
+    // Từ điển tĩnh dự phòng tức thì
+    const localDict = {
+        vi: {
+            "nav.home": "Trang chủ",
+            "nav.explore": "Khám phá & Tìm kiếm",
+            "nav.my_posts": "Bài viết của tôi",
+            "nav.my_notes": "Ghi chú của tôi",
+            "nav.profile": "Hồ sơ cá nhân",
+            "nav.create": "Viết bài mới",
+            "banner.title": "Kiếm tiền từ công việc bạn tin tưởng",
+            "banner.subtitle": "Nền tảng xuất bản độc lập giúp bạn tự do sáng tạo.",
+            "common.popular": "Đọc nhiều nhất",
+            "common.empty_posts": "Chưa có bài viết nào ở ngôn ngữ này.",
+            "common.read_more": "Đọc tiếp",
+            "common.filter_all": "Tất cả chủ đề",
+            "common.report": "Báo cáo vi phạm"
+        },
+        en: {
+            "nav.home": "Home",
+            "nav.explore": "Explore & Search",
+            "nav.my_posts": "My Posts",
+            "nav.my_notes": "My Notes",
+            "nav.profile": "Profile",
+            "nav.create": "New Post",
+            "banner.title": "Make money doing the work you believe in",
+            "banner.subtitle": "An independent publishing platform where you create freely.",
+            "common.popular": "Popular stories",
+            "common.empty_posts": "No posts found for this language.",
+            "common.read_more": "Read more",
+            "common.filter_all": "All topics",
+            "common.report": "Report"
         }
-        return dict;
+    };
+
+    function getCurrentLang() {
+        return localStorage.getItem(STORAGE_KEY) || DEFAULT_LANG;
     }
 
     let activeLang = getCurrentLang();
-    let currentDict = buildDictionary(activeLang);
+    let currentDict = localDict[activeLang] || localDict[DEFAULT_LANG];
 
-    // Cập nhật từ Backend nếu có chạy API
-    async function loadTranslationsFromAPI(langCode) {
+    // Đọc trực tiếp từ file JSON trong thư mục frontend/locales/
+    async function loadJsonFile(langCode) {
         try {
-            const res = await fetch(`http://localhost:3000/api/translations?code=${langCode}`, {
-                signal: AbortSignal.timeout(1000)
-            });
+            const pathname = window.location.pathname;
+            const prefix = pathname.includes('/pages/admin/') ? '../../' : (pathname.includes('/pages/') ? '../' : '');
+            const res = await fetch(`${prefix}locales/${langCode}.json`);
             if (res.ok) {
-                const apiData = await res.json();
-                currentDict = { ...currentDict, ...apiData };
+                const data = await res.json();
+                currentDict = { ...currentDict, ...data };
+                applyI18n();
             }
         } catch (e) {
-            // Không sao, dùng dictionary từ MockData
+            applyI18n();
         }
-        applyI18n();
     }
 
-    // Dịch một key
     function t(key, fallback = '') {
-        if (currentDict && currentDict[key]) {
-            return currentDict[key];
-        }
-        return fallback || key;
+        return (currentDict && currentDict[key]) ? currentDict[key] : (fallback || key);
     }
 
-    // Quét toàn bộ DOM và áp dụng bản dịch
     function applyI18n() {
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            const translation = t(key);
-            if (translation) {
-                el.textContent = translation;
-            }
+            const text = t(key);
+            if (text) el.textContent = text;
         });
 
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
-            const translation = t(key);
-            if (translation) {
-                el.setAttribute('placeholder', translation);
-            }
+            const text = t(key);
+            if (text) el.setAttribute('placeholder', text);
         });
 
-        document.querySelectorAll('[data-i18n-title]').forEach(el => {
-            const key = el.getAttribute('data-i18n-title');
-            const translation = t(key);
-            if (translation) {
-                el.setAttribute('title', translation);
-            }
-        });
-
-        // Cập nhật nhãn ngôn ngữ trên header nếu có
-        const langLabel = document.getElementById('langLabel');
-        if (langLabel) {
-            langLabel.textContent = activeLang.toUpperCase();
+        const label = document.getElementById('currentLangLabel') || document.getElementById('langLabel');
+        if (label) {
+            label.textContent = activeLang === 'vi' ? 'Tiếng Việt (VI)' : 'English (EN)';
         }
     }
 
-    // Đổi ngôn ngữ
-    async function setLang(newLang) {
+    function setLang(newLang) {
         activeLang = newLang;
-        localStorage.setItem('preferred_lang', newLang);
-        currentDict = buildDictionary(newLang);
-        await loadTranslationsFromAPI(newLang);
-        // Dispatch sự kiện cho các component lắng nghe
+        localStorage.setItem(STORAGE_KEY, newLang);
+        currentDict = localDict[newLang] || localDict[DEFAULT_LANG];
+        loadJsonFile(newLang);
+        applyI18n();
         window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: newLang } }));
     }
 
-    // Chuyển đổi qua lại giữa vi và en
-    async function toggleLanguage() {
-        const nextLang = activeLang === 'vi' ? 'en' : 'vi';
-        await setLang(nextLang);
-    }
-
-    // Tự khởi tạo khi trang load
     document.addEventListener('DOMContentLoaded', () => {
         activeLang = getCurrentLang();
-        currentDict = buildDictionary(activeLang);
+        currentDict = localDict[activeLang] || localDict[DEFAULT_LANG];
         applyI18n();
-        loadTranslationsFromAPI(activeLang);
+        loadJsonFile(activeLang);
     });
 
     return {
         getCurrentLang,
         setLang,
-        toggleLanguage,
         t,
         applyI18n
     };
