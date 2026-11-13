@@ -31,20 +31,21 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
-        <!-- Sidebar Admin riêng biệt -->
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
+        <!-- Sidebar Admin -->
         <aside id="adminSidebar"></aside>
 
         <!-- Main content -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-5xl mx-auto w-full space-y-6">
+        <main class="flex-1 px-3 sm:px-6 py-6 max-w-5xl mx-auto w-full space-y-6">
             
+            <!-- Tiêu đề trang & Huy hiệu đếm số bài chờ duyệt -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
-                        <i class="fa-solid fa-list-check text-substackOrange"></i>
+                        <i class="fa-solid fa-list-check text-rose-500"></i>
                         <span>Hàng đợi kiểm duyệt bài viết</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-1">Đánh giá nội dung các tác giả gửi lên trước khi xuất bản công khai ra trang chủ.</p>
+                    <p class="text-xs text-gray-400 mt-1">Đánh giá cấu trúc nội dung, hình ảnh và định dạng HTML trước khi phê duyệt xuất bản ra cộng đồng.</p>
                 </div>
 
                 <div class="flex items-center space-x-2">
@@ -54,12 +55,48 @@
                 </div>
             </div>
 
-            <!-- Danh sách hàng đợi pending -->
-            <div id="reviewQueueList" class="space-y-5">
-                <!-- Render qua JS -->
+            <!-- Danh sách hàng đợi bài viết (Render qua JS) -->
+            <div id="reviewQueueList" class="space-y-6"></div>
+
+            <!-- Phân trang chuẩn cho màn Duyệt Bài -->
+            <div id="paginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="prevPageBtn" onclick="changePage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
+                </button>
+                <span id="pageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="nextPageBtn" onclick="changePage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
 
         </main>
+    </div>
+
+    <!-- MODAL XEM CHI TIẾT TOÀN MÀN HÌNH (Full Article Preview Modal) -->
+    <div id="fullPreviewModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-3 sm:p-6 backdrop-blur-md">
+        <div class="bg-sidebarBg border border-borderDark rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 sm:p-5 border-b border-borderDark">
+                <div class="flex items-center space-x-2 text-substackOrange text-sm font-bold">
+                    <i class="fa-regular fa-eye"></i>
+                    <span>Xem trước giao diện người đọc</span>
+                </div>
+                <button onclick="closeFullPreviewModal()" class="text-gray-400 hover:text-white p-1 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Render HTML trực tiếp) -->
+            <div id="fullPreviewBody" class="p-6 sm:p-8 overflow-y-auto space-y-6"></div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-borderDark flex items-center justify-end space-x-3 bg-darkBg/50">
+                <button onclick="closeFullPreviewModal()" class="px-4 py-2 bg-cardBg hover:bg-borderDark text-gray-300 text-xs font-semibold rounded-xl border border-borderDark transition">Đóng</button>
+                <button id="modalApproveBtn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow transition">Phê duyệt ngay</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL TỪ CHỐI BÀI VIẾT (Bắt buộc nhập lý do) -->
@@ -73,14 +110,14 @@
                 <button onclick="closeRejectModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <p class="text-xs text-gray-300">
-                Lý do từ chối sẽ được gửi trực tiếp đến tác giả tại giao diện quản lý bài viết của họ:
+            <p class="text-xs text-gray-300 leading-relaxed">
+                Lý do từ chối sẽ hiển thị trực tiếp trong mục "Bài viết của tôi" để tác giả biết hướng chỉnh sửa:
             </p>
 
             <div>
                 <label class="block text-xs font-bold text-gray-300 mb-1.5">Lý do từ chối (bắt buộc) *</label>
-                <textarea id="rejectReasonInput" rows="4" placeholder="Ví dụ: Bài viết chứa nội dung quảng cáo trái phép, tiêu đề giật gân sai sự thật hoặc vi phạm bản quyền..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-rose-500"></textarea>
-                <p id="rejectErrorMsg" class="hidden text-[11px] text-rose-400 mt-1 font-semibold">Vui lòng nhập lý do từ chối để tác giả biết hướng chỉnh sửa.</p>
+                <textarea id="rejectReasonInput" rows="4" placeholder="Ví dụ: Bài viết chứa nội dung quảng cáo chưa qua kiểm định, tiêu đề giật gân hoặc hình ảnh vi phạm bản quyền..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-rose-500"></textarea>
+                <p id="rejectErrorMsg" class="hidden text-[11px] text-rose-400 mt-1 font-semibold">Vui lòng nhập lý do từ chối để hỗ trợ tác giả.</p>
             </div>
 
             <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
@@ -97,6 +134,8 @@
 
     <script>
         let reviewingPostId = null;
+        let currentPage = 1;
+        const POSTS_PER_PAGE = 3;
 
         document.addEventListener('DOMContentLoaded', () => {
             Layout.renderHeader('appHeader');
@@ -110,7 +149,6 @@
             });
         });
 
-        // Nút demo riêng để thay đổi số lượng hàng đợi
         function setupQueueDemoControl() {
             const container = document.getElementById('pageCustomDemoControls');
             if (!container) return;
@@ -132,13 +170,20 @@
             const newId = Date.now();
             MockData.posts.unshift({
                 id: newId,
-                author_id: 4,
-                group_id: 102,
+                author_id: 3,
+                group_id: 101,
                 language_id: 1,
-                title: `Bài viết mới gửi duyệt lúc ${new Date().toLocaleTimeString('vi-VN')}: Tối ưu hóa Database`,
-                slug: `bai-viet-moi-gui-duyet-${newId}`,
-                content: '<p>Nội dung đang chờ duyệt để kiểm tra phản hồi giao diện thực tế của kiểm duyệt viên.</p>',
-                thumbnail_url: 'https://picsum.photos/seed/' + newId + '/800/450',
+                title: `Bài viết gửi duyệt lúc ${new Date().toLocaleTimeString('vi-VN')}: Tối ưu hóa Database và Cache Redis`,
+                slug: `bai-viet-gui-duyet-${newId}`,
+                content: `
+                    <p>Trong bài viết này, chúng ta sẽ phân tích cách ứng dụng kiến trúc <strong>Cache-Aside Pattern</strong> với Redis để giải quyết bài toán tải chậm của cơ sở dữ liệu MySQL.</p>
+                    <div class="my-3">
+                        <img src="https://picsum.photos/seed/${newId}/800/400" alt="Sơ đồ kiến trúc" class="rounded-xl border border-borderDark max-w-full h-auto">
+                        <span class="text-[11px] text-gray-500 italic block mt-1 text-center">Hình 1: Luồng xử lý Cache Hit và Cache Miss</span>
+                    </div>
+                    <p>Kết quả benchmark thực tế cho thấy latency của hệ thống đã giảm từ <strong>120ms</strong> xuống chỉ còn <strong>15ms</strong> cho các truy vấn đọc dữ liệu bài viết phổ biến.</p>
+                `,
+                thumbnail_url: `https://picsum.photos/seed/thumb-${newId}/800/450`,
                 status: 'pending',
                 reviewed_by: null,
                 reviewed_at: null,
@@ -149,6 +194,7 @@
                 views_count: 0
             });
             Layout.showToast('Đã thêm 1 bài viết pending vào hàng đợi!', 'info');
+            currentPage = 1;
             renderQueue();
             Layout.renderAdminSidebar('review', 'adminSidebar');
         }
@@ -166,20 +212,22 @@
             const state = Layout.getDemoState();
             const container = document.getElementById('reviewQueueList');
             const badge = document.getElementById('pendingQueueCountBadge');
+            const paginationBar = document.getElementById('paginationBar');
 
-            // 1. Loading
             if (state === 'loading') {
+                paginationBar.classList.add('hidden');
                 container.innerHTML = Array(2).fill(0).map(() => `
-                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-3 animate-pulse">
-                        <div class="w-1/2 h-5 bg-borderDark rounded"></div>
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-6 space-y-4 animate-pulse">
+                        <div class="w-1/3 h-5 bg-borderDark rounded"></div>
+                        <div class="w-full h-44 bg-borderDark rounded-xl"></div>
                         <div class="w-full h-16 bg-borderDark rounded"></div>
                     </div>
                 `).join('');
                 return;
             }
 
-            // 2. Error
             if (state === 'error') {
+                paginationBar.classList.add('hidden');
                 container.innerHTML = `
                     <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
                         <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
@@ -192,77 +240,154 @@
 
             let pendingPosts = MockData.posts.filter(p => p.status === 'pending' && !p.deleted_at);
 
-            // 3. Demo Empty
             if (state === 'empty') pendingPosts = [];
 
             badge.textContent = `Đang chờ duyệt: ${pendingPosts.length} bài`;
 
             if (pendingPosts.length === 0) {
+                paginationBar.classList.add('hidden');
                 container.innerHTML = `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-12 text-center space-y-3">
                         <div class="w-14 h-14 bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-2xl">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
                         <h3 class="text-base font-bold text-white">Tuyệt vời! Không còn bài viết nào đang chờ duyệt</h3>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Tất cả các bài viết gửi lên đã được xử lý xong.</p>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Tất cả các bài viết gửi lên từ tác giả đã được phê duyệt hoặc xử lý xong.</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = pendingPosts.map(post => {
+            // Xử lý phân trang
+            const totalPages = Math.ceil(pendingPosts.length / POSTS_PER_PAGE);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+            const paginatedPosts = pendingPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
+
+            if (totalPages > 1) {
+                paginationBar.classList.remove('hidden');
+                document.getElementById('pageInfoText').textContent = `Trang ${currentPage} / ${totalPages}`;
+                document.getElementById('prevPageBtn').disabled = currentPage === 1;
+                document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+            } else {
+                paginationBar.classList.add('hidden');
+            }
+
+            container.innerHTML = paginatedPosts.map(post => {
                 const author = MockData.users.find(u => u.id === post.author_id) || {
                     display_name: 'Tác giả',
                     handle: 'author',
                     avatar_url: 'https://i.pravatar.cc/150'
                 };
+                const langObj = MockData.languages.find(l => l.id === post.language_id);
+                const langName = langObj ? langObj.name : 'Tiếng Việt';
 
                 return `
-                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 shadow-sm space-y-4" id="pending-post-${post.id}">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-borderDark pb-3">
+                    <article class="bg-sidebarBg border border-borderDark rounded-2xl p-5 sm:p-6 shadow-sm space-y-5" id="pending-post-${post.id}">
+                        <!-- Header bài viết: Tác giả + Thao tác -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-borderDark pb-4">
                             <div class="flex items-center space-x-3">
-                                <img src="${author.avatar_url}" alt="Avatar" class="w-9 h-9 rounded-full object-cover border border-borderDark">
+                                <img src="${author.avatar_url}" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-borderDark">
                                 <div>
-                                    <div class="flex items-center space-x-1.5">
-                                        <span class="font-bold text-xs text-white">${author.display_name}</span>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-bold text-sm text-white">${author.display_name}</span>
                                         <span class="text-xs text-gray-400">@${author.handle}</span>
                                     </div>
-                                    <span class="text-[10px] text-gray-500">Gửi duyệt vào: ${Layout.formatDate(post.created_at)}</span>
+                                    <div class="text-[11px] text-gray-500 flex items-center space-x-2 mt-0.5">
+                                        <span>Gửi lúc: ${Layout.formatDate(post.created_at)}</span>
+                                        <span>•</span>
+                                        <span class="text-substackOrange font-medium">Ngôn ngữ: ${langName}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Nút Thao Tác: Duyệt / Từ chối -->
-                            <div class="flex items-center space-x-2.5">
-                                <button onclick="openRejectModal(${post.id})" class="px-4 py-2 bg-cardBg hover:bg-rose-950/60 text-gray-300 hover:text-rose-400 border border-borderDark rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                            <!-- Nhóm nút hành động -->
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openFullPreviewModal(${post.id})" class="px-3.5 py-2 bg-cardBg hover:bg-borderDark text-gray-200 border border-borderDark rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Mở bản xem trước đầy đủ">
+                                    <i class="fa-regular fa-window-maximize"></i>
+                                    <span>Toàn màn hình</span>
+                                </button>
+                                <button onclick="openRejectModal(${post.id})" class="px-3.5 py-2 bg-cardBg hover:bg-rose-950/60 text-gray-300 hover:text-rose-400 border border-borderDark rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
                                     <i class="fa-solid fa-xmark"></i>
                                     <span>Từ chối</span>
                                 </button>
-                                <button onclick="approvePost(${post.id})" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition flex items-center space-x-1.5">
+                                <button onclick="approvePost(${post.id})" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition flex items-center space-x-1.5">
                                     <i class="fa-solid fa-check"></i>
                                     <span>Phê duyệt xuất bản</span>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Xem nhanh nội dung -->
-                        <div class="space-y-2">
-                            <h2 class="text-lg font-bold text-white hover:text-substackOrange transition">
+                        <!-- KHU VỰC PREVIEW: Hiển thị chuẩn xác như người đọc thấy -->
+                        <div class="space-y-4 bg-darkBg/60 p-4 sm:p-6 rounded-2xl border border-borderDark">
+                            <!-- Tiêu đề lớn -->
+                            <h2 class="text-xl sm:text-2xl font-extrabold text-white leading-snug">
                                 ${post.title}
                             </h2>
-                            <div class="p-3.5 bg-darkBg/60 rounded-xl border border-borderDark text-xs text-gray-300 leading-relaxed max-h-48 overflow-y-auto">
+
+                            <!-- Ảnh bìa bài viết nếu có (hiển thị nguyên bản ở trên đầu, không để link text) -->
+                            ${post.thumbnail_url ? `
+                                <div class="rounded-xl overflow-hidden aspect-video max-h-80 border border-borderDark shadow-inner">
+                                    <img src="${post.thumbnail_url}" alt="${post.title}" class="w-full h-full object-cover">
+                                </div>
+                            ` : ''}
+
+                            <!-- Render trực tiếp HTML Content từ database: giữ nguyên vị trí ảnh chèn giữa bài -->
+                            <div class="prose prose-invert max-w-none text-xs sm:text-sm text-gray-200 leading-relaxed space-y-3">
                                 ${post.content}
                             </div>
                         </div>
-
-                        ${post.thumbnail_url ? `
-                            <div class="text-[11px] text-gray-400 flex items-center space-x-2">
-                                <i class="fa-regular fa-image text-substackOrange"></i>
-                                <span>Ảnh bìa: <a href="${post.thumbnail_url}" target="_blank" class="text-substackOrange hover:underline truncate">${post.thumbnail_url}</a></span>
-                            </div>
-                        ` : ''}
-                    </div>
+                    </article>
                 `;
             }).join('');
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderQueue();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openFullPreviewModal(postId) {
+            const post = MockData.posts.find(p => p.id === postId);
+            if (!post) return;
+
+            const author = MockData.users.find(u => u.id === post.author_id) || { display_name: 'Tác giả', handle: 'author' };
+            const container = document.getElementById('fullPreviewBody');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">${post.title}</h1>
+                    <div class="flex items-center space-x-3 text-xs text-gray-400 border-b border-borderDark pb-4">
+                        <span>Tác giả: <strong class="text-white">${author.display_name}</strong> (@${author.handle})</span>
+                        <span>•</span>
+                        <span>Ngày tạo: ${Layout.formatDate(post.created_at)}</span>
+                    </div>
+
+                    ${post.thumbnail_url ? `
+                        <div class="rounded-2xl overflow-hidden aspect-video max-h-96 border border-borderDark">
+                            <img src="${post.thumbnail_url}" alt="${post.title}" class="w-full h-full object-cover">
+                        </div>
+                    ` : ''}
+
+                    <div class="prose prose-invert max-w-none text-sm text-gray-200 leading-relaxed space-y-4 pt-2">
+                        ${post.content}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalApproveBtn').onclick = () => {
+                closeFullPreviewModal();
+                approvePost(postId);
+            };
+
+            document.getElementById('fullPreviewModal').classList.remove('hidden');
+        }
+
+        function closeFullPreviewModal() {
+            document.getElementById('fullPreviewModal').classList.add('hidden');
         }
 
         function approvePost(postId) {
@@ -275,7 +400,7 @@
                 post.reviewed_at = new Date().toISOString();
                 post.reject_reason = null;
 
-                Layout.showToast(`Đã duyệt và xuất bản bài viết "${post.title.substring(0, 30)}..." thành công!`, 'success');
+                Layout.showToast(`Đã duyệt và xuất bản bài viết thành công!`, 'success');
                 renderQueue();
                 Layout.renderAdminSidebar('review', 'adminSidebar');
             }
