@@ -31,7 +31,7 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
         <!-- Sidebar Admin -->
         <aside id="adminSidebar"></aside>
 
@@ -44,22 +44,20 @@
                         <i class="fa-solid fa-users-gear text-substackOrange"></i>
                         <span>Quản lý tài khoản người dùng</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-1">Danh sách thành viên, phân quyền vai trò và thực thi các biện pháp kỷ luật khóa tài khoản.</p>
+                    <p class="text-xs text-gray-400 mt-1">Danh sách thành viên, phân quyền vai trò và thực thi kỷ luật khóa tài khoản.</p>
                 </div>
             </div>
 
             <!-- Thanh Tìm Kiếm & Bộ Lọc -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
-                <!-- Ô tìm kiếm -->
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500"></i>
-                    <input type="text" id="userSearchInput" oninput="renderUsersTable()" placeholder="Tìm theo tên, @handle, email..." class="w-full bg-darkBg border border-borderDark rounded-xl pl-8 pr-3 py-2 text-white focus:outline-none focus:border-substackOrange">
+                    <input type="text" id="userSearchInput" oninput="applyUserFilter()" placeholder="Tìm theo tên, @handle, email..." class="w-full bg-darkBg border border-borderDark rounded-xl pl-8 pr-3 py-2 text-white focus:outline-none focus:border-substackOrange">
                 </div>
 
-                <!-- Lọc vai trò -->
                 <div class="flex items-center space-x-2">
                     <span class="text-gray-400 font-semibold whitespace-nowrap">Vai trò:</span>
-                    <select id="userRoleFilter" onchange="renderUsersTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
+                    <select id="userRoleFilter" onchange="applyUserFilter()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
                         <option value="all">Tất cả vai trò</option>
                         <option value="1">Admin (Quản trị viên)</option>
                         <option value="2">Blogger (Tác giả)</option>
@@ -67,10 +65,9 @@
                     </select>
                 </div>
 
-                <!-- Lọc trạng thái -->
                 <div class="flex items-center space-x-2">
                     <span class="text-gray-400 font-semibold whitespace-nowrap">Trạng thái:</span>
-                    <select id="userStatusFilter" onchange="renderUsersTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
+                    <select id="userStatusFilter" onchange="applyUserFilter()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
                         <option value="all">Tất cả trạng thái</option>
                         <option value="active">Đang hoạt động</option>
                         <option value="banned">Bị đình chỉ (Banned)</option>
@@ -92,11 +89,22 @@
                                 <th class="p-3.5 text-right">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody id="usersTableBody" class="divide-y divide-borderDark">
-                            <!-- Render qua JS -->
-                        </tbody>
+                        <tbody id="usersTableBody" class="divide-y divide-borderDark"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Phân trang luôn hiển thị -->
+            <div id="usersPaginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="userPrevBtn" onclick="changeUserPage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
+                </button>
+                <span id="userPageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="userNextBtn" onclick="changeUserPage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
 
         </main>
@@ -113,13 +121,11 @@
                 <button onclick="closeBanModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div id="banUserInfo" class="p-3 bg-darkBg rounded-xl border border-borderDark text-xs">
-                <!-- Thông tin thành viên -->
-            </div>
+            <div id="banUserInfo" class="p-3 bg-darkBg rounded-xl border border-borderDark text-xs"></div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-300 mb-1.5">Lý do khóa tài khoản (bắt buộc) *</label>
-                <textarea id="banReasonInput" rows="3" placeholder="Nhập căn cứ xử phạt (ví dụ: Vi phạm quy định chống spam, phát tán nội dung độc hại...)" class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-red-500"></textarea>
+                <textarea id="banReasonInput" rows="3" placeholder="Nhập căn cứ xử phạt..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-red-500"></textarea>
                 <p id="banErrorMsg" class="hidden text-[11px] text-red-400 mt-1 font-semibold">Vui lòng nhập lý do để hiển thị cho người dùng khi đăng nhập.</p>
             </div>
 
@@ -137,6 +143,8 @@
 
     <script>
         let targetUserIdForBan = null;
+        let currentUserPage = 1;
+        const USERS_PER_PAGE = 4;
 
         document.addEventListener('DOMContentLoaded', () => {
             Layout.renderHeader('appHeader');
@@ -149,6 +157,11 @@
             });
         });
 
+        function applyUserFilter() {
+            currentUserPage = 1;
+            renderUsersTable();
+        }
+
         function renderUsersTable() {
             const state = Layout.getDemoState();
             const tbody = document.getElementById('usersTableBody');
@@ -157,26 +170,17 @@
             const statusFilter = document.getElementById('userStatusFilter').value;
             const currentUser = Layout.getCurrentUser();
 
-            // 1. Loading
             if (state === 'loading') {
                 tbody.innerHTML = Array(3).fill(0).map(() => `
-                    <tr><td colspan="6" class="p-4 text-center"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
+                    <tr><td colspan="6" class="p-4"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
                 `).join('');
-                return;
-            }
-
-            // 2. Error
-            if (state === 'error') {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-400">Lỗi không thể tải danh sách người dùng.</td></tr>`;
                 return;
             }
 
             let users = [...MockData.users];
 
-            // 3. Demo Empty
             if (state === 'empty') users = [];
 
-            // Tìm kiếm
             if (search) {
                 users = users.filter(u => 
                     u.display_name.toLowerCase().includes(search) ||
@@ -185,24 +189,34 @@
                 );
             }
 
-            // Lọc vai trò
             if (roleFilter !== 'all') {
                 users = users.filter(u => u.role_id === parseInt(roleFilter, 10));
             }
 
-            // Lọc trạng thái
             if (statusFilter === 'active') {
                 users = users.filter(u => u.is_active);
             } else if (statusFilter === 'banned') {
                 users = users.filter(u => !u.is_active);
             }
 
+            // Pagination luôn hiển thị
+            const totalPages = Math.ceil(users.length / USERS_PER_PAGE) || 1;
+            if (currentUserPage > totalPages) currentUserPage = totalPages;
+            if (currentUserPage < 1) currentUserPage = 1;
+
+            document.getElementById('userPageInfoText').textContent = `Trang ${currentUserPage} / ${totalPages} (${users.length} thành viên)`;
+            document.getElementById('userPrevBtn').disabled = (currentUserPage === 1);
+            document.getElementById('userNextBtn').disabled = (currentUserPage === totalPages || users.length === 0);
+
             if (users.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">Không tìm thấy người dùng phù hợp.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = users.map(user => {
+            const start = (currentUserPage - 1) * USERS_PER_PAGE;
+            const paginated = users.slice(start, start + USERS_PER_PAGE);
+
+            tbody.innerHTML = paginated.map(user => {
                 const isSelf = currentUser && currentUser.id === user.id;
 
                 const roleBadges = {
@@ -250,13 +264,19 @@
                                 </button>
                             ` : `
                                 <button onclick="unbanUser(${user.id})" class="px-3 py-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 rounded-xl transition font-medium">
-                                    <i class="fa-solid fa-lock-open mr-1"></i> Mở khóa (Unban)
+                                    <i class="fa-solid fa-lock-open mr-1"></i> Mở khóa
                                 </button>
                             `)}
                         </td>
                     </tr>
                 `;
             }).join('');
+        }
+
+        function changeUserPage(delta) {
+            currentUserPage += delta;
+            renderUsersTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function openBanModal(userId) {
@@ -292,7 +312,7 @@
                 user.banned_at = new Date().toISOString();
 
                 closeBanModal();
-                Layout.showToast(`Đã đình chỉ tài khoản @${user.handle} thành công!`, 'success');
+                Layout.showToast(`Đã đình chỉ tài khoản @${user.handle}!`, 'success');
                 renderUsersTable();
             }
         }
@@ -303,7 +323,7 @@
 
             Layout.showConfirmModal({
                 title: 'Mở khóa tài khoản',
-                message: `Bạn có chắc chắn muốn gỡ lệnh cấm cho người dùng ${user.display_name} (@${user.handle})? Người này sẽ có thể đăng nhập và hoạt động bình thường trở lại.`,
+                message: `Bạn có chắc chắn muốn mở khóa cho tài khoản @${user.handle}?`,
                 confirmText: 'Mở khóa ngay',
                 confirmClass: 'bg-emerald-600 hover:bg-emerald-700',
                 onConfirm: () => {

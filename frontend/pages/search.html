@@ -31,77 +31,79 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <!-- Khung chính -->
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
 
         <!-- Main content -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
             
-            <div class="space-y-6">
-                <!-- Tiêu đề & Ô tìm kiếm lớn -->
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Tìm kiếm & Khám phá</h1>
-                    <p class="text-xs sm:text-sm text-gray-400">Khám phá các bài phân tích chuyên sâu, tác giả và chủ đề nổi bật trên toàn hệ thống.</p>
-                </div>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Tìm kiếm & Khám phá</h1>
+                <p class="text-xs sm:text-sm text-gray-400">Khám phá các bài phân tích chuyên sâu, tác giả và chủ đề nổi bật trên toàn hệ thống.</p>
+            </div>
 
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"></i>
-                    <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm (tiêu đề, nội dung, tên tác giả)..." class="w-full bg-sidebarBg border border-borderDark focus:border-substackOrange rounded-2xl pl-11 pr-24 py-3 text-sm text-white placeholder-gray-500 focus:outline-none shadow-md transition">
-                    <button onclick="executeSearch()" class="absolute right-2 top-2 bg-substackOrange hover:bg-substackOrangeHover text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition shadow">
-                        Tìm kiếm
-                    </button>
-                </div>
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="Nhập từ khóa tìm kiếm (tiêu đề, nội dung, tên tác giả)..." class="w-full bg-sidebarBg border border-borderDark focus:border-substackOrange rounded-2xl pl-11 pr-24 py-3 text-sm text-white placeholder-gray-500 focus:outline-none shadow-md transition">
+                <button onclick="executeSearch()" class="absolute right-2 top-2 bg-substackOrange hover:bg-substackOrangeHover text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition shadow">
+                    Tìm kiếm
+                </button>
+            </div>
 
-                <!-- Chip Thẻ Tags để lọc nhanh -->
-                <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-2">Lọc theo chủ đề:</span>
-                    <div id="searchTagChips" class="flex flex-wrap gap-2 text-xs">
-                        <!-- Render tags qua JS -->
-                    </div>
-                </div>
+            <!-- Chip Thẻ Tags -->
+            <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-2">Lọc theo chủ đề:</span>
+                <div id="searchTagChips" class="flex flex-wrap gap-2 text-xs"></div>
+            </div>
 
-                <!-- Thống kê kết quả -->
-                <div class="flex items-center justify-between border-b border-borderDark pb-3">
-                    <div id="searchResultStats" class="text-xs text-gray-400 font-medium">
-                        Đang hiển thị tất cả bài viết đã xuất bản
-                    </div>
-                    <div class="flex items-center space-x-2 text-xs">
-                        <span class="text-gray-500">Sắp xếp:</span>
-                        <select id="sortSelect" onchange="executeSearch()" class="bg-cardBg border border-borderDark rounded-lg px-2 py-1 text-gray-300 focus:outline-none">
-                            <option value="newest">Mới nhất</option>
-                            <option value="popular">Đọc nhiều nhất</option>
-                        </select>
-                    </div>
+            <!-- Thống kê kết quả -->
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <div id="searchResultStats" class="text-xs text-gray-400 font-medium"></div>
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="text-gray-500">Sắp xếp:</span>
+                    <select id="sortSelect" onchange="executeSearch()" class="bg-cardBg border border-borderDark rounded-lg px-2 py-1 text-gray-300 focus:outline-none">
+                        <option value="newest">Mới nhất</option>
+                        <option value="popular">Đọc nhiều nhất</option>
+                    </select>
                 </div>
+            </div>
 
-                <!-- Danh sách kết quả -->
-                <div id="searchResultsList" class="space-y-4">
-                    <!-- Render qua JS -->
-                </div>
+            <!-- Danh sách kết quả -->
+            <div id="searchResultsList" class="space-y-4"></div>
+
+            <!-- Phân trang luôn hiển thị -->
+            <div id="searchPaginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="searchPrevBtn" onclick="changeSearchPage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
+                </button>
+                <span id="searchPageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="searchNextBtn" onclick="changeSearchPage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
 
         </main>
     </div>
 
-    <!-- Bottom Nav Mobile -->
     <nav id="appBottomNav"></nav>
 
-    <!-- Script & Mock Data -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
         let selectedTagSlug = null;
+        let currentSearchPage = 1;
+        const SEARCH_POSTS_PER_PAGE = 4;
 
         document.addEventListener('DOMContentLoaded', () => {
             Layout.renderHeader('appHeader');
             Layout.renderSidebar('search', 'appSidebar');
             Layout.renderBottomNav('search', 'appBottomNav');
 
-            // Đọc param ?q= hoặc ?tag= từ URL
             const urlParams = new URLSearchParams(window.location.search);
             const initialQuery = urlParams.get('q') || '';
             const initialTag = urlParams.get('tag') || null;
@@ -114,9 +116,11 @@
             renderTagChips();
             executeSearch();
 
-            // Enter để search
             document.getElementById('searchInput').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') executeSearch();
+                if (e.key === 'Enter') {
+                    currentSearchPage = 1;
+                    executeSearch();
+                }
             });
 
             window.addEventListener('demoStateChanged', () => {
@@ -142,6 +146,7 @@
 
         function toggleTagFilter(slug) {
             selectedTagSlug = slug;
+            currentSearchPage = 1;
             renderTagChips();
             executeSearch();
         }
@@ -153,41 +158,22 @@
             const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
             const sortBy = document.getElementById('sortSelect').value;
 
-            // 1. Loading
             if (state === 'loading') {
                 stats.textContent = 'Đang tìm kiếm kết quả...';
                 container.innerHTML = Array(3).fill(0).map(() => `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-3 animate-pulse">
                         <div class="w-1/2 h-5 bg-borderDark rounded"></div>
                         <div class="w-full h-12 bg-borderDark rounded"></div>
-                        <div class="w-1/4 h-3 bg-borderDark rounded"></div>
                     </div>
                 `).join('');
                 return;
             }
 
-            // 2. Error
-            if (state === 'error') {
-                stats.textContent = 'Không thể tải kết quả';
-                container.innerHTML = `
-                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
-                        <h3 class="text-sm font-bold text-white">Lỗi truy vấn tìm kiếm</h3>
-                        <p class="text-xs text-gray-400">Không thể thực hiện truy vấn cơ sở dữ liệu. Vui lòng bấm thử lại.</p>
-                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-lg">Thử lại</button>
-                    </div>
-                `;
-                return;
-            }
-
-            // Lọc posts
             let results = MockData.posts.filter(p => p.status === 'published' && !p.deleted_at);
 
-            // 3. Demo Empty
             if (state === 'empty') {
                 results = [];
             } else {
-                // Lọc theo tag
                 if (selectedTagSlug) {
                     const tagObj = MockData.tags.find(t => t.slug === selectedTagSlug);
                     if (tagObj) {
@@ -196,7 +182,6 @@
                     }
                 }
 
-                // Lọc theo từ khóa tìm kiếm
                 if (query) {
                     results = results.filter(p => {
                         const author = MockData.users.find(u => u.id === p.author_id);
@@ -209,7 +194,6 @@
                     });
                 }
 
-                // Sắp xếp
                 if (sortBy === 'popular') {
                     results.sort((a, b) => b.views_count - a.views_count);
                 } else {
@@ -217,19 +201,21 @@
                 }
             }
 
-            // Trạng thái Rỗng
+            // Pagination luôn hiển thị
+            const totalPages = Math.ceil(results.length / SEARCH_POSTS_PER_PAGE) || 1;
+            if (currentSearchPage > totalPages) currentSearchPage = totalPages;
+            if (currentSearchPage < 1) currentSearchPage = 1;
+
+            document.getElementById('searchPageInfoText').textContent = `Trang ${currentSearchPage} / ${totalPages} (${results.length} bài viết)`;
+            document.getElementById('searchPrevBtn').disabled = (currentSearchPage === 1);
+            document.getElementById('searchNextBtn').disabled = (currentSearchPage === totalPages || results.length === 0);
+
             if (results.length === 0) {
                 stats.textContent = `Tìm thấy 0 kết quả phù hợp`;
                 container.innerHTML = `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-3">
-                        <div class="w-12 h-12 bg-borderDark/60 text-gray-400 rounded-full flex items-center justify-center mx-auto text-xl">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </div>
+                        <i class="fa-solid fa-magnifying-glass text-3xl text-gray-500"></i>
                         <h3 class="text-sm font-bold text-white">Không tìm thấy bài viết nào phù hợp</h3>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Hãy thử tìm với các từ khóa khác ngắn gọn hơn hoặc bỏ bớt bộ lọc theo chủ đề.</p>
-                        <button onclick="resetSearch()" class="text-xs text-substackOrange font-medium hover:underline inline-block mt-2">
-                            Xóa bộ lọc & xem tất cả
-                        </button>
                     </div>
                 `;
                 return;
@@ -237,7 +223,10 @@
 
             stats.innerHTML = `Tìm thấy <strong class="text-white">${results.length}</strong> bài viết phù hợp`;
 
-            container.innerHTML = results.map(post => {
+            const start = (currentSearchPage - 1) * SEARCH_POSTS_PER_PAGE;
+            const paginated = results.slice(start, start + SEARCH_POSTS_PER_PAGE);
+
+            container.innerHTML = paginated.map(post => {
                 const author = MockData.users.find(u => u.id === post.author_id) || {
                     display_name: 'Tác giả',
                     handle: 'author',
@@ -281,11 +270,10 @@
             }).join('');
         }
 
-        function resetSearch() {
-            document.getElementById('searchInput').value = '';
-            selectedTagSlug = null;
-            renderTagChips();
+        function changeSearchPage(delta) {
+            currentSearchPage += delta;
             executeSearch();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>

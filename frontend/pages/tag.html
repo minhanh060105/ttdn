@@ -31,7 +31,7 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
 
@@ -39,13 +39,22 @@
         <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
             
             <!-- Header thông tin Thẻ -->
-            <div id="tagHeaderBox" class="bg-sidebarBg border border-borderDark rounded-2xl p-6 shadow-sm">
-                <!-- Render qua JS -->
-            </div>
+            <div id="tagHeaderBox" class="bg-sidebarBg border border-borderDark rounded-2xl p-6 shadow-sm"></div>
 
             <!-- Danh sách bài viết theo Thẻ -->
-            <div id="tagPostList" class="space-y-4">
-                <!-- Render qua JS -->
+            <div id="tagPostList" class="space-y-4"></div>
+
+            <!-- Phân trang luôn hiển thị -->
+            <div id="tagPaginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="tagPrevBtn" onclick="changeTagPage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
+                </button>
+                <span id="tagPageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="tagNextBtn" onclick="changeTagPage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
 
         </main>
@@ -60,6 +69,9 @@
     <script src="../assets/js/layout.js"></script>
 
     <script>
+        let currentTagPage = 1;
+        const TAG_POSTS_PER_PAGE = 3;
+
         document.addEventListener('DOMContentLoaded', () => {
             Layout.renderHeader('appHeader');
             Layout.renderSidebar('tag', 'appSidebar');
@@ -79,7 +91,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug') || 'cong-nghe';
 
-            // 1. Loading
             if (state === 'loading') {
                 headerBox.innerHTML = `
                     <div class="animate-pulse space-y-3">
@@ -96,20 +107,6 @@
                 return;
             }
 
-            // 2. Error
-            if (state === 'error') {
-                headerBox.innerHTML = `<h2 class="text-lg font-bold text-rose-400">Không thể tải thông tin chủ đề</h2>`;
-                listContainer.innerHTML = `
-                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
-                        <h3 class="text-sm font-bold text-white">Lỗi kết nối máy chủ</h3>
-                        <p class="text-xs text-gray-400">Không thể lấy danh sách bài viết theo chủ đề.</p>
-                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
-                    </div>
-                `;
-                return;
-            }
-
             const tag = MockData.tags.find(t => t.slug === slug);
             if (!tag) {
                 headerBox.innerHTML = `
@@ -122,11 +119,9 @@
                 return;
             }
 
-            // Tìm bài viết có tag này
             const postIds = MockData.post_tags.filter(pt => pt.tag_id === tag.id).map(pt => pt.post_id);
             let posts = MockData.posts.filter(p => postIds.includes(p.id) && p.status === 'published' && !p.deleted_at);
 
-            // 3. Demo Empty
             if (state === 'empty') posts = [];
 
             // Header info
@@ -150,20 +145,29 @@
                 </div>
             `;
 
-            // List posts
+            // Pagination luôn hiển thị
+            const totalPages = Math.ceil(posts.length / TAG_POSTS_PER_PAGE) || 1;
+            if (currentTagPage > totalPages) currentTagPage = totalPages;
+            if (currentTagPage < 1) currentTagPage = 1;
+
+            document.getElementById('tagPageInfoText').textContent = `Trang ${currentTagPage} / ${totalPages} (${posts.length} bài viết)`;
+            document.getElementById('tagPrevBtn').disabled = (currentTagPage === 1);
+            document.getElementById('tagNextBtn').disabled = (currentTagPage === totalPages || posts.length === 0);
+
             if (posts.length === 0) {
                 listContainer.innerHTML = `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-3">
                         <i class="fa-regular fa-folder-open text-3xl text-gray-500"></i>
                         <h3 class="text-sm font-bold text-white">Chưa có bài viết nào trong chủ đề này</h3>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Hãy quay lại sau hoặc khám phá các chủ đề khác trên hệ thống.</p>
-                        <a href="index.html" class="inline-block mt-2 text-xs text-substackOrange hover:underline font-medium">Về Trang chủ</a>
                     </div>
                 `;
                 return;
             }
 
-            listContainer.innerHTML = posts.map(post => {
+            const start = (currentTagPage - 1) * TAG_POSTS_PER_PAGE;
+            const paginated = posts.slice(start, start + TAG_POSTS_PER_PAGE);
+
+            listContainer.innerHTML = paginated.map(post => {
                 const author = MockData.users.find(u => u.id === post.author_id) || {
                     display_name: 'Tác giả',
                     handle: 'author',
@@ -199,6 +203,12 @@
                     </article>
                 `;
             }).join('');
+        }
+
+        function changeTagPage(delta) {
+            currentTagPage += delta;
+            renderTagPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>

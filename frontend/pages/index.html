@@ -32,7 +32,7 @@
     <header id="appHeader"></header>
 
     <!-- Khung giao diện chính -->
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
         
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
@@ -78,23 +78,22 @@
                     <button onclick="filterByTag('all')" data-tag-slug="all" class="px-3 py-1.5 rounded-full border border-substackOrange bg-substackOrange text-white font-medium whitespace-nowrap transition">
                         Tất cả
                     </button>
-                    <!-- Danh sách chip tag sẽ được render qua JS -->
                 </div>
             </div>
 
-            <!-- Vùng hiển thị bài viết (Hỗ trợ 4 trạng thái) -->
-            <div id="postListContainer" class="space-y-6">
-                <!-- Nội dung động qua JavaScript -->
-            </div>
+            <!-- Vùng hiển thị bài viết -->
+            <div id="postListContainer" class="space-y-6"></div>
 
-            <!-- Phân trang -->
-            <div id="paginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400 hidden">
-                <button id="prevPageBtn" onclick="changePage(-1)" class="px-3 py-1.5 rounded-lg bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
-                    <i class="fa-solid fa-arrow-left mr-1"></i> Trang trước
+            <!-- Phân trang luôn hiển thị -->
+            <div id="paginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="prevPageBtn" onclick="changePage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
                 </button>
-                <span id="pageInfoText">Trang 1 / 1</span>
-                <button id="nextPageBtn" onclick="changePage(1)" class="px-3 py-1.5 rounded-lg bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed">
-                    Trang sau <i class="fa-solid fa-arrow-right ml-1"></i>
+                <span id="pageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="nextPageBtn" onclick="changePage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
 
@@ -102,35 +101,26 @@
 
         <!-- Sidebar phải -->
         <aside class="w-80 p-4 hidden lg:block sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto space-y-6">
-            
-            <!-- Ô tìm kiếm nhanh -->
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></span>
                 <input type="text" onkeydown="if(event.key==='Enter') window.location.href='search.html?q='+encodeURIComponent(this.value)" placeholder="Tìm kiếm bài viết..." class="w-full bg-sidebarBg border border-borderDark rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-substackOrange transition">
             </div>
 
-            <!-- Khối Đọc Nhiều (Popular stories) -->
             <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 shadow-sm">
                 <div class="flex items-center space-x-2 mb-3 border-b border-borderDark pb-2.5">
                     <i class="fa-solid fa-fire text-substackOrange text-sm"></i>
                     <h3 class="font-bold text-sm text-white" data-i18n="common.popular">Đọc nhiều nhất</h3>
                 </div>
-                <div id="popularPostsList" class="space-y-3.5">
-                    <!-- Render động qua JS -->
-                </div>
+                <div id="popularPostsList" class="space-y-3.5"></div>
             </div>
 
-            <!-- Tác giả tiêu biểu / Gợi ý follow -->
             <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 shadow-sm">
                 <div class="flex items-center justify-between mb-3 border-b border-borderDark pb-2">
                     <h3 class="font-bold text-sm text-white">Tác giả đề xuất</h3>
                     <a href="search.html" class="text-xs text-substackOrange hover:underline">Xem thêm</a>
                 </div>
-                <div id="recommendedAuthorsList" class="space-y-3">
-                    <!-- Render động qua JS -->
-                </div>
+                <div id="recommendedAuthorsList" class="space-y-3"></div>
             </div>
-
         </aside>
 
     </div>
@@ -138,7 +128,6 @@
     <!-- Bottom Nav Mobile -->
     <nav id="appBottomNav"></nav>
 
-    <!-- Nạp dữ liệu & Script điều khiển -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/layout.js"></script>
@@ -148,7 +137,6 @@
         let currentPage = 1;
         const POSTS_PER_PAGE = 4;
 
-        // Khởi tạo trang chủ
         document.addEventListener('DOMContentLoaded', () => {
             Layout.renderHeader('appHeader');
             Layout.renderSidebar('home', 'appSidebar');
@@ -160,13 +148,12 @@
             renderPopularPosts();
             renderRecommendedAuthors();
 
-            // Lắng nghe đổi ngôn ngữ hoặc đổi state từ thanh demo
             window.addEventListener('languageChanged', () => {
                 renderHomeContent();
                 renderPopularPosts();
             });
 
-            window.addEventListener('demoStateChanged', (e) => {
+            window.addEventListener('demoStateChanged', () => {
                 renderHomeContent();
             });
         });
@@ -188,7 +175,6 @@
                     document.getElementById('quickUserAvatar').src = user.avatar_url;
                 }
             } else {
-                // Vai trò User (độc giả thông thường - không có quyền đăng bài)
                 guestBanner.classList.add('hidden');
                 quickBox.classList.add('hidden');
             }
@@ -216,7 +202,6 @@
             currentSelectedTag = slug;
             currentPage = 1;
 
-            // Highlight button
             document.querySelectorAll('#tagFilterBar button').forEach(btn => {
                 if (btn.getAttribute('data-tag-slug') === slug) {
                     btn.className = "px-3 py-1.5 rounded-full border border-substackOrange bg-substackOrange text-white font-medium whitespace-nowrap transition";
@@ -231,14 +216,11 @@
         function renderHomeContent() {
             const state = Layout.getDemoState();
             const container = document.getElementById('postListContainer');
-            const paginationBar = document.getElementById('paginationBar');
             const currentLangCode = I18n.getCurrentLang();
             const langObj = MockData.languages.find(l => l.code === currentLangCode);
             const currentLangId = langObj ? langObj.id : 1;
 
-            // 1. TRẠNG THÁI LOADING (Skeleton)
             if (state === 'loading') {
-                paginationBar.classList.add('hidden');
                 container.innerHTML = Array(3).fill(0).map(() => `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-5 space-y-4 animate-pulse">
                         <div class="flex items-center space-x-3">
@@ -250,41 +232,30 @@
                         </div>
                         <div class="w-3/4 h-5 bg-borderDark rounded"></div>
                         <div class="w-full h-16 bg-borderDark rounded"></div>
-                        <div class="w-full h-40 bg-borderDark rounded-xl"></div>
                     </div>
                 `).join('');
                 return;
             }
 
-            // 2. TRẠNG THÁI LỖI (Error)
             if (state === 'error') {
-                paginationBar.classList.add('hidden');
                 container.innerHTML = `
                     <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-4">
                         <div class="w-12 h-12 bg-rose-950/60 text-rose-500 rounded-full flex items-center justify-center mx-auto text-xl">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                         <h3 class="text-base font-bold text-white">Đã xảy ra lỗi khi tải danh sách bài viết</h3>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Không thể kết nối với máy chủ lấy dữ liệu bản tin. Vui lòng thử lại sau.</p>
-                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2 rounded-lg transition shadow">
-                            <i class="fa-solid fa-rotate-right mr-1.5"></i> Thử lại ngay
-                        </button>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Không thể kết nối với máy chủ lấy dữ liệu bản tin.</p>
                     </div>
                 `;
                 return;
             }
 
-            // Lấy danh sách bài viết theo status 'published' và theo language_id
             let posts = MockData.posts.filter(p => p.status === 'published' && !p.deleted_at);
 
-            // 3. TRẠNG THÁI RỖNG (Empty do Demo hoặc lọc không ra)
             if (state === 'empty') {
                 posts = [];
             } else {
-                // Lọc theo ngôn ngữ
                 posts = posts.filter(p => p.language_id === currentLangId);
-
-                // Lọc theo tag nếu có
                 if (currentSelectedTag !== 'all') {
                     const matchedTag = MockData.tags.find(t => t.slug === currentSelectedTag);
                     if (matchedTag) {
@@ -294,28 +265,26 @@
                 }
             }
 
+            // Tính toán Pagination luôn hiển thị
+            const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            document.getElementById('pageInfoText').textContent = `Trang ${currentPage} / ${totalPages} (${posts.length} bài viết)`;
+            document.getElementById('prevPageBtn').disabled = (currentPage === 1);
+            document.getElementById('nextPageBtn').disabled = (currentPage === totalPages || posts.length === 0);
+
             if (posts.length === 0) {
-                paginationBar.classList.add('hidden');
                 container.innerHTML = `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-3">
                         <div class="w-14 h-14 bg-borderDark/60 text-gray-400 rounded-full flex items-center justify-center mx-auto text-2xl">
                             <i class="fa-regular fa-folder-open"></i>
                         </div>
-                        <h3 class="text-base font-bold text-white" data-i18n="common.empty_posts">Chưa có bài viết nào ở ngôn ngữ này</h3>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Hãy đổi sang ngôn ngữ khác ở góc trên hoặc chọn bộ lọc "Tất cả chủ đề" để khám phá thêm nội dung.</p>
-                        <button onclick="I18n.toggleLanguage()" class="mt-2 inline-flex items-center space-x-1.5 text-xs text-substackOrange font-medium hover:underline">
-                            <i class="fa-solid fa-globe"></i>
-                            <span>Chuyển sang ${currentLangCode === 'vi' ? 'Tiếng Anh (EN)' : 'Tiếng Việt (VI)'}</span>
-                        </button>
+                        <h3 class="text-base font-bold text-white">Chưa có bài viết nào ở danh mục này</h3>
                     </div>
                 `;
                 return;
             }
-
-            // 4. TRẠNG THÁI BÌNH THƯỜNG (Normal) có dữ liệu + Phân trang
-            const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
 
             const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
             const paginatedPosts = posts.slice(startIndex, startIndex + POSTS_PER_PAGE);
@@ -327,17 +296,13 @@
                     avatar_url: 'https://i.pravatar.cc/150'
                 };
 
-                // Lấy tags của post
                 const postTagIds = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
                 const postTags = MockData.tags.filter(t => postTagIds.includes(t.id));
-
-                // Đếm phản hồi & bình luận
                 const commentCount = MockData.comments.filter(c => c.post_id === post.id && !c.deleted_at).length;
                 const reactionCount = MockData.reactions.filter(r => r.target_type === 'post' && r.post_id === post.id).length;
 
                 return `
                     <article class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-4 sm:p-5 transition shadow-sm">
-                        <!-- Tác giả & Hành động theo dõi -->
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-3">
                                 <a href="profile.html?handle=${author.handle}">
@@ -359,7 +324,6 @@
                             </button>
                         </div>
 
-                        <!-- Tiêu đề & Tóm tắt -->
                         <div class="space-y-2 mb-3 cursor-pointer" onclick="window.location.href='post-detail.html?slug=${post.slug}'">
                             <h2 class="text-base sm:text-lg font-bold text-white hover:text-substackOrange transition leading-snug line-clamp-2">
                                 ${post.title}
@@ -369,14 +333,12 @@
                             </div>
                         </div>
 
-                        <!-- Ảnh bìa nếu có -->
                         ${post.thumbnail_url ? `
                             <div class="rounded-xl overflow-hidden mb-3 aspect-video max-h-64 cursor-pointer" onclick="window.location.href='post-detail.html?slug=${post.slug}'">
                                 <img src="${post.thumbnail_url}" alt="${post.title}" class="w-full h-full object-cover hover:scale-102 transition duration-300">
                             </div>
                         ` : ''}
 
-                        <!-- Thẻ Tags & Tương tác -->
                         <div class="flex flex-wrap items-center justify-between pt-2 border-t border-borderDark gap-2 text-xs text-gray-400">
                             <div class="flex items-center space-x-2 flex-wrap">
                                 ${postTags.map(t => `
@@ -404,16 +366,6 @@
                     </article>
                 `;
             }).join('');
-
-            // Cập nhật phân trang
-            if (totalPages > 1) {
-                paginationBar.classList.remove('hidden');
-                document.getElementById('pageInfoText').textContent = `Trang ${currentPage} / ${totalPages}`;
-                document.getElementById('prevPageBtn').disabled = currentPage === 1;
-                document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
-            } else {
-                paginationBar.classList.add('hidden');
-            }
         }
 
         function changePage(direction) {
@@ -428,19 +380,22 @@
                     btn.classList.remove('followed', 'bg-substackOrange', 'text-white');
                     btn.classList.add('bg-cardBg', 'text-substackOrange');
                     btn.textContent = 'Theo dõi';
-                    Layout.showToast('Đã hủy theo dõi tác giả.', 'info');
                 } else {
                     btn.classList.add('followed', 'bg-substackOrange', 'text-white');
                     btn.classList.remove('bg-cardBg', 'text-substackOrange');
                     btn.textContent = 'Đang theo dõi';
-                    Layout.showToast('Đã theo dõi tác giả thành công!', 'success');
                 }
             });
         }
 
         function handleReaction(postId) {
             Layout.requireAuth(() => {
-                Layout.showToast('Bạn đã thích bài viết này!', 'success');
+                MockData.reactions.push({
+                    user_id: Layout.getCurrentUser()?.id || 3,
+                    target_type: 'post',
+                    post_id: postId,
+                    type: 'like'
+                });
                 renderHomeContent();
             });
         }

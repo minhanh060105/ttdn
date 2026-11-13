@@ -31,7 +31,7 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
         <!-- Sidebar Admin -->
         <aside id="adminSidebar"></aside>
 
@@ -44,16 +44,15 @@
                         <i class="fa-solid fa-shield-halved text-substackOrange"></i>
                         <span>Quản lý & Xử lý báo cáo vi phạm</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-1">Kiểm duyệt các khiếu nại về bài viết, ghi chú và bình luận từ độc giả trong cộng đồng.</p>
+                    <p class="text-xs text-gray-400 mt-1">Kiểm duyệt các khiếu nại về bài viết, ghi chú và bình luận từ độc giả.</p>
                 </div>
             </div>
 
             <!-- Bộ lọc: Trạng thái & Loại đối tượng -->
             <div class="flex flex-wrap items-center justify-between gap-3 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
-                <!-- Lọc theo Status -->
                 <div class="flex items-center space-x-2">
                     <span class="text-gray-400 font-semibold">Trạng thái:</span>
-                    <select id="reportStatusFilter" onchange="renderReportsTable()" class="bg-darkBg border border-borderDark rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                    <select id="reportStatusFilter" onchange="applyFilter()" class="bg-darkBg border border-borderDark rounded-xl px-3 py-1.5 text-white focus:outline-none">
                         <option value="all">Tất cả trạng thái</option>
                         <option value="pending" selected>Đang chờ xử lý (Pending)</option>
                         <option value="resolved">Đã xử lý (Resolved)</option>
@@ -61,10 +60,9 @@
                     </select>
                 </div>
 
-                <!-- Lọc theo Target Type -->
                 <div class="flex items-center space-x-2">
                     <span class="text-gray-400 font-semibold">Đối tượng:</span>
-                    <select id="reportTypeFilter" onchange="renderReportsTable()" class="bg-darkBg border border-borderDark rounded-xl px-3 py-1.5 text-white focus:outline-none">
+                    <select id="reportTypeFilter" onchange="applyFilter()" class="bg-darkBg border border-borderDark rounded-xl px-3 py-1.5 text-white focus:outline-none">
                         <option value="all">Tất cả loại đối tượng</option>
                         <option value="post">Bài viết (Post)</option>
                         <option value="note">Ghi chú (Note)</option>
@@ -87,11 +85,22 @@
                                 <th class="p-3.5 text-right">Thao tác</th>
                             </tr>
                         </thead>
-                        <tbody id="reportsTableBody" class="divide-y divide-borderDark">
-                            <!-- Render qua JS -->
-                        </tbody>
+                        <tbody id="reportsTableBody" class="divide-y divide-borderDark"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- Phân trang luôn hiển thị -->
+            <div id="reportsPaginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="repPrevBtn" onclick="changeRepPage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
+                </button>
+                <span id="repPageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="repNextBtn" onclick="changeRepPage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
 
         </main>
@@ -108,11 +117,8 @@
                 <button onclick="closeHandleModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div id="modalReportInfo" class="p-3 bg-darkBg rounded-xl border border-borderDark text-xs space-y-1.5">
-                <!-- Thông tin tóm tắt báo cáo -->
-            </div>
+            <div id="modalReportInfo" class="p-3 bg-darkBg rounded-xl border border-borderDark text-xs space-y-1.5"></div>
 
-            <!-- Lựa chọn hành động xử lý -->
             <div class="space-y-2 text-xs">
                 <label class="block font-bold text-gray-300">Biện pháp xử lý *</label>
                 <div class="grid grid-cols-2 gap-2">
@@ -135,7 +141,6 @@
                 </div>
             </div>
 
-            <!-- Ghi chú xử lý (Bắt buộc) -->
             <div>
                 <label class="block text-xs font-bold text-gray-300 mb-1">Ghi chú xử lý kiểm duyệt (handle_note) *</label>
                 <textarea id="modalHandleNote" rows="3" placeholder="Nhập căn cứ xử lý hoặc lý do bác bỏ khiếu nại..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
@@ -156,6 +161,8 @@
 
     <script>
         let currentHandlingReportId = null;
+        let currentRepPage = 1;
+        const REPORTS_PER_PAGE = 4;
 
         document.addEventListener('DOMContentLoaded', () => {
             Layout.renderHeader('appHeader');
@@ -168,51 +175,44 @@
             });
         });
 
+        function applyFilter() {
+            currentRepPage = 1;
+            renderReportsTable();
+        }
+
         function renderReportsTable() {
             const state = Layout.getDemoState();
             const tbody = document.getElementById('reportsTableBody');
             const statusFilter = document.getElementById('reportStatusFilter').value;
             const typeFilter = document.getElementById('reportTypeFilter').value;
 
-            // 1. Loading
             if (state === 'loading') {
                 tbody.innerHTML = Array(3).fill(0).map(() => `
-                    <tr>
-                        <td colspan="6" class="p-4 text-center">
-                            <div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div>
-                        </td>
-                    </tr>
+                    <tr><td colspan="6" class="p-4"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
                 `).join('');
-                return;
-            }
-
-            // 2. Error
-            if (state === 'error') {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="p-8 text-center text-rose-400">
-                            <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 block"></i>
-                            Lỗi tải danh sách báo cáo. Vui lòng bấm thử lại từ thanh Demo.
-                        </td>
-                    </tr>
-                `;
                 return;
             }
 
             let reports = [...MockData.reports];
 
-            // 3. Demo Empty
             if (state === 'empty') reports = [];
 
-            // Lọc theo status
             if (statusFilter !== 'all') {
                 reports = reports.filter(r => r.status === statusFilter);
             }
 
-            // Lọc theo target_type
             if (typeFilter !== 'all') {
                 reports = reports.filter(r => r.target_type === typeFilter);
             }
+
+            // Pagination luôn hiển thị
+            const totalPages = Math.ceil(reports.length / REPORTS_PER_PAGE) || 1;
+            if (currentRepPage > totalPages) currentRepPage = totalPages;
+            if (currentRepPage < 1) currentRepPage = 1;
+
+            document.getElementById('repPageInfoText').textContent = `Trang ${currentRepPage} / ${totalPages} (${reports.length} báo cáo)`;
+            document.getElementById('repPrevBtn').disabled = (currentRepPage === 1);
+            document.getElementById('repNextBtn').disabled = (currentRepPage === totalPages || reports.length === 0);
 
             if (reports.length === 0) {
                 tbody.innerHTML = `
@@ -225,11 +225,13 @@
                 return;
             }
 
-            tbody.innerHTML = reports.map(report => {
-                const reporter = MockData.users.find(u => u.id === report.reporter_id) || { display_name: 'Ẩn danh', handle: 'unknown' };
+            const start = (currentRepPage - 1) * REPORTS_PER_PAGE;
+            const paginated = reports.slice(start, start + REPORTS_PER_PAGE);
+
+            tbody.innerHTML = paginated.map(report => {
+                const reporter = MockData.users.find(u => u.id === report.reporter_id) || { display_name: 'Ẩn danh' };
                 const handler = report.handled_by ? (MockData.users.find(u => u.id === report.handled_by) || { display_name: 'Admin' }) : null;
 
-                // Lấy thông tin đối tượng
                 let targetPreview = '';
                 if (report.target_type === 'post') {
                     const post = MockData.posts.find(p => p.id === report.post_id);
@@ -293,6 +295,12 @@
             }).join('');
         }
 
+        function changeRepPage(delta) {
+            currentRepPage += delta;
+            renderReportsTable();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function openHandleModal(reportId) {
             currentHandlingReportId = reportId;
             const report = MockData.reports.find(r => r.id === reportId);
@@ -339,7 +347,6 @@
                     report.status = 'resolved';
                     report.action = action;
 
-                    // Nếu action là delete_content -> Xóa nội dung
                     if (action === 'delete_content') {
                         if (report.target_type === 'post') {
                             const post = MockData.posts.find(p => p.id === report.post_id);
@@ -351,9 +358,7 @@
                             const noteIdx = MockData.notes.findIndex(n => n.id === report.note_id);
                             if (noteIdx !== -1) MockData.notes.splice(noteIdx, 1);
                         }
-                    }
-                    // Nếu action là ban_user -> Khóa người vi phạm
-                    else if (action === 'ban_user') {
+                    } else if (action === 'ban_user') {
                         let offenderId = null;
                         if (report.target_type === 'comment') {
                             const comment = MockData.comments.find(c => c.id === report.comment_id);
@@ -374,7 +379,7 @@
                 }
 
                 closeHandleModal();
-                Layout.showToast('Đã lưu kết quả xử lý báo cáo vi phạm!', 'success');
+                Layout.showToast('Đã lưu kết quả xử lý báo cáo!', 'success');
                 renderReportsTable();
                 Layout.renderAdminSidebar('reports', 'adminSidebar');
             }
