@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trình soạn thảo bài viết | Substack Studio</title>
+    <title data-i18n="editor.page_title">Trình soạn thảo bài viết | Substack Studio</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,33 +31,33 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
 
         <!-- Main Editor -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-4xl mx-auto w-full space-y-6">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-5xl w-full space-y-6">
             
             <!-- Top bar của Editor -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
                 <div class="flex items-center space-x-3">
-                    <a href="my-posts.html" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-borderDark transition" title="Quay lại">
+                    <a href="my-posts.html" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-borderDark transition" data-i18n-title="editor.back_title" title="Quay lại">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
                     <div>
-                        <h1 id="editorPageTitle" class="text-xl sm:text-2xl font-bold text-white tracking-tight">Soạn bài viết mới</h1>
-                        <p id="editorStatusSubtitle" class="text-xs text-gray-400">Trạng thái hiện tại: Chưa lưu</p>
+                        <h1 id="editorPageTitle" class="text-xl sm:text-2xl font-bold text-white tracking-tight" data-i18n="editor.new_title">Soạn bài viết mới</h1>
+                        <p id="editorStatusSubtitle" class="text-xs text-gray-400"><span data-i18n="editor.status_label">Trạng thái hiện tại:</span> <span data-i18n="editor.status_unsaved">Chưa lưu</span></p>
                     </div>
                 </div>
 
                 <div class="flex items-center space-x-2.5">
-                    <button onclick="savePost('draft')" class="bg-cardBg hover:bg-borderDark border border-borderDark text-gray-200 text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5">
+                    <button type="button" onclick="savePost('draft')" class="bg-cardBg hover:bg-borderDark border border-borderDark text-gray-200 text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5">
                         <i class="fa-regular fa-floppy-disk"></i>
-                        <span>Lưu nháp</span>
+                        <span data-i18n="editor.save_draft">Lưu nháp</span>
                     </button>
-                    <button onclick="savePost('pending')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5">
+                    <button type="button" onclick="savePost('pending')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center space-x-1.5">
                         <i class="fa-solid fa-paper-plane"></i>
-                        <span id="submitReviewBtnText">Gửi duyệt bài</span>
+                        <span id="submitReviewBtnText" data-i18n="editor.submit_review">Gửi duyệt bài</span>
                     </button>
                 </div>
             </div>
@@ -66,97 +66,146 @@
             <div id="rejectedReasonBanner" class="hidden p-4 bg-rose-950/50 border border-rose-500/50 rounded-2xl space-y-2 text-xs">
                 <div class="flex items-center space-x-2 text-rose-400 font-bold">
                     <i class="fa-solid fa-circle-exclamation text-base"></i>
-                    <span>Bài viết này đã bị Ban quản trị từ chối phê duyệt</span>
+                    <span data-i18n="editor.rejected_heading">Bài viết này đã bị Ban quản trị từ chối phê duyệt</span>
                 </div>
                 <p id="rejectedReasonText" class="text-gray-200 leading-relaxed italic bg-darkBg/60 p-3 rounded-xl border border-rose-900/30"></p>
-                <p class="text-rose-300">Vui lòng điều chỉnh lại tiêu đề, nội dung hoặc gỡ bỏ các yếu tố vi phạm theo yêu cầu ở trên trước khi bấm "Gửi duyệt bài" lại.</p>
+                <p class="text-rose-300" data-i18n="editor.rejected_hint">Vui lòng điều chỉnh lại tiêu đề, nội dung hoặc gỡ bỏ các yếu tố vi phạm theo yêu cầu ở trên trước khi bấm "Gửi duyệt bài" lại.</p>
             </div>
 
             <!-- Form Soạn Thảo -->
-            <div class="space-y-5">
+            <form id="postEditorForm" class="space-y-5" novalidate>
                 <!-- Tiêu đề -->
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Tiêu đề bài viết *</label>
-                    <input type="text" id="postTitle" oninput="handleTitleInput(this.value)" placeholder="Nhập tiêu đề ấn tượng và rõ nghĩa..." class="w-full bg-sidebarBg border border-borderDark focus:border-substackOrange rounded-2xl px-4 py-3.5 text-base sm:text-lg font-bold text-white placeholder-gray-500 focus:outline-none shadow transition">
+                <div class="form-group">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400" for="postTitle" data-i18n="editor.title_label">Tiêu đề bài viết *</label>
+                        <span id="titleCounter" class="text-[11px] text-gray-500 font-mono"></span>
+                    </div>
+                    <textarea id="postTitle" name="postTitle" rows="1" oninput="handleTitleInput(this)" placeholder="Nhập tiêu đề ấn tượng và rõ nghĩa..." data-i18n-placeholder="editor.title_placeholder" class="w-full bg-sidebarBg border border-borderDark focus:border-substackOrange rounded-2xl px-4 py-3.5 text-base sm:text-lg font-bold text-white placeholder-gray-500 focus:outline-none shadow transition resize-none overflow-hidden leading-snug"></textarea>
                 </div>
 
                 <!-- Slug tự sinh -->
-                <div class="flex items-center space-x-2 text-xs text-gray-400 bg-sidebarBg p-2.5 rounded-xl border border-borderDark">
-                    <span class="font-mono text-gray-500">Đường dẫn tĩnh (Slug):</span>
-                    <span class="text-gray-500">/</span>
-                    <input type="text" id="postSlug" placeholder="duong-dan-bai-viet" class="flex-1 bg-transparent border-none text-substackOrange font-mono text-xs focus:outline-none">
-                    <button type="button" onclick="regenerateSlug()" class="text-gray-400 hover:text-white text-xs" title="Tạo lại từ tiêu đề"><i class="fa-solid fa-rotate"></i></button>
+                <div class="form-group">
+                    <div class="flex items-center space-x-2 text-xs text-gray-400 bg-sidebarBg p-2.5 rounded-xl border border-borderDark">
+                        <span class="font-mono text-gray-500" data-i18n="editor.slug_label">Đường dẫn tĩnh (Slug):</span>
+                        <span class="text-gray-500">/</span>
+                        <input type="text" id="postSlug" name="postSlug" placeholder="duong-dan-bai-viet" data-i18n-placeholder="editor.slug_placeholder" class="flex-1 bg-transparent border-none text-substackOrange font-mono text-xs focus:outline-none">
+                        <button type="button" onclick="regenerateSlug()" class="text-gray-400 hover:text-white text-xs" data-i18n-title="editor.regenerate_slug" title="Tạo lại từ tiêu đề"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
                 </div>
 
-                <!-- Cấu hình bài viết (Ngôn ngữ, Thẻ, Nhóm, Thumbnail) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
-                    <div>
-                        <label class="block text-gray-400 font-semibold mb-1">Ngôn ngữ bài viết *</label>
-                        <select id="postLanguageSelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
-                            <!-- Render qua JS -->
-                        </select>
+                <!-- Cấu hình bài viết -->
+                <div class="bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-group">
+                            <label class="block text-gray-400 font-semibold mb-1" for="postLanguageSelect" data-i18n="editor.language_label">Ngôn ngữ bài viết *</label>
+                            <select id="postLanguageSelect" name="postLanguageSelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                                <!-- Render qua JS -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="block text-gray-400 font-semibold mb-1" for="translateLanguageSelect" data-i18n="editor.translate_language_label">Ngôn ngữ dịch</label>
+                            <select id="translateLanguageSelect" name="translateLanguageSelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                                <!-- Render qua JS -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="block text-gray-400 font-semibold mb-1" for="categorySelect" data-i18n="editor.category_label">Danh mục bài viết *</label>
+                            <select id="categorySelect" name="categorySelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                                <!-- Render qua JS -->
+                            </select>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-gray-400 font-semibold mb-1">Nhóm bài viết (Group ID)</label>
-                        <select id="postGroupSelect" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
-                            <option value="101">Nhóm 101: Chuyên mục Công nghệ</option>
-                            <option value="102">Nhóm 102: Chuyên mục Hạ tầng & Cloud</option>
-                            <option value="103">Nhóm 103: Chuyên mục Design & UX</option>
-                            <option value="104">Nhóm 104: Kiến thức tổng quát</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-400 font-semibold mb-1">Ảnh đại diện (Thumbnail URL)</label>
-                        <input type="url" id="postThumbnail" placeholder="https://picsum.photos/..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                    <div class="pt-1">
+                        <label class="block text-gray-400 font-semibold mb-2" data-i18n="editor.thumbnail_label">Ảnh bìa bài viết</label>
+                        <div id="postThumbnailUpload"></div>
                     </div>
                 </div>
 
                 <!-- Chọn Thẻ Tags (Nhiều thẻ) -->
                 <div class="bg-sidebarBg p-4 rounded-2xl border border-borderDark space-y-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Gắn thẻ chủ đề (chọn nhiều) *</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-400" data-i18n="editor.tags_required">Gắn thẻ chủ đề (chọn nhiều) *</label>
                     <div id="editorTagCheckboxes" class="flex flex-wrap gap-2 text-xs">
                         <!-- Render tags qua JS -->
                     </div>
+                    <p id="editorTagsError" class="hidden text-red-500 text-xs mt-1 flex items-center space-x-1 font-medium" aria-live="polite">
+                        <i class="fa-solid fa-circle-exclamation text-[11px]"></i>
+                        <span></span>
+                    </p>
                 </div>
 
                 <!-- Thanh công cụ định dạng & Soạn thảo -->
                 <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-md">
                     <!-- Toolbar -->
-                    <div class="flex items-center justify-between border-b border-borderDark p-2 bg-cardBg/60 text-xs">
+                    <div class="flex items-center justify-between gap-2 border-b border-borderDark p-2 bg-cardBg/60 text-xs flex-wrap">
                         <div class="flex items-center space-x-1 flex-wrap">
-                            <button type="button" onclick="insertTag('<b>', '</b>')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 font-bold" title="In đậm">B</button>
-                            <button type="button" onclick="insertTag('<i>', '</i>')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 italic font-serif" title="In nghiêng">I</button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('bold')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 font-bold" data-i18n-title="editor.bold" title="In đậm">B</button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('italic')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 italic font-serif" data-i18n-title="editor.italic" title="In nghiêng">I</button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('underline')" class="p-1.5 px-2.5 hover:bg-borderDark rounded text-gray-300 underline" data-i18n-title="editor.underline" title="Gạch chân">U</button>
                             <span class="text-gray-600">|</span>
-                            <button type="button" onclick="insertTag('<h3>', '</h3>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300 font-bold" title="Tiêu đề H3">H3</button>
-                            <button type="button" onclick="insertTag('<blockquote>', '</blockquote>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" title="Trích dẫn"><i class="fa-solid fa-quote-left"></i></button>
-                            <button type="button" onclick="insertTag('<code>', '</code>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300 font-mono" title="Mã code">&lt;/&gt;</button>
-                            <button type="button" onclick="insertTag('<p>', '</p>')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" title="Đoạn văn">P</button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('formatBlock', 'h2')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300 font-bold" data-i18n-title="editor.heading_h2" title="Tiêu đề H2">H2</button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('formatBlock', 'h3')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300 font-bold" data-i18n-title="editor.heading_h3" title="Tiêu đề H3">H3</button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('formatBlock', 'p')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" data-i18n-title="editor.paragraph" title="Đoạn văn">P</button>
+                            <span class="text-gray-600">|</span>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('insertUnorderedList')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" data-i18n-title="editor.bullet_list" title="Danh sách dấu chấm"><i class="fa-solid fa-list-ul"></i></button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('insertOrderedList')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" data-i18n-title="editor.numbered_list" title="Danh sách số"><i class="fa-solid fa-list-ol"></i></button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="execCmd('formatBlock', 'blockquote')" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" data-i18n-title="editor.quote" title="Trích dẫn"><i class="fa-solid fa-quote-left"></i></button>
+                            <span class="text-gray-600">|</span>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="toggleLinkPanel()" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" data-i18n-title="editor.link" title="Chèn liên kết"><i class="fa-solid fa-link"></i></button>
+                            <button type="button" onmousedown="event.preventDefault()" onclick="pickEditorImage()" class="p-1.5 px-2 hover:bg-borderDark rounded text-gray-300" data-i18n-title="editor.insert_image" title="Chèn ảnh vào nội dung"><i class="fa-regular fa-image"></i></button>
+                            <input type="file" id="editorImageInput" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="insertEditorImage(this)">
                         </div>
 
                         <!-- Chuyển đổi Soạn / Xem trước -->
                         <div class="flex space-x-1 bg-darkBg p-0.5 rounded-lg border border-borderDark">
                             <button type="button" id="modeEditBtn" onclick="switchEditorMode('edit')" class="px-3 py-1 rounded-md bg-substackOrange text-white font-medium transition">
-                                <i class="fa-solid fa-code mr-1"></i> Soạn thảo
+                                <i class="fa-solid fa-pen-nib mr-1"></i> <span data-i18n="editor.write">Soạn thảo</span>
                             </button>
                             <button type="button" id="modePreviewBtn" onclick="switchEditorMode('preview')" class="px-3 py-1 rounded-md text-gray-400 hover:text-white font-medium transition">
-                                <i class="fa-regular fa-eye mr-1"></i> Xem trước
+                                <i class="fa-regular fa-eye mr-1"></i> <span data-i18n="editor.preview">Xem trước</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Vùng Textarea Soạn Thảo -->
+                    <!-- Panel chèn liên kết -->
+                    <div id="linkPanel" class="hidden border-b border-borderDark bg-darkBg/60 p-3">
+                        <div class="form-group">
+                            <label class="block text-[11px] font-bold text-gray-300 mb-1.5" for="editorLinkInput" data-i18n="editor.link_url_label">Đường dẫn liên kết</label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="text" id="editorLinkInput" name="editorLinkInput" placeholder="https://vi-du.com" data-i18n-placeholder="editor.link_url_placeholder" oninput="Validators.clearError(this)" class="flex-1 bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-substackOrange">
+                                <button type="button" onclick="applyEditorLink()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-xl" data-i18n="editor.link_apply">Chèn liên kết</button>
+                                <button type="button" onclick="closeLinkPanel()" class="bg-cardBg border border-borderDark text-gray-300 text-xs px-4 py-2 rounded-xl" data-i18n="common.cancel">Hủy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vùng Soạn Thảo WYSIWYG -->
                     <div id="editorEditPane" class="p-4">
-                        <textarea id="postContent" rows="14" placeholder="Viết nội dung bài viết bằng HTML hoặc văn bản tại đây..." class="w-full bg-transparent border-none text-sm text-gray-200 focus:outline-none resize-y leading-relaxed font-sans"></textarea>
+                        <div class="form-group">
+                            <div id="postContentEditor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Bắt đầu viết nội dung bài viết..." data-i18n-placeholder="editor.content_placeholder" oninput="syncEditorValue()" onblur="validateEditorContent()" onpaste="handleEditorPaste(event)" class="editor-surface post-content w-full min-h-[320px] text-sm text-gray-200 focus:outline-none leading-relaxed font-sans"></div>
+                            <textarea id="postContentHtml" name="postContentHtml" class="hidden" aria-hidden="true"></textarea>
+                            <div class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2 border-t border-borderDark text-[11px] text-gray-500">
+                                <span id="contentCharCounter"></span>
+                                <span class="flex items-center space-x-1.5">
+                                    <i class="fa-regular fa-circle-question"></i>
+                                    <span data-i18n="editor.toolbar_hint">Chọn văn bản rồi bấm định dạng. Ảnh được chèn tại vị trí con trỏ.</span>
+                                </span>
+                            </div>
+                            <p id="editorImageError" class="hidden text-red-500 text-xs mt-1 flex items-center space-x-1 font-medium" aria-live="polite">
+                                <i class="fa-solid fa-circle-exclamation text-[11px]"></i>
+                                <span></span>
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Vùng Xem trước Preview -->
-                    <div id="editorPreviewPane" class="hidden p-6 prose prose-invert max-w-none text-sm sm:text-base leading-relaxed min-h-[300px] bg-darkBg/50">
+                    <div id="editorPreviewPane" class="hidden p-6 post-content min-h-[320px] bg-darkBg/50 text-sm sm:text-base leading-relaxed">
                         <!-- Preview HTML -->
                     </div>
                 </div>
-            </div>
+            </form>
 
         </main>
     </div>
@@ -167,28 +216,124 @@
     <!-- Script & Mock Data -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/validators.js"></script>
+    <script src="../assets/js/image-upload.js"></script>
+    <script src="../assets/js/sanitize.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
+        const MAX_TITLE_LENGTH = 120;
+        const MIN_CONTENT_LENGTH = 50;
+
         let editingPostId = null;
         let selectedTagIds = [];
+        let postEditorValidator = null;
+        let postThumbnailUpload = null;
+        let savedEditorRange = null;
+        let editorContentRules = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderSidebar('my-posts', 'appSidebar');
-            Layout.renderBottomNav('create', 'appBottomNav');
+            I18n.ready(() => {
+                editorContentRules = {
+                    required: { message: I18n.t('editor.content_required') },
+                    noHtml: false,
+                    custom: (value) => {
+                        const length = Sanitize.text(value).length;
+                        if (length < MIN_CONTENT_LENGTH) {
+                            return I18n.t('editor.content_min_error', { min: MIN_CONTENT_LENGTH, count: length });
+                        }
+                        return null;
+                    }
+                };
+                Layout.renderHeader('appHeader');
+                Layout.renderSidebar('my-posts', 'appSidebar');
+                Layout.renderBottomNav('create', 'appBottomNav');
 
-            renderLanguages();
-            renderTagCheckboxes();
-            checkEditMode();
+                renderLanguages();
+                renderCategories();
+                renderTagCheckboxes();
+                postThumbnailUpload = ImageUpload.mount('#postThumbnailUpload', {
+                    name: 'postThumbnail',
+                    shape: 'cover',
+                    maxSizeMB: 2
+                });
+
+                postEditorValidator = Validators.attach('#postEditorForm', {
+                    postTitle: {
+                        required: true,
+                        minLength: 5,
+                        maxLength: MAX_TITLE_LENGTH
+                    },
+                    postSlug: {
+                        required: true,
+                        pattern: { regex: /^[a-z0-9-]+$/, message: I18n.t('validation.slug') },
+                        custom: (value) => {
+                            const exists = MockData.posts.some(p => p.id !== editingPostId && p.slug === value);
+                            return exists ? I18n.t('editor.slug_duplicate') : null;
+                        }
+                    },
+                    postLanguageSelect: {
+                        required: { message: I18n.t('editor.language_required') }
+                    },
+                    translateLanguageSelect: {
+                        custom: (value) => {
+                            const source = document.getElementById('postLanguageSelect').value;
+                            return value && value === source ? I18n.t('editor.translate_same_error') : null;
+                        }
+                    },
+                    categorySelect: {
+                        required: { message: I18n.t('editor.category_required') }
+                    },
+                    postContentHtml: editorContentRules
+                }, {
+                    onSubmit: () => {}
+                });
+
+                document.getElementById('postLanguageSelect').addEventListener('change', () => {
+                    const translateEl = document.getElementById('translateLanguageSelect');
+                    if (translateEl.value) {
+                        Validators.validateField(translateEl, {
+                            custom: (value) => {
+                                const source = document.getElementById('postLanguageSelect').value;
+                                return value && value === source ? I18n.t('editor.translate_same_error') : null;
+                            }
+                        });
+                    }
+                });
+
+                updateTitleCounter();
+                updateEditorCounter();
+                checkEditMode();
+            });
         });
 
         function renderLanguages() {
-            const select = document.getElementById('postLanguageSelect');
-            if (!select || !MockData.languages) return;
-            select.innerHTML = MockData.languages
-                .filter(l => l.is_active)
-                .map(l => `<option value="${l.id}">${l.name} (${l.code.toUpperCase()})</option>`)
+            const sourceSelect = document.getElementById('postLanguageSelect');
+            const translateSelect = document.getElementById('translateLanguageSelect');
+            if (!sourceSelect || !translateSelect) return;
+
+            const langs = (MockData.languages || []).filter(l => l.is_active);
+            const currentCode = I18n.getCurrentLang();
+            const defaultLang = langs.find(l => l.code === currentCode) || langs[0];
+
+            sourceSelect.innerHTML = langs
+                .map(l => `<option value="${l.id}">${Layout.escapeHtml(l.name)} (${Layout.escapeHtml(l.code.toUpperCase())})</option>`)
+                .join('');
+
+            translateSelect.innerHTML = `
+                <option value="">${Layout.escapeHtml(I18n.t('editor.translate_none'))}</option>
+                ${langs.map(l => `<option value="${l.id}">${Layout.escapeHtml(l.name)} (${Layout.escapeHtml(l.code.toUpperCase())})</option>`).join('')}
+            `;
+
+            if (defaultLang) sourceSelect.value = defaultLang.id;
+        }
+
+        function renderCategories() {
+            const select = document.getElementById('categorySelect');
+            if (!select) return;
+            const activeCats = (MockData.categories || []).filter(c => c.is_active);
+            select.innerHTML = activeCats
+                .map(c => `<option value="${c.id}">${Layout.escapeHtml(c.name)}</option>`)
                 .join('');
         }
 
@@ -198,7 +343,7 @@
             container.innerHTML = MockData.tags.map(t => `
                 <label class="flex items-center space-x-1.5 px-3 py-1.5 bg-cardBg border border-borderDark rounded-xl cursor-pointer hover:border-substackOrange transition">
                     <input type="checkbox" value="${t.id}" onchange="handleTagToggle(${t.id}, this.checked)" class="rounded text-substackOrange bg-darkBg border-borderDark">
-                    <span class="text-gray-300"># ${t.name}</span>
+                    <span class="text-gray-300"># ${Layout.escapeHtml(t.name)}</span>
                 </label>
             `).join('');
         }
@@ -209,6 +354,98 @@
             } else {
                 selectedTagIds = selectedTagIds.filter(id => id !== tagId);
             }
+            if (selectedTagIds.length > 0) hideTagError();
+        }
+
+        function showTagError() {
+            const el = document.getElementById('editorTagsError');
+            if (!el) return;
+            el.querySelector('span').textContent = I18n.t('editor.tags_error');
+            el.classList.remove('hidden');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function hideTagError() {
+            const el = document.getElementById('editorTagsError');
+            if (el) el.classList.add('hidden');
+        }
+
+        function getEditorEl() {
+            return document.getElementById('postContentEditor');
+        }
+
+        function syncEditorValue() {
+            const editor = getEditorEl();
+            const hidden = document.getElementById('postContentHtml');
+            if (!editor || !hidden) return;
+            hidden.value = editor.innerHTML;
+            updateEditorCounter();
+            if (hidden.getAttribute('aria-invalid') === 'true') {
+                Validators.validateField(hidden, editorContentRules);
+            }
+        }
+
+        function validateEditorContent() {
+            const hidden = document.getElementById('postContentHtml');
+            if (!hidden) return;
+            syncEditorValue();
+            Validators.validateField(hidden, editorContentRules);
+        }
+
+        function updateEditorCounter() {
+            const counter = document.getElementById('contentCharCounter');
+            const editor = getEditorEl();
+            if (!counter || !editor) return;
+            const count = Sanitize.text(editor.innerHTML).length;
+            counter.textContent = I18n.t('editor.content_chars', { count });
+        }
+
+        function updateTitleCounter() {
+            const input = document.getElementById('postTitle');
+            const counter = document.getElementById('titleCounter');
+            if (!input || !counter) return;
+            counter.textContent = I18n.t('editor.title_counter', {
+                count: input.value.length,
+                max: MAX_TITLE_LENGTH
+            });
+        }
+
+        function autoGrowTitle(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 220) + 'px';
+        }
+
+        function handleTitleInput(el) {
+            autoGrowTitle(el);
+            updateTitleCounter();
+            if (!editingPostId) {
+                document.getElementById('postSlug').value = generateSlug(el.value);
+            }
+        }
+
+        function regenerateSlug() {
+            const title = document.getElementById('postTitle').value;
+            document.getElementById('postSlug').value = generateSlug(title);
+        }
+
+        function generateSlug(text) {
+            return (text || '')
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D')
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        function statusLabelKey(status) {
+            return ['published', 'pending', 'draft', 'rejected'].includes(status)
+                ? `myPosts.status_${status}`
+                : 'editor.status_unsaved';
         }
 
         function checkEditMode() {
@@ -219,14 +456,23 @@
                 editingPostId = parseInt(idParam, 10);
                 const post = MockData.posts.find(p => p.id === editingPostId);
                 if (post) {
-                    document.getElementById('editorPageTitle').textContent = `Chỉnh sửa: ${post.title}`;
-                    document.getElementById('editorStatusSubtitle').innerHTML = `Trạng thái: <span class="uppercase font-bold text-substackOrange">${post.status}</span>`;
-                    document.getElementById('postTitle').value = post.title;
+                    document.getElementById('editorPageTitle').textContent = I18n.t('editor.editing_prefix', { title: post.title });
+                    document.getElementById('editorStatusSubtitle').innerHTML =
+                        `${Layout.escapeHtml(I18n.t('editor.status_label'))} <span class="uppercase font-bold text-substackOrange">${Layout.escapeHtml(I18n.t(statusLabelKey(post.status)))}</span>`;
+                    const titleEl = document.getElementById('postTitle');
+                    titleEl.value = post.title;
                     document.getElementById('postSlug').value = post.slug;
-                    document.getElementById('postContent').value = post.content;
                     document.getElementById('postLanguageSelect').value = post.language_id;
-                    document.getElementById('postGroupSelect').value = post.group_id;
-                    document.getElementById('postThumbnail').value = post.thumbnail_url || '';
+                    document.getElementById('translateLanguageSelect').value = post.translated_language_id || '';
+                    document.getElementById('categorySelect').value = post.category_id || '';
+                    const editor = getEditorEl();
+                    editor.innerHTML = Sanitize.html(post.content_html || '');
+                    syncEditorValue();
+
+                    if (postThumbnailUpload) {
+                        postThumbnailUpload.setValue(post.cover_image || '');
+                        postThumbnailUpload.clearError();
+                    }
 
                     // Nạp tags
                     const currentTags = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
@@ -238,45 +484,123 @@
                     // Kiểm tra rejected
                     if (post.status === 'rejected') {
                         document.getElementById('rejectedReasonBanner').classList.remove('hidden');
-                        document.getElementById('rejectedReasonText').textContent = post.reject_reason || 'Vi phạm tiêu chuẩn cộng đồng.';
-                        document.getElementById('submitReviewBtnText').textContent = 'Gửi lại kiểm duyệt';
+                        document.getElementById('rejectedReasonText').textContent = post.reject_reason || I18n.t('editor.rejected_reason_default');
+                        document.getElementById('submitReviewBtnText').textContent = I18n.t('editor.resubmit');
                     }
+
+                    autoGrowTitle(titleEl);
+                    updateTitleCounter();
                 }
             }
         }
 
-        function handleTitleInput(val) {
-            if (!editingPostId) {
-                document.getElementById('postSlug').value = generateSlug(val);
+        function execCmd(command, value = null) {
+            const editor = getEditorEl();
+            if (!editor) return;
+            editor.focus();
+            document.execCommand(command, false, value);
+            syncEditorValue();
+        }
+
+        function saveEditorSelection() {
+            const editor = getEditorEl();
+            const sel = window.getSelection();
+            if (!editor || !sel || sel.rangeCount === 0) return;
+            if (editor.contains(sel.anchorNode)) {
+                savedEditorRange = sel.getRangeAt(0).cloneRange();
             }
         }
 
-        function regenerateSlug() {
-            const title = document.getElementById('postTitle').value;
-            document.getElementById('postSlug').value = generateSlug(title);
+        function restoreEditorSelection() {
+            if (!savedEditorRange) return;
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(savedEditorRange);
         }
 
-        function generateSlug(text) {
-            return text
-                .toString()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9 -]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-');
+        function toggleLinkPanel() {
+            saveEditorSelection();
+            const panel = document.getElementById('linkPanel');
+            const input = document.getElementById('editorLinkInput');
+            const willOpen = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !willOpen);
+            Validators.clearError(input);
+            if (willOpen) {
+                input.value = '';
+                input.focus();
+            }
         }
 
-        function insertTag(open, close) {
-            const textarea = document.getElementById('postContent');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = textarea.value;
-            const selected = text.substring(start, end);
-            textarea.value = text.substring(0, start) + open + selected + close + text.substring(end);
-            textarea.focus();
-            textarea.setSelectionRange(start + open.length, end + open.length);
+        function closeLinkPanel() {
+            document.getElementById('linkPanel').classList.add('hidden');
+            Validators.clearError(document.getElementById('editorLinkInput'));
+        }
+
+        function applyEditorLink() {
+            const input = document.getElementById('editorLinkInput');
+            const url = (input.value || '').trim();
+            if (!Sanitize.isSafeHttpUrl(url)) {
+                Validators.showError(input, I18n.t('editor.link_invalid'));
+                return;
+            }
+            Validators.clearError(input);
+
+            const editor = getEditorEl();
+            editor.focus();
+            restoreEditorSelection();
+            const sel = window.getSelection();
+            const isCollapsed = !sel || sel.rangeCount === 0 || sel.isCollapsed;
+            if (isCollapsed) {
+                document.execCommand('insertHTML', false, `<a href="${Layout.escapeHtml(url)}">${Layout.escapeHtml(url)}</a>`);
+            } else {
+                document.execCommand('createLink', false, url);
+            }
+            editor.querySelectorAll('a').forEach(a => {
+                if (Sanitize.isSafeHttpUrl(a.getAttribute('href'))) {
+                    a.setAttribute('target', '_blank');
+                    a.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+            closeLinkPanel();
+            syncEditorValue();
+        }
+
+        function pickEditorImage() {
+            saveEditorSelection();
+            document.getElementById('editorImageInput').click();
+        }
+
+        function showImageError(message) {
+            const box = document.getElementById('editorImageError');
+            if (!box) return;
+            box.querySelector('span').textContent = message;
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 4000);
+        }
+
+        async function insertEditorImage(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            try {
+                const dataUrl = await ImageUpload.readFile(file, { maxSizeMB: 2 });
+                const editor = getEditorEl();
+                editor.focus();
+                restoreEditorSelection();
+                const safeAlt = Layout.escapeHtml(file.name.replace(/\.[^.]+$/, ''));
+                document.execCommand('insertHTML', false, `<img src="${dataUrl}" alt="${safeAlt}">`);
+                syncEditorValue();
+            } catch (err) {
+                showImageError(err.message);
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function handleEditorPaste(event) {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
+            syncEditorValue();
         }
 
         function switchEditorMode(mode) {
@@ -290,7 +614,9 @@
                 previewBtn.className = "px-3 py-1 rounded-md bg-substackOrange text-white font-medium transition";
                 editPane.classList.add('hidden');
                 previewPane.classList.remove('hidden');
-                previewPane.innerHTML = document.getElementById('postContent').value || '<p class="text-gray-500 italic">Chưa có nội dung để xem trước.</p>';
+                const clean = Sanitize.html(getEditorEl().innerHTML);
+                previewPane.innerHTML = clean ||
+                    `<p class="text-gray-500 italic">${Layout.escapeHtml(I18n.t('editor.preview_empty'))}</p>`;
             } else {
                 previewBtn.className = "px-3 py-1 rounded-md text-gray-400 hover:text-white font-medium transition";
                 editBtn.className = "px-3 py-1 rounded-md bg-substackOrange text-white font-medium transition";
@@ -300,59 +626,73 @@
         }
 
         function savePost(newStatus) {
+            const hidden = document.getElementById('postContentHtml');
+            syncEditorValue();
+
+            const isValid = postEditorValidator ? postEditorValidator.validate() : true;
+            let tagsValid = true;
+            if (selectedTagIds.length === 0) {
+                showTagError();
+                tagsValid = false;
+            }
+            if (!isValid || !tagsValid) return;
+
+            const cleanContent = Sanitize.html(hidden.value);
+            if (Sanitize.text(cleanContent).length < MIN_CONTENT_LENGTH) {
+                Validators.showError(hidden, I18n.t('editor.content_min_error', {
+                    min: MIN_CONTENT_LENGTH,
+                    count: Sanitize.text(cleanContent).length
+                }));
+                return;
+            }
+
             const title = document.getElementById('postTitle').value.trim();
             const slug = document.getElementById('postSlug').value.trim();
-            const content = document.getElementById('postContent').value.trim();
             const languageId = parseInt(document.getElementById('postLanguageSelect').value, 10);
-            const groupId = parseInt(document.getElementById('postGroupSelect').value, 10);
-            let thumbnail = document.getElementById('postThumbnail').value.trim();
-
-            if (!title) {
-                Layout.showToast('Vui lòng nhập tiêu đề bài viết.', 'warning');
-                return;
-            }
-            if (!content) {
-                Layout.showToast('Vui lòng soạn nội dung bài viết.', 'warning');
-                return;
-            }
-            if (!thumbnail) {
-                thumbnail = `https://picsum.photos/seed/${slug || 'post'}/800/450`;
-            }
-
+            const translatedLanguageId = parseInt(document.getElementById('translateLanguageSelect').value, 10) || null;
+            const categoryId = parseInt(document.getElementById('categorySelect').value, 10);
+            const coverImage = postThumbnailUpload ? (postThumbnailUpload.getValue() || '') : '';
             const currentUser = Layout.getCurrentUser();
             const authorId = currentUser ? currentUser.id : 3;
 
             if (editingPostId) {
-                // Chỉnh sửa bài có sẵn
                 const post = MockData.posts.find(p => p.id === editingPostId);
                 if (post) {
                     post.title = title;
                     post.slug = slug;
-                    post.content = content;
+                    post.content_html = cleanContent;
+                    post.cover_image = coverImage;
                     post.language_id = languageId;
-                    post.group_id = groupId;
-                    post.thumbnail_url = thumbnail;
-                    post.status = newStatus; // draft hoặc pending
+                    post.translated_language_id = translatedLanguageId;
+                    post.category_id = categoryId;
+                    post.group_id = 100 + categoryId;
+                    post.status = newStatus;
                     if (newStatus === 'pending') {
-                        post.reject_reason = null; // xóa lý do cũ khi gửi lại
+                        post.reject_reason = null;
+                        post.review_action = null;
+                        post.reviewed_at = null;
+                        post.reviewed_by = null;
                     }
+                    syncPostTags(post.id);
                 }
             } else {
-                // Tạo bài mới
                 const newId = Date.now();
                 const newPost = {
                     id: newId,
                     author_id: authorId,
-                    group_id: groupId,
+                    group_id: 100 + categoryId,
+                    category_id: categoryId,
                     language_id: languageId,
+                    translated_language_id: translatedLanguageId,
                     title: title,
                     slug: slug || generateSlug(title),
-                    content: content,
-                    thumbnail_url: thumbnail,
+                    content_html: cleanContent,
+                    cover_image: coverImage,
                     status: newStatus,
                     reviewed_by: null,
                     reviewed_at: null,
                     reject_reason: null,
+                    review_action: null,
                     published_at: null,
                     created_at: new Date().toISOString(),
                     deleted_at: null,
@@ -360,21 +700,37 @@
                 };
                 MockData.posts.unshift(newPost);
                 editingPostId = newId;
-
-                // Thêm tags
-                selectedTagIds.forEach(tid => {
-                    MockData.post_tags.push({ post_id: newId, tag_id: tid });
-                });
+                syncPostTags(newId);
+                syncCategoryCounts();
             }
 
-            const msg = newStatus === 'pending' 
-                ? 'Đã gửi bài viết vào hàng đợi phê duyệt của Admin!' 
-                : 'Đã lưu bản nháp thành công!';
+            if (editingPostId && MockData.posts.some(p => p.id === editingPostId)) {
+                syncCategoryCounts();
+            }
+
+            const msg = newStatus === 'pending'
+                ? I18n.t('editor.submitted')
+                : I18n.t('editor.saved_draft');
             Layout.showToast(msg, 'success');
 
             setTimeout(() => {
                 window.location.href = 'my-posts.html';
             }, 800);
+        }
+
+        function syncPostTags(postId) {
+            for (let i = MockData.post_tags.length - 1; i >= 0; i--) {
+                if (MockData.post_tags[i].post_id === postId) MockData.post_tags.splice(i, 1);
+            }
+            selectedTagIds.forEach(tagId => {
+                MockData.post_tags.push({ post_id: postId, tag_id: tagId });
+            });
+        }
+
+        function syncCategoryCounts() {
+            (MockData.categories || []).forEach(cat => {
+                cat.post_count = MockData.getCategoryPostCount(cat.id);
+            });
         }
     </script>
 </body>

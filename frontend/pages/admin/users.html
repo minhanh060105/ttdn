@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý người dùng | Admin Substack</title>
+    <title data-i18n="admin.users_page_title">Quản lý người dùng | Admin Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,52 +31,52 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         <!-- Sidebar Admin -->
         <aside id="adminSidebar"></aside>
 
         <!-- Main content -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-6xl mx-auto w-full space-y-6">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-6xl w-full space-y-6">
             
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
                         <i class="fa-solid fa-users-gear text-substackOrange"></i>
-                        <span>Quản lý tài khoản người dùng</span>
+                        <span data-i18n="admin.users_title">Quản lý tài khoản người dùng</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-1">Danh sách thành viên, phân quyền vai trò và thực thi các biện pháp kỷ luật khóa tài khoản.</p>
+                    <p class="text-xs text-gray-400 mt-1" data-i18n="admin.users_subtitle">Danh sách thành viên, phân quyền vai trò và thực thi các biện pháp kỷ luật khóa tài khoản.</p>
                 </div>
             </div>
 
             <!-- Thanh Tìm Kiếm & Bộ Lọc -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
+            <form id="userFilterForm" novalidate class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-sidebarBg p-4 rounded-2xl border border-borderDark text-xs">
                 <!-- Ô tìm kiếm -->
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500"></i>
-                    <input type="text" id="userSearchInput" oninput="renderUsersTable()" placeholder="Tìm theo tên, @handle, email..." class="w-full bg-darkBg border border-borderDark rounded-xl pl-8 pr-3 py-2 text-white focus:outline-none focus:border-substackOrange">
+                    <input type="text" id="userSearchInput" name="userSearch" oninput="renderUsersTable()" placeholder="Tìm theo tên, @handle, email..." data-i18n-placeholder="admin.search_users" class="w-full bg-darkBg border border-borderDark rounded-xl pl-8 pr-3 py-2 text-white focus:outline-none focus:border-substackOrange">
                 </div>
 
                 <!-- Lọc vai trò -->
                 <div class="flex items-center space-x-2">
-                    <span class="text-gray-400 font-semibold whitespace-nowrap">Vai trò:</span>
-                    <select id="userRoleFilter" onchange="renderUsersTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
-                        <option value="all">Tất cả vai trò</option>
-                        <option value="1">Admin (Quản trị viên)</option>
-                        <option value="2">Blogger (Tác giả)</option>
-                        <option value="3">User (Độc giả)</option>
+                    <span class="text-gray-400 font-semibold whitespace-nowrap" data-i18n="admin.filter_role">Vai trò:</span>
+                    <select id="userRoleFilter" name="userRole" onchange="renderUsersTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
+                        <option value="all" data-i18n="admin.all_roles">Tất cả vai trò</option>
+                        <option value="1" data-i18n="admin.role_admin">Admin (Quản trị viên)</option>
+                        <option value="2" data-i18n="admin.role_blogger">Blogger (Tác giả)</option>
+                        <option value="3" data-i18n="admin.role_user">User (Độc giả)</option>
                     </select>
                 </div>
 
                 <!-- Lọc trạng thái -->
                 <div class="flex items-center space-x-2">
-                    <span class="text-gray-400 font-semibold whitespace-nowrap">Trạng thái:</span>
-                    <select id="userStatusFilter" onchange="renderUsersTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
-                        <option value="all">Tất cả trạng thái</option>
-                        <option value="active">Đang hoạt động</option>
-                        <option value="banned">Bị đình chỉ (Banned)</option>
+                    <span class="text-gray-400 font-semibold whitespace-nowrap" data-i18n="admin.filter_status">Trạng thái:</span>
+                    <select id="userStatusFilter" name="userStatus" onchange="renderUsersTable()" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none">
+                        <option value="all" data-i18n="admin.all_statuses">Tất cả trạng thái</option>
+                        <option value="active" data-i18n="admin.status_active">Đang hoạt động</option>
+                        <option value="banned" data-i18n="admin.status_banned">Bị đình chỉ (Banned)</option>
                     </select>
                 </div>
-            </div>
+            </form>
 
             <!-- Bảng Người Dùng -->
             <div class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm">
@@ -84,12 +84,12 @@
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
-                                <th class="p-3.5">Thành viên</th>
-                                <th class="p-3.5">Email</th>
-                                <th class="p-3.5">Vai trò</th>
-                                <th class="p-3.5">Trạng thái</th>
-                                <th class="p-3.5">Ngày tham gia & Lý do khóa</th>
-                                <th class="p-3.5 text-right">Thao tác</th>
+                                <th class="p-3.5" data-i18n="admin.member">Thành viên</th>
+                                <th class="p-3.5" data-i18n="common.email">Email</th>
+                                <th class="p-3.5" data-i18n="common.role">Vai trò</th>
+                                <th class="p-3.5" data-i18n="common.status">Trạng thái</th>
+                                <th class="p-3.5" data-i18n="admin.joined_and_ban">Ngày tham gia & Lý do khóa</th>
+                                <th class="p-3.5 text-right" data-i18n="common.actions">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody" class="divide-y divide-borderDark">
@@ -98,6 +98,9 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Phân trang người dùng -->
+            <div id="usersPaginationBar" class="pt-2"></div>
 
         </main>
     </div>
@@ -108,57 +111,93 @@
             <div class="flex items-center justify-between border-b border-borderDark pb-3">
                 <div class="flex items-center space-x-2 text-red-400">
                     <i class="fa-solid fa-user-slash"></i>
-                    <h3 class="font-bold text-white text-base">Đình chỉ tài khoản thành viên</h3>
+                    <h3 class="font-bold text-white text-base" data-i18n="admin.ban_modal_title">Đình chỉ tài khoản thành viên</h3>
                 </div>
-                <button onclick="closeBanModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeBanModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div id="banUserInfo" class="p-3 bg-darkBg rounded-xl border border-borderDark text-xs">
                 <!-- Thông tin thành viên -->
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-300 mb-1.5">Lý do khóa tài khoản (bắt buộc) *</label>
-                <textarea id="banReasonInput" rows="3" placeholder="Nhập căn cứ xử phạt (ví dụ: Vi phạm quy định chống spam, phát tán nội dung độc hại...)" class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-red-500"></textarea>
-                <p id="banErrorMsg" class="hidden text-[11px] text-red-400 mt-1 font-semibold">Vui lòng nhập lý do để hiển thị cho người dùng khi đăng nhập.</p>
-            </div>
+            <form id="banUserForm" novalidate class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1.5" for="banReasonInput" data-i18n="admin.ban_reason_label">Lý do khóa tài khoản (bắt buộc) *</label>
+                    <textarea id="banReasonInput" name="banReason" rows="3" placeholder="Nhập căn cứ xử phạt (ví dụ: Vi phạm quy định chống spam, phát tán nội dung độc hại...)" data-i18n-placeholder="admin.ban_reason_placeholder" class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-red-500"></textarea>
+                </div>
 
-            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
-                <button onclick="closeBanModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
-                <button onclick="confirmBanUser()" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl shadow">Xác nhận Ban</button>
-            </div>
+                <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                    <button type="button" onclick="closeBanModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark" data-i18n="common.cancel">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl shadow" data-i18n="admin.confirm_ban">Xác nhận Ban</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Script & Mock Data -->
     <script src="../../assets/js/mock-data.js"></script>
     <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/validators.js"></script>
+    <script src="../../assets/js/pagination.js"></script>
     <script src="../../assets/js/layout.js"></script>
 
     <script>
         let targetUserIdForBan = null;
+        let banUserValidator = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderAdminSidebar('users', 'adminSidebar');
+            I18n.ready(() => {
+                Layout.renderHeader('appHeader');
+                Layout.renderAdminSidebar('users', 'adminSidebar');
 
-            renderUsersTable();
+                Validators.attach('#userFilterForm', {
+                    userSearch: {},
+                    userRole: {},
+                    userStatus: {}
+                }, {
+                    onSubmit: () => renderUsersTable()
+                });
 
-            window.addEventListener('demoStateChanged', () => {
+                banUserValidator = Validators.attach('#banUserForm', {
+                    banReason: {
+                        required: { message: I18n.t('admin.ban_error') },
+                        maxLength: 300
+                    }
+                }, {
+                    onSubmit: (values) => confirmBanUser(values)
+                });
+
                 renderUsersTable();
+
+                window.addEventListener('demoStateChanged', () => {
+                    renderUsersTable(false);
+                });
             });
         });
 
-        function renderUsersTable() {
+        function resetPageInUrl() {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('page') || url.searchParams.has('pageSize')) {
+                url.searchParams.delete('page');
+                url.searchParams.delete('pageSize');
+                window.history.replaceState({}, '', url.toString());
+            }
+        }
+
+        function renderUsersTable(resetPage = true) {
             const state = Layout.getDemoState();
             const tbody = document.getElementById('usersTableBody');
+            const paginationBar = document.getElementById('usersPaginationBar');
             const search = (document.getElementById('userSearchInput').value || '').trim().toLowerCase();
             const roleFilter = document.getElementById('userRoleFilter').value;
             const statusFilter = document.getElementById('userStatusFilter').value;
             const currentUser = Layout.getCurrentUser();
 
+            if (resetPage) resetPageInUrl();
+
             // 1. Loading
             if (state === 'loading') {
+                paginationBar.innerHTML = '';
                 tbody.innerHTML = Array(3).fill(0).map(() => `
                     <tr><td colspan="6" class="p-4 text-center"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
                 `).join('');
@@ -167,7 +206,8 @@
 
             // 2. Error
             if (state === 'error') {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-400">Lỗi không thể tải danh sách người dùng.</td></tr>`;
+                paginationBar.innerHTML = '';
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-400">${Layout.escapeHtml(I18n.t('admin.users_load_error'))}</td></tr>`;
                 return;
             }
 
@@ -178,7 +218,7 @@
 
             // Tìm kiếm
             if (search) {
-                users = users.filter(u => 
+                users = users.filter(u =>
                     u.display_name.toLowerCase().includes(search) ||
                     u.handle.toLowerCase().includes(search) ||
                     u.email.toLowerCase().includes(search)
@@ -198,65 +238,74 @@
             }
 
             if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">Không tìm thấy người dùng phù hợp.</td></tr>`;
+                paginationBar.innerHTML = '';
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">${Layout.escapeHtml(I18n.t('admin.no_user_results'))}</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = users.map(user => {
-                const isSelf = currentUser && currentUser.id === user.id;
+            const roleBadges = {
+                1: `<span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">${Layout.escapeHtml(I18n.t('admin.badge_admin'))}</span>`,
+                2: `<span class="px-2 py-0.5 rounded bg-substackOrange/20 border border-substackOrange/40 text-substackOrange font-bold">${Layout.escapeHtml(I18n.t('admin.badge_blogger'))}</span>`,
+                3: `<span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-gray-300">${Layout.escapeHtml(I18n.t('admin.badge_user'))}</span>`
+            };
 
-                const roleBadges = {
-                    1: '<span class="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-500/40 text-rose-400 font-bold">Admin</span>',
-                    2: '<span class="px-2 py-0.5 rounded bg-substackOrange/20 border border-substackOrange/40 text-substackOrange font-bold">Blogger</span>',
-                    3: '<span class="px-2 py-0.5 rounded bg-darkBg border border-borderDark text-gray-300">User</span>'
-                };
+            Pagination.render({
+                container: paginationBar,
+                items: users,
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50],
+                syncUrl: true,
+                onPageChange: (pagedUsers) => {
+                    tbody.innerHTML = pagedUsers.map(user => {
+                        const isSelf = currentUser && currentUser.id === user.id;
+                        const statusBadge = user.is_active
+                            ? `<span class="px-2 py-0.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 font-bold rounded">${Layout.escapeHtml(I18n.t('admin.status_active_badge'))}</span>`
+                            : `<span class="px-2 py-0.5 bg-red-950/60 border border-red-500/40 text-red-400 font-bold rounded">${Layout.escapeHtml(I18n.t('admin.status_banned_badge'))}</span>`;
 
-                const statusBadges = user.is_active
-                    ? '<span class="px-2 py-0.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 font-bold rounded">Hoạt động</span>'
-                    : '<span class="px-2 py-0.5 bg-red-950/60 border border-red-500/40 text-red-400 font-bold rounded">ĐÃ BỊ BAN</span>';
-
-                return `
-                    <tr class="hover:bg-cardBg/40 transition">
-                        <td class="p-3.5">
-                            <div class="flex items-center space-x-3">
-                                <img src="${user.avatar_url}" alt="Avatar" class="w-8 h-8 rounded-full object-cover border border-borderDark">
-                                <div>
-                                    <div class="font-bold text-white flex items-center space-x-1.5">
-                                        <span>${user.display_name}</span>
-                                        ${isSelf ? '<span class="text-[9px] bg-borderDark px-1.5 py-0.2 rounded text-gray-400 font-normal">Bạn</span>' : ''}
+                        return `
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5">
+                                    <div class="flex items-center space-x-3">
+                                        <img src="${Layout.escapeHtml(user.avatar_url)}" alt="${Layout.escapeHtml(I18n.t('admin.avatar_alt'))}" class="w-8 h-8 rounded-full object-cover border border-borderDark">
+                                        <div>
+                                            <div class="font-bold text-white flex items-center space-x-1.5">
+                                                <span>${Layout.escapeHtml(user.display_name)}</span>
+                                                ${isSelf ? `<span class="text-[9px] bg-borderDark px-1.5 py-0.2 rounded text-gray-400 font-normal">${Layout.escapeHtml(I18n.t('admin.you'))}</span>` : ''}
+                                            </div>
+                                            <a href="../profile.html?handle=${encodeURIComponent(user.handle)}" target="_blank" class="text-gray-400 hover:text-substackOrange text-[11px]">@${Layout.escapeHtml(user.handle)}</a>
+                                        </div>
                                     </div>
-                                    <a href="../profile.html?handle=${user.handle}" target="_blank" class="text-gray-400 hover:text-substackOrange text-[11px]">@${user.handle}</a>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-3.5 font-mono text-gray-300">${user.email}</td>
-                        <td class="p-3.5">${roleBadges[user.role_id] || ''}</td>
-                        <td class="p-3.5">${statusBadges}</td>
-                        <td class="p-3.5 max-w-xs text-[11px]">
-                            <div>Tham gia: ${Layout.formatDate(user.created_at)}</div>
-                            ${!user.is_active ? `
-                                <div class="text-red-400 mt-1 leading-snug">
-                                    <strong>Khóa lúc:</strong> ${Layout.formatDate(user.banned_at)}<br>
-                                    <strong>Lý do:</strong> ${user.ban_reason || 'Không rõ'}
-                                </div>
-                            ` : ''}
-                        </td>
-                        <td class="p-3.5 text-right whitespace-nowrap">
-                            ${isSelf ? `
-                                <span class="text-gray-500 text-[11px] italic">Không thể tự ban</span>
-                            ` : (user.is_active ? `
-                                <button onclick="openBanModal(${user.id})" class="px-3 py-1.5 bg-cardBg hover:bg-red-950/60 text-gray-300 hover:text-red-400 border border-borderDark rounded-xl transition font-medium">
-                                    <i class="fa-solid fa-ban mr-1"></i> Ban user
-                                </button>
-                            ` : `
-                                <button onclick="unbanUser(${user.id})" class="px-3 py-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 rounded-xl transition font-medium">
-                                    <i class="fa-solid fa-lock-open mr-1"></i> Mở khóa (Unban)
-                                </button>
-                            `)}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                                </td>
+                                <td class="p-3.5 font-mono text-gray-300">${Layout.escapeHtml(user.email)}</td>
+                                <td class="p-3.5">${roleBadges[user.role_id] || ''}</td>
+                                <td class="p-3.5">${statusBadge}</td>
+                                <td class="p-3.5 max-w-xs text-[11px]">
+                                    <div>${Layout.escapeHtml(I18n.t('admin.joined_at', { date: Layout.formatDate(user.created_at) }))}</div>
+                                    ${!user.is_active ? `
+                                        <div class="text-red-400 mt-1 leading-snug">
+                                            <strong>${Layout.escapeHtml(I18n.t('admin.banned_at', { date: Layout.formatDate(user.banned_at) }))}</strong><br>
+                                            <strong>${Layout.escapeHtml(I18n.t('admin.reason'))}</strong> ${Layout.escapeHtml(user.ban_reason || I18n.t('admin.unknown_ban_reason'))}
+                                        </div>
+                                    ` : ''}
+                                </td>
+                                <td class="p-3.5 text-right whitespace-nowrap">
+                                    ${isSelf ? `
+                                        <span class="text-gray-500 text-[11px] italic">${Layout.escapeHtml(I18n.t('admin.cannot_self_ban'))}</span>
+                                    ` : (user.is_active ? `
+                                        <button onclick="openBanModal(${user.id})" class="px-3 py-1.5 bg-cardBg hover:bg-red-950/60 text-gray-300 hover:text-red-400 border border-borderDark rounded-xl transition font-medium">
+                                            <i class="fa-solid fa-ban mr-1"></i> ${Layout.escapeHtml(I18n.t('admin.ban_user'))}
+                                        </button>
+                                    ` : `
+                                        <button onclick="unbanUser(${user.id})" class="px-3 py-1.5 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 rounded-xl transition font-medium">
+                                            <i class="fa-solid fa-lock-open mr-1"></i> ${Layout.escapeHtml(I18n.t('admin.unban'))}
+                                        </button>
+                                    `)}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            });
         }
 
         function openBanModal(userId) {
@@ -264,11 +313,11 @@
             const user = MockData.users.find(u => u.id === userId);
             if (!user) return;
 
-            document.getElementById('banReasonInput').value = '';
-            document.getElementById('banErrorMsg').classList.add('hidden');
+            document.getElementById('banUserForm').reset();
+            if (banUserValidator) banUserValidator.clear();
             document.getElementById('banUserInfo').innerHTML = `
-                <div class="font-bold text-white">${user.display_name} (@${user.handle})</div>
-                <div class="text-gray-400">Email: ${user.email}</div>
+                <div class="font-bold text-white">${Layout.escapeHtml(user.display_name)} (@${Layout.escapeHtml(user.handle)})</div>
+                <div class="text-gray-400">${Layout.escapeHtml(I18n.t('common.email'))}: ${Layout.escapeHtml(user.email)}</div>
             `;
             document.getElementById('banUserModal').classList.remove('hidden');
         }
@@ -278,13 +327,8 @@
             targetUserIdForBan = null;
         }
 
-        function confirmBanUser() {
-            const reason = document.getElementById('banReasonInput').value.trim();
-            if (!reason) {
-                document.getElementById('banErrorMsg').classList.remove('hidden');
-                return;
-            }
-
+        function confirmBanUser(values) {
+            const reason = (values.banReason || '').trim();
             const user = MockData.users.find(u => u.id === targetUserIdForBan);
             if (user) {
                 user.is_active = false;
@@ -292,8 +336,8 @@
                 user.banned_at = new Date().toISOString();
 
                 closeBanModal();
-                Layout.showToast(`Đã đình chỉ tài khoản @${user.handle} thành công!`, 'success');
-                renderUsersTable();
+                Layout.showToast(I18n.t('admin.ban_success', { handle: user.handle }), 'success');
+                renderUsersTable(false);
             }
         }
 
@@ -302,16 +346,16 @@
             if (!user) return;
 
             Layout.showConfirmModal({
-                title: 'Mở khóa tài khoản',
-                message: `Bạn có chắc chắn muốn gỡ lệnh cấm cho người dùng ${user.display_name} (@${user.handle})? Người này sẽ có thể đăng nhập và hoạt động bình thường trở lại.`,
-                confirmText: 'Mở khóa ngay',
+                title: I18n.t('admin.unban_title'),
+                message: I18n.t('admin.unban_message', { name: user.display_name, handle: user.handle }),
+                confirmText: I18n.t('admin.unban_confirm'),
                 confirmClass: 'bg-emerald-600 hover:bg-emerald-700',
                 onConfirm: () => {
                     user.is_active = true;
                     user.ban_reason = null;
                     user.banned_at = null;
-                    Layout.showToast(`Đã mở khóa tài khoản @${user.handle}!`, 'success');
-                    renderUsersTable();
+                    Layout.showToast(I18n.t('admin.unban_success', { handle: user.handle }), 'success');
+                    renderUsersTable(false);
                 }
             });
         }

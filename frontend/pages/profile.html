@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../styles/style.css">
-    <title>Hồ sơ cá nhân | Substack</title>
+    <title data-i18n="profile.page_title">Hồ sơ cá nhân | Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -32,13 +32,13 @@
     <header id="appHeader"></header>
 
     <!-- Main Container -->
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         
         <!-- Navigation bên trái -->
         <aside id="appSidebar"></aside>
 
         <!-- Nội dung Profile ở giữa -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl w-full space-y-6">
             
             <!-- Phần Header Profile -->
             <div id="profileHeaderSection" class="bg-sidebarBg border border-borderDark rounded-2xl p-6 shadow-sm">
@@ -49,12 +49,12 @@
             <div class="border-b border-borderDark flex space-x-6 text-sm font-semibold">
                 <button id="tabPostsBtn" onclick="switchTab('posts')" class="pb-3 text-white border-b-2 border-substackOrange flex items-center space-x-2">
                     <i class="fa-regular fa-newspaper"></i>
-                    <span>Bài viết</span>
+                    <span data-i18n="profile.posts">Bài viết</span>
                     <span id="tabPostsCount" class="bg-darkBg px-2 py-0.5 rounded-full text-xs text-gray-400">0</span>
                 </button>
                 <button id="tabNotesBtn" onclick="switchTab('notes')" class="pb-3 text-gray-400 hover:text-white flex items-center space-x-2">
                     <i class="fa-regular fa-note-sticky"></i>
-                    <span>Ghi chú</span>
+                    <span data-i18n="profile.notes">Ghi chú</span>
                     <span id="tabNotesCount" class="bg-darkBg px-2 py-0.5 rounded-full text-xs text-gray-400">0</span>
                 </button>
             </div>
@@ -63,6 +63,9 @@
             <div id="profileTabContent" class="space-y-4">
                 <!-- Render động qua JavaScript -->
             </div>
+
+            <!-- Phân trang danh sách profile -->
+            <div id="profilePaginationBar" class="pt-2"></div>
 
         </main>
     </div>
@@ -73,36 +76,36 @@
             <div class="flex items-center justify-between border-b border-borderDark pb-3">
                 <h3 class="text-base font-bold text-white flex items-center space-x-2">
                     <i class="fa-solid fa-user-pen text-substackOrange"></i>
-                    <span>Chỉnh sửa hồ sơ cá nhân</span>
+                    <span data-i18n="profile.edit_title">Chỉnh sửa hồ sơ cá nhân</span>
                 </h3>
                 <button onclick="closeEditProfileModal()" class="text-gray-400 hover:text-white">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="space-y-3 text-xs">
+            <form id="editProfileForm" class="space-y-3 text-xs" novalidate>
                 <div>
-                    <label class="block text-gray-400 mb-1">Tên hiển thị *</label>
-                    <input type="text" id="editDisplayName" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                    <label class="block text-gray-400 mb-1" for="editDisplayName"><span data-i18n="profile.display_name">Tên hiển thị</span> *</label>
+                    <input type="text" id="editDisplayName" name="editDisplayName" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1">Tên định danh (Handle) *</label>
-                    <input type="text" id="editHandle" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                    <label class="block text-gray-400 mb-1" for="editHandle"><span data-i18n="profile.handle_label">Tên định danh (Handle)</span> *</label>
+                    <input type="text" id="editHandle" name="editHandle" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1">Tiểu sử (Bio)</label>
-                    <textarea id="editBio" rows="3" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange"></textarea>
+                    <label class="block text-gray-400 mb-1" for="editBio" data-i18n="profile.bio_label">Tiểu sử (Bio)</label>
+                    <textarea id="editBio" name="editBio" rows="3" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange"></textarea>
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1">Đường dẫn ảnh đại diện (Avatar URL)</label>
-                    <input type="url" id="editAvatarUrl" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                    <label class="block text-gray-400 mb-2" data-i18n="profile.avatar_label">Ảnh đại diện</label>
+                    <div id="editAvatarUpload"></div>
                 </div>
-            </div>
 
-            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
-                <button onclick="closeEditProfileModal()" class="px-4 py-2 bg-cardBg text-gray-300 rounded-xl hover:bg-borderDark">Hủy</button>
-                <button onclick="saveProfileChanges()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold rounded-xl shadow">Lưu thay đổi</button>
-            </div>
+                <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                    <button type="button" onclick="closeEditProfileModal()" class="px-4 py-2 bg-cardBg text-gray-300 rounded-xl hover:bg-borderDark" data-i18n="common.cancel">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold rounded-xl shadow" data-i18n="profile.save">Lưu thay đổi</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -111,23 +114,46 @@
         <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4 text-xs">
             <h3 class="font-bold text-white text-sm flex items-center space-x-2 text-rose-400">
                 <i class="fa-solid fa-flag"></i>
-                <span>Báo cáo ghi chú vi phạm</span>
+                <span data-i18n="profile.report_title">Báo cáo ghi chú vi phạm</span>
             </h3>
-            <p class="text-gray-400">Chọn lý do báo cáo ghi chú này:</p>
+            <p class="text-gray-400" data-i18n="profile.report_hint">Chọn lý do báo cáo ghi chú này:</p>
             <div class="space-y-2">
                 <label class="flex items-center space-x-2 p-2 bg-darkBg rounded-lg cursor-pointer">
-                    <input type="radio" name="noteReportReason" value="Spam hoặc quảng cáo phiền toái" checked>
-                    <span>Spam hoặc quảng cáo phiền toái</span>
+                    <input type="radio" name="noteReportReason" value="spam" checked>
+                    <span data-i18n="profile.report_reason_spam">Spam hoặc quảng cáo phiền toái</span>
                 </label>
                 <label class="flex items-center space-x-2 p-2 bg-darkBg rounded-lg cursor-pointer">
-                    <input type="radio" name="noteReportReason" value="Nội dung quấy rối hoặc xúc phạm">
-                    <span>Nội dung quấy rối hoặc xúc phạm</span>
+                    <input type="radio" name="noteReportReason" value="hate">
+                    <span data-i18n="profile.report_reason_hate">Nội dung quấy rối hoặc xúc phạm</span>
                 </label>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="document.getElementById('noteReportModal').classList.add('hidden')" class="px-3 py-1.5 bg-cardBg rounded-lg text-gray-300">Hủy</button>
-                <button onclick="submitNoteReport()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg">Gửi</button>
+                <button onclick="document.getElementById('noteReportModal').classList.add('hidden')" class="px-3 py-1.5 bg-cardBg rounded-lg text-gray-300" data-i18n="common.cancel">Hủy</button>
+                <button onclick="submitNoteReport()" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg" data-i18n="common.send">Gửi</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal danh sách Người theo dõi / Đang theo dõi -->
+    <div id="followListModal" onclick="if (event.target === this) closeFollowListModal()" class="fixed inset-0 bg-black/75 z-50 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between border-b border-borderDark px-5 py-4">
+                <h3 id="followListTitle" class="text-base font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-users text-substackOrange"></i>
+                    <span></span>
+                </h3>
+                <button onclick="closeFollowListModal()" class="text-gray-400 hover:text-white" data-i18n-title="common.close" title="Đóng">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="flex space-x-6 px-5 border-b border-borderDark text-sm font-semibold">
+                <button id="followFollowersTabBtn" onclick="switchFollowListTab('followers')" class="pb-3 flex items-center space-x-2"></button>
+                <button id="followFollowingTabBtn" onclick="switchFollowListTab('following')" class="pb-3 flex items-center space-x-2"></button>
+            </div>
+
+            <div id="followListContent" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+            <div id="followListPagination" class="px-4 pb-4"></div>
         </div>
     </div>
 
@@ -137,29 +163,74 @@
     <!-- Script & Mock Data -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/validators.js"></script>
+    <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/image-upload.js"></script>
+    <script src="../assets/js/sanitize.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
         let currentProfileUser = null;
         let activeTab = 'posts';
         let reportingNoteId = null;
+        let editProfileValidator = null;
+        let editAvatarUpload = null;
+        // Cache kết quả lấy từ MockData để badge & nội dung tab luôn dùng CÙNG một nguồn
+        let profilePosts = [];
+        let profileNotes = [];
+        let followListTab = 'followers';
+        let followListPageSize = 10;
 
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderSidebar('profile', 'appSidebar');
-            Layout.renderBottomNav('profile', 'appBottomNav');
+            I18n.ready(() => {
+                Layout.renderHeader('appHeader');
+                Layout.renderSidebar('profile', 'appSidebar');
+                Layout.renderBottomNav('profile', 'appBottomNav');
 
-            loadProfile();
+                editProfileValidator = Validators.attach('#editProfileForm', {
+                    editDisplayName: {
+                        required: true,
+                        minLength: 2
+                    },
+                    editHandle: {
+                        required: true,
+                        minLength: 3,
+                        pattern: { regex: /^[a-zA-Z0-9_]+$/, message: I18n.t('validation.handle') }
+                    },
+                    editBio: {
+                        maxLength: 300
+                    }
+                }, {
+                    onSubmit: (values) => saveProfileChanges(values)
+                });
 
-            window.addEventListener('demoStateChanged', () => {
+                editAvatarUpload = ImageUpload.mount('#editAvatarUpload', {
+                    name: 'editAvatar',
+                    shape: 'circle',
+                    maxSizeMB: 2
+                });
+
                 loadProfile();
+
+                window.addEventListener('demoStateChanged', () => {
+                    loadProfile();
+                });
             });
         });
+
+        function resetPageInUrl() {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('page')) {
+                url.searchParams.delete('page');
+                window.history.replaceState({}, '', url.toString());
+            }
+        }
 
         function loadProfile() {
             const state = Layout.getDemoState();
             const headerBox = document.getElementById('profileHeaderSection');
             const contentArea = document.getElementById('profileTabContent');
+            const paginationBar = document.getElementById('profilePaginationBar');
 
             const urlParams = new URLSearchParams(window.location.search);
             const currentUser = Layout.getCurrentUser();
@@ -167,6 +238,7 @@
 
             // 1. Loading
             if (state === 'loading') {
+                if (paginationBar) paginationBar.innerHTML = '';
                 headerBox.innerHTML = `
                     <div class="animate-pulse space-y-4">
                         <div class="flex items-center space-x-4">
@@ -190,13 +262,14 @@
 
             // 2. Error
             if (state === 'error') {
-                headerBox.innerHTML = `<h2 class="text-base font-bold text-rose-400">Lỗi không thể tải thông tin hồ sơ</h2>`;
+                if (paginationBar) paginationBar.innerHTML = '';
+                headerBox.innerHTML = `<h2 class="text-base font-bold text-rose-400">${Layout.escapeHtml(I18n.t('profile.load_error_header'))}</h2>`;
                 contentArea.innerHTML = `
                     <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
                         <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
-                        <h3 class="text-sm font-bold text-white">Không thể kết nối máy chủ</h3>
-                        <p class="text-xs text-gray-400">Vui lòng thử lại sau.</p>
-                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
+                        <h3 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('profile.load_error_title'))}</h3>
+                        <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('profile.load_error_desc'))}</p>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">${Layout.escapeHtml(I18n.t('common.retry'))}</button>
                     </div>
                 `;
                 return;
@@ -207,11 +280,12 @@
 
             // 3. User không tồn tại hoặc Demo Empty
             if (!user || state === 'empty') {
+                if (paginationBar) paginationBar.innerHTML = '';
                 headerBox.innerHTML = `
                     <div class="text-center py-6 space-y-2">
                         <i class="fa-regular fa-user text-3xl text-gray-500"></i>
-                        <h2 class="text-lg font-bold text-white">Người dùng không tồn tại</h2>
-                        <p class="text-xs text-gray-400">Không tìm thấy tài khoản với tên định danh @${handleParam}</p>
+                        <h2 class="text-lg font-bold text-white">${Layout.escapeHtml(I18n.t('profile.not_found'))}</h2>
+                        <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('profile.not_found_desc', { handle: handleParam }))}</p>
                     </div>
                 `;
                 contentArea.innerHTML = '';
@@ -221,25 +295,34 @@
             currentProfileUser = user;
             const isOwner = currentUser && (currentUser.id === user.id);
 
-            // Đếm follow
-            const followersCount = MockData.follows.filter(f => f.following_id === user.id).length;
-            const followingCount = MockData.follows.filter(f => f.follower_id === user.id).length;
+            // SINGLE SOURCE OF TRUTH: mọi con số/badge/nội dung đều lấy từ MockData tại cùng thời điểm.
+            // Khi chuyển sang API thật, chỉ cần thay các hàm MockData.getXxxByUser bằng call API
+            // và gọi lại refreshProfileData() sau khi dữ liệu trả về.
+            refreshProfileData(user);
+
+            const followersCount = MockData.getFollowers(user.id).length;
+            const followingCount = MockData.getFollowing(user.id).length;
+            const isFollowing = currentUser && currentUser.id !== user.id && MockData.isFollowing(currentUser.id, user.id);
 
             headerBox.innerHTML = `
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                     <div class="flex items-start sm:items-center space-x-4">
-                        <img src="${user.avatar_url}" alt="${user.display_name}" class="w-20 h-20 rounded-full object-cover border-2 border-borderDark shadow-lg flex-shrink-0">
+                        <img src="${Layout.escapeHtml(user.avatar_url)}" alt="${Layout.escapeHtml(I18n.t('profile.avatar_alt'))}" class="w-20 h-20 rounded-full object-cover border-2 border-borderDark shadow-lg flex-shrink-0">
                         <div class="space-y-1">
                             <div class="flex items-center space-x-2">
-                                <h1 class="text-xl sm:text-2xl font-bold text-white">${user.display_name}</h1>
-                                ${user.role_id === 1 ? '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">ADMIN</span>' : ''}
-                                ${user.role_id === 2 ? '<span class="bg-substackOrange/20 text-substackOrange border border-substackOrange/30 text-[10px] font-bold px-2 py-0.5 rounded-full">BLOGGER</span>' : ''}
+                                <h1 class="text-xl sm:text-2xl font-bold text-white">${Layout.escapeHtml(user.display_name)}</h1>
+                                ${user.role_id === 1 ? `<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">${Layout.escapeHtml(I18n.t('profile.role_admin'))}</span>` : ''}
+                                ${user.role_id === 2 ? `<span class="bg-substackOrange/20 text-substackOrange border border-substackOrange/30 text-[10px] font-bold px-2 py-0.5 rounded-full">${Layout.escapeHtml(I18n.t('profile.role_blogger'))}</span>` : ''}
                             </div>
-                            <p class="text-xs text-gray-400">@${user.handle}</p>
-                            <div class="flex items-center space-x-4 text-xs text-gray-400 pt-1">
-                                <span><strong class="text-white">${followersCount}</strong> người theo dõi</span>
-                                <span>•</span>
-                                <span><strong class="text-white">${followingCount}</strong> đang theo dõi</span>
+                            <p class="text-xs text-gray-400">@${Layout.escapeHtml(user.handle)}</p>
+                            <div class="flex items-center space-x-3 text-xs pt-1">
+                                <button type="button" onclick="openFollowListModal('followers')" class="text-gray-400 hover:text-white hover:underline transition">
+                                    ${Layout.escapeHtml(I18n.t('profile.followers', { count: Layout.formatNumber(followersCount) }))}
+                                </button>
+                                <span class="text-gray-600">•</span>
+                                <button type="button" onclick="openFollowListModal('following')" class="text-gray-400 hover:text-white hover:underline transition">
+                                    ${Layout.escapeHtml(I18n.t('profile.following_count', { count: Layout.formatNumber(followingCount) }))}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -249,11 +332,11 @@
                         ${isOwner ? `
                             <button onclick="openEditProfileModal()" class="w-full sm:w-auto bg-cardBg hover:bg-borderDark border border-borderDark text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Chỉnh sửa hồ sơ</span>
+                                <span>${Layout.escapeHtml(I18n.t('profile.edit'))}</span>
                             </button>
                         ` : `
-                            <button onclick="toggleFollowProfile(this)" class="w-full sm:w-auto bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition shadow">
-                                Theo dõi
+                            <button onclick="toggleFollowProfile(this)" data-following="${isFollowing ? 'true' : 'false'}" class="w-full sm:w-auto text-xs font-semibold px-6 py-2.5 rounded-xl transition shadow ${isFollowing ? 'bg-cardBg border border-borderDark text-white hover:bg-borderDark' : 'bg-substackOrange hover:bg-substackOrangeHover text-white'}">
+                                ${Layout.escapeHtml(I18n.t(isFollowing ? 'profile.following' : 'profile.follow'))}
                             </button>
                         `}
                     </div>
@@ -261,11 +344,19 @@
 
                 <!-- Bio -->
                 <div class="mt-4 pt-4 border-t border-borderDark text-xs sm:text-sm text-gray-300 leading-relaxed">
-                    ${user.bio || 'Chưa cập nhật phần tự giới thiệu bản thân.'}
+                    ${Layout.escapeHtml(user.bio || I18n.t('profile.no_bio'))}
                 </div>
             `;
 
             renderTabContent();
+        }
+
+        // Cập nhật badge + cache nội dung từ MỘT nguồn dữ liệu duy nhất (MockData)
+        function refreshProfileData(user) {
+            profilePosts = MockData.getPublishedPostsByUser(user.id);
+            profileNotes = MockData.getNotesByUser(user.id);
+            document.getElementById('tabPostsCount').textContent = Layout.formatNumber(profilePosts.length);
+            document.getElementById('tabNotesCount').textContent = Layout.formatNumber(profileNotes.length);
         }
 
         function switchTab(tab) {
@@ -280,129 +371,164 @@
                 notesBtn.className = "pb-3 text-white border-b-2 border-substackOrange flex items-center space-x-2";
                 postsBtn.className = "pb-3 text-gray-400 hover:text-white flex items-center space-x-2";
             }
+            resetPageInUrl();
             renderTabContent();
         }
 
         function renderTabContent() {
             if (!currentProfileUser) return;
             const container = document.getElementById('profileTabContent');
+            const paginationBar = document.getElementById('profilePaginationBar');
 
-            // 1. Tab BÀI VIẾT
+            // 1. Tab BÀI VIẾT — dùng đúng dữ liệu đã đếm cho badge (cache ở refreshProfileData)
             if (activeTab === 'posts') {
-                const posts = MockData.posts.filter(p => p.author_id === currentProfileUser.id && p.status === 'published' && !p.deleted_at);
-                document.getElementById('tabPostsCount').textContent = posts.length;
+                const posts = profilePosts;
 
                 if (posts.length === 0) {
+                    if (paginationBar) paginationBar.innerHTML = '';
                     container.innerHTML = `
                         <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-2">
                             <i class="fa-regular fa-newspaper text-3xl text-gray-500"></i>
-                            <h3 class="text-sm font-bold text-white">Chưa có bài viết nào được xuất bản</h3>
-                            <p class="text-xs text-gray-400">Tác giả chưa đăng tải bài viết công khai nào.</p>
+                            <h3 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('profile.posts_empty_title'))}</h3>
+                            <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('profile.posts_empty_desc'))}</p>
                         </div>
                     `;
                     return;
                 }
 
-                container.innerHTML = posts.map(post => `
-                    <div class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-5 transition shadow-sm space-y-2.5">
-                        <span class="text-[11px] text-gray-500">${Layout.formatDate(post.published_at)}</span>
-                        <a href="post-detail.html?slug=${post.slug}" class="block group">
-                            <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2">
-                                ${post.title}
-                            </h3>
-                            <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
-                                ${post.content.replace(/<[^>]*>?/gm, '')}
-                            </p>
-                        </a>
-                        <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-borderDark">
-                            <span class="text-[11px] text-gray-500"><i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)}</span>
-                            <a href="post-detail.html?slug=${post.slug}" class="text-substackOrange hover:underline font-medium">Đọc tiếp →</a>
-                        </div>
-                    </div>
-                `).join('');
+                Pagination.render({
+                    container: paginationBar,
+                    items: posts,
+                    pageSize: 10,
+                    pageSizeOptions: [10, 20, 50],
+                    syncUrl: true,
+                    onPageChange: (pagedPosts) => {
+                        container.innerHTML = pagedPosts.map(post => {
+                            const excerpt = Sanitize.text(post.content_html || '');
+                            return `
+                                <div class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-5 transition shadow-sm space-y-2.5">
+                                    <span class="text-[11px] text-gray-500">${Layout.formatDate(post.published_at)}</span>
+                                    <a href="post-detail.html?slug=${encodeURIComponent(post.slug)}" class="block group">
+                                        <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2">
+                                            ${Layout.escapeHtml(post.title)}
+                                        </h3>
+                                        <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
+                                            ${Layout.escapeHtml(excerpt)}
+                                        </p>
+                                    </a>
+                                    <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-borderDark">
+                                        <span class="text-[11px] text-gray-500"><i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)}</span>
+                                        <a href="post-detail.html?slug=${encodeURIComponent(post.slug)}" class="text-substackOrange hover:underline font-medium">${Layout.escapeHtml(I18n.t('common.read_more'))} →</a>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                });
             } 
-            // 2. Tab GHI CHÚ
+            // 2. Tab GHI CHÚ — dùng đúng dữ liệu đã đếm cho badge (cache ở refreshProfileData)
             else {
-                const notes = MockData.notes.filter(n => n.author_id === currentProfileUser.id);
-                document.getElementById('tabNotesCount').textContent = notes.length;
+                const notes = profileNotes;
 
                 if (notes.length === 0) {
+                    if (paginationBar) paginationBar.innerHTML = '';
                     container.innerHTML = `
                         <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-2">
                             <i class="fa-regular fa-note-sticky text-3xl text-gray-500"></i>
-                            <h3 class="text-sm font-bold text-white">Chưa có ghi chú nào</h3>
-                            <p class="text-xs text-gray-400">Tác giả chưa chia sẻ ghi chú nhanh nào.</p>
+                            <h3 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('profile.notes_empty_title'))}</h3>
+                            <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('profile.notes_empty_desc'))}</p>
                         </div>
                     `;
                     return;
                 }
 
-                container.innerHTML = notes.map(note => {
-                    const noteReactions = MockData.reactions.filter(r => r.target_type === 'note' && r.note_id === note.id);
-                    return `
-                        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 sm:p-5 space-y-3 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-2.5">
-                                    <img src="${currentProfileUser.avatar_url}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
-                                    <div>
-                                        <p class="font-bold text-xs text-white">${currentProfileUser.display_name}</p>
-                                        <span class="text-[10px] text-gray-500">${Layout.formatDate(note.created_at)}</span>
+                Pagination.render({
+                    container: paginationBar,
+                    items: notes,
+                    pageSize: 10,
+                    pageSizeOptions: [10, 20, 50],
+                    syncUrl: true,
+                    onPageChange: (pagedNotes) => {
+                        container.innerHTML = pagedNotes.map(note => {
+                            const noteReactions = MockData.reactions.filter(r => r.target_type === 'note' && r.note_id === note.id);
+                            const me = Layout.getCurrentUser();
+                            const likedByMe = !!me && noteReactions.some(r => r.user_id === me.id && r.type === 'like');
+                            return `
+                                <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 sm:p-5 space-y-3 shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-2.5">
+                                            <img src="${Layout.escapeHtml(currentProfileUser.avatar_url)}" alt="${Layout.escapeHtml(I18n.t('profile.avatar_alt'))}" class="w-8 h-8 rounded-full object-cover">
+                                            <div>
+                                                <p class="font-bold text-xs text-white">${Layout.escapeHtml(currentProfileUser.display_name)}</p>
+                                                <span class="text-[10px] text-gray-500">${Layout.formatDate(note.created_at)}</span>
+                                            </div>
+                                        </div>
+                                        <button onclick="openNoteReport(${note.id})" class="text-gray-500 hover:text-rose-400 text-xs" title="${Layout.escapeHtml(I18n.t('profile.report_note'))}">
+                                            <i class="fa-regular fa-flag"></i>
+                                        </button>
+                                    </div>
+
+                                    <p class="text-xs sm:text-sm text-gray-200 leading-relaxed">${Layout.escapeHtml(note.content)}</p>
+
+                                    ${note.image_url ? `
+                                        <div class="rounded-xl overflow-hidden max-h-56 border border-borderDark">
+                                            <img src="${Layout.escapeHtml(note.image_url)}" alt="${Layout.escapeHtml(I18n.t('profile.note_image_alt'))}" class="w-full h-full object-cover">
+                                        </div>
+                                    ` : ''}
+
+                                    <div class="pt-2 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                                        <button onclick="reactToNote(${note.id})" class="flex items-center space-x-1 transition ${likedByMe ? 'text-rose-500' : 'hover:text-rose-400'}">
+                                            <i class="${likedByMe ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                                            <span>${Layout.escapeHtml(I18n.t('profile.likes', { count: noteReactions.length }))}</span>
+                                        </button>
+                                        <span class="text-[10px] text-gray-500">${Layout.escapeHtml(I18n.t('profile.short_note'))}</span>
                                     </div>
                                 </div>
-                                <button onclick="openNoteReport(${note.id})" class="text-gray-500 hover:text-rose-400 text-xs" title="Báo cáo ghi chú">
-                                    <i class="fa-regular fa-flag"></i>
-                                </button>
-                            </div>
-
-                            <p class="text-xs sm:text-sm text-gray-200 leading-relaxed">${note.content}</p>
-
-                            ${note.image_url ? `
-                                <div class="rounded-xl overflow-hidden max-h-56 border border-borderDark">
-                                    <img src="${note.image_url}" alt="Ảnh ghi chú" class="w-full h-full object-cover">
-                                </div>
-                            ` : ''}
-
-                            <div class="pt-2 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
-                                <button onclick="reactToNote(${note.id})" class="flex items-center space-x-1 hover:text-rose-400 transition">
-                                    <i class="fa-regular fa-heart"></i>
-                                    <span>${noteReactions.length} Thích</span>
-                                </button>
-                                <span class="text-[10px] text-gray-500">Ghi chú ngắn</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                            `;
+                        }).join('');
+                    }
+                });
             }
         }
 
         function toggleFollowProfile(btn) {
             Layout.requireAuth(() => {
-                if (btn.classList.contains('followed')) {
-                    btn.classList.remove('followed', 'bg-cardBg', 'border', 'border-borderDark');
-                    btn.classList.add('bg-substackOrange');
-                    btn.textContent = 'Theo dõi';
-                    Layout.showToast('Đã hủy theo dõi.', 'info');
-                } else {
-                    btn.classList.add('followed', 'bg-cardBg', 'border', 'border-borderDark');
-                    btn.classList.remove('bg-substackOrange');
-                    btn.textContent = 'Đang theo dõi';
-                    Layout.showToast('Đã theo dõi người dùng!', 'success');
-                }
+                const me = Layout.getCurrentUser();
+                if (!me || !currentProfileUser || me.id === currentProfileUser.id) return;
+
+                const name = currentProfileUser.display_name;
+                const isNowFollowing = MockData.toggleFollow(me.id, currentProfileUser.id);
+                Layout.showToast(
+                    I18n.t(isNowFollowing ? 'profile.follow_success' : 'profile.unfollow_success', { name }),
+                    isNowFollowing ? 'success' : 'info'
+                );
+                // Render lại để số đếm + trạng thái nút cùng lấy từ nguồn dữ liệu mới
+                loadProfile();
             });
         }
 
         function reactToNote(noteId) {
             Layout.requireAuth(() => {
                 const user = Layout.getCurrentUser();
-                MockData.reactions.push({
-                    user_id: user.id,
-                    target_type: 'note',
-                    post_id: null,
-                    note_id: noteId,
-                    comment_id: null,
-                    type: 'like'
-                });
-                Layout.showToast('Đã thích ghi chú!', 'success');
+                const reactions = MockData.reactions;
+                const existingIndex = reactions.findIndex(r =>
+                    r.target_type === 'note' && r.note_id === noteId &&
+                    r.user_id === user.id && r.type === 'like'
+                );
+
+                // Reaction chỉ cập nhật UI tại chỗ, không hiển thị toast
+                if (existingIndex !== -1) {
+                    reactions.splice(existingIndex, 1);
+                } else {
+                    reactions.push({
+                        user_id: user.id,
+                        target_type: 'note',
+                        post_id: null,
+                        note_id: noteId,
+                        comment_id: null,
+                        type: 'like'
+                    });
+                }
                 renderTabContent();
             });
         }
@@ -415,7 +541,9 @@
         }
 
         function submitNoteReport() {
-            const reason = document.querySelector('input[name="noteReportReason"]:checked')?.value || 'Nội dung không phù hợp';
+            const selected = document.querySelector('input[name="noteReportReason"]:checked');
+            const reasonKey = selected && selected.value === 'hate' ? 'profile.report_reason_hate' : 'profile.report_reason_spam';
+            const reason = I18n.t(reasonKey) || I18n.t('profile.report_default_reason');
             const user = Layout.getCurrentUser();
             MockData.reports.push({
                 id: Date.now(),
@@ -433,7 +561,123 @@
                 created_at: new Date().toISOString()
             });
             document.getElementById('noteReportModal').classList.add('hidden');
-            Layout.showToast('Đã gửi báo cáo ghi chú đến Quản trị viên.', 'success');
+            Layout.showToast(I18n.t('profile.report_success'), 'success');
+        }
+
+        // ===== Modal danh sách Người theo dõi / Đang theo dõi =====
+        // Dữ liệu lấy từ CÙNG các hàm MockData.getFollowers/getFollowing dùng để đếm số trên header
+        function openFollowListModal(tab) {
+            if (!currentProfileUser) return;
+            followListTab = tab === 'following' ? 'following' : 'followers';
+            const modal = document.getElementById('followListModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            renderFollowListTabs();
+            renderFollowList();
+        }
+
+        function closeFollowListModal() {
+            const modal = document.getElementById('followListModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('followListPagination').innerHTML = '';
+        }
+
+        function switchFollowListTab(tab) {
+            followListTab = tab === 'following' ? 'following' : 'followers';
+            renderFollowListTabs();
+            renderFollowList();
+        }
+
+        function getFollowListUsers() {
+            if (!currentProfileUser) return [];
+            return followListTab === 'followers'
+                ? MockData.getFollowers(currentProfileUser.id)
+                : MockData.getFollowing(currentProfileUser.id);
+        }
+
+        function renderFollowListTabs() {
+            if (!currentProfileUser) return;
+            const followersCount = MockData.getFollowers(currentProfileUser.id).length;
+            const followingCount = MockData.getFollowing(currentProfileUser.id).length;
+
+            const titleKey = followListTab === 'followers' ? 'profile.followers_modal_title' : 'profile.following_modal_title';
+            const titleText = I18n.t(titleKey, { name: currentProfileUser.display_name });
+            document.getElementById('followListTitle').querySelector('span').textContent = titleText;
+
+            const followersBtn = document.getElementById('followFollowersTabBtn');
+            const followingBtn = document.getElementById('followFollowingTabBtn');
+            const activeClass = 'pb-3 text-white border-b-2 border-substackOrange flex items-center space-x-2';
+            const idleClass = 'pb-3 text-gray-400 hover:text-white flex items-center space-x-2';
+
+            followersBtn.className = followListTab === 'followers' ? activeClass : idleClass;
+            followingBtn.className = followListTab === 'following' ? activeClass : idleClass;
+            followersBtn.innerHTML = `<span>${Layout.escapeHtml(I18n.t('profile.followers_tab'))}</span><span class="bg-darkBg px-2 py-0.5 rounded-full text-xs text-gray-400">${Layout.formatNumber(followersCount)}</span>`;
+            followingBtn.innerHTML = `<span>${Layout.escapeHtml(I18n.t('profile.following_tab'))}</span><span class="bg-darkBg px-2 py-0.5 rounded-full text-xs text-gray-400">${Layout.formatNumber(followingCount)}</span>`;
+        }
+
+        function renderFollowList() {
+            const container = document.getElementById('followListContent');
+            const paginationBar = document.getElementById('followListPagination');
+            const users = getFollowListUsers();
+
+            if (users.length === 0) {
+                paginationBar.innerHTML = '';
+                container.innerHTML = `
+                    <div class="text-center py-10 space-y-2">
+                        <i class="fa-regular fa-user text-3xl text-gray-500"></i>
+                        <h4 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('profile.follow_list_empty_title'))}</h4>
+                        <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('profile.follow_list_empty_desc'))}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            Pagination.render({
+                container: paginationBar,
+                items: users,
+                currentPage: 1,
+                pageSize: followListPageSize,
+                pageSizeOptions: [10, 20, 50],
+                syncUrl: false,
+                onPageChange: (pagedUsers) => renderFollowListItems(pagedUsers, container)
+            });
+        }
+
+        function renderFollowListItems(pagedUsers, container) {
+            const me = Layout.getCurrentUser();
+            container.innerHTML = pagedUsers.map(u => {
+                const isMe = !!me && me.id === u.id;
+                const isFollowing = !!me && !isMe && MockData.isFollowing(me.id, u.id);
+                return `
+                    <div class="flex items-center justify-between gap-3 p-3 bg-darkBg border border-borderDark rounded-xl">
+                        <a href="profile.html?handle=${encodeURIComponent(u.handle)}" class="flex items-center space-x-3 min-w-0 flex-1 group" data-i18n-title="profile.view_profile_title" title="Xem hồ sơ">
+                            <img src="${Layout.escapeHtml(u.avatar_url)}" alt="${Layout.escapeHtml(I18n.t('profile.avatar_alt'))}" class="w-10 h-10 rounded-full object-cover border border-borderDark flex-shrink-0">
+                            <div class="min-w-0">
+                                <p class="font-bold text-xs text-white truncate group-hover:text-substackOrange transition">${Layout.escapeHtml(u.display_name)}</p>
+                                <p class="text-[11px] text-gray-500 truncate">@${Layout.escapeHtml(u.handle)}</p>
+                                <p class="text-[11px] text-gray-400 truncate">${Layout.escapeHtml(u.bio || I18n.t('profile.no_bio'))}</p>
+                            </div>
+                        </a>
+                        ${isMe ? '' : `
+                            <button onclick="toggleFollowInList(${u.id})" class="flex-shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition ${isFollowing ? 'bg-cardBg border border-borderDark text-gray-300 hover:bg-borderDark' : 'bg-substackOrange hover:bg-substackOrangeHover text-white'}">
+                                ${Layout.escapeHtml(I18n.t(isFollowing ? 'profile.following' : 'profile.follow'))}
+                            </button>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleFollowInList(targetUserId) {
+            Layout.requireAuth(() => {
+                const me = Layout.getCurrentUser();
+                if (!me || me.id === targetUserId) return;
+                MockData.toggleFollow(me.id, targetUserId);
+                renderFollowListTabs();
+                renderFollowList();
+                loadProfile();
+            });
         }
 
         // Modal Edit Profile
@@ -442,7 +686,11 @@
             document.getElementById('editDisplayName').value = currentProfileUser.display_name;
             document.getElementById('editHandle').value = currentProfileUser.handle;
             document.getElementById('editBio').value = currentProfileUser.bio || '';
-            document.getElementById('editAvatarUrl').value = currentProfileUser.avatar_url;
+            if (editAvatarUpload) {
+                editAvatarUpload.setValue(currentProfileUser.avatar_url);
+                editAvatarUpload.clearError();
+            }
+            if (editProfileValidator) editProfileValidator.clear();
             document.getElementById('editProfileModal').classList.remove('hidden');
         }
 
@@ -450,25 +698,44 @@
             document.getElementById('editProfileModal').classList.add('hidden');
         }
 
-        function saveProfileChanges() {
-            const newName = document.getElementById('editDisplayName').value.trim();
-            const newHandle = document.getElementById('editHandle').value.trim();
-            const newBio = document.getElementById('editBio').value.trim();
-            const newAvatar = document.getElementById('editAvatarUrl').value.trim();
-
-            if (!newName || !newHandle) {
-                Layout.showToast('Tên hiển thị và Handle không được để trống.', 'warning');
-                return;
-            }
+        function saveProfileChanges(values) {
+            if (!currentProfileUser) return;
+            const oldHandle = currentProfileUser.handle;
+            const newName = (values.editDisplayName || '').trim();
+            const newHandle = (values.editHandle || '').trim();
+            const newBio = (values.editBio || '').trim();
+            const newAvatar = editAvatarUpload ? editAvatarUpload.getValue() : currentProfileUser.avatar_url;
 
             currentProfileUser.display_name = newName;
             currentProfileUser.handle = newHandle;
             currentProfileUser.bio = newBio;
-            if (newAvatar) currentProfileUser.avatar_url = newAvatar;
+            currentProfileUser.avatar_url = newAvatar || `https://i.pravatar.cc/150?u=${newHandle}`;
+
+            // Lưu avatar theo handle để mock-data.js nạp lại sau khi tải trang
+            if (newAvatar && newAvatar.startsWith('data:')) {
+                localStorage.setItem('avatar_' + newHandle, newAvatar);
+                if (oldHandle !== newHandle) localStorage.removeItem('avatar_' + oldHandle);
+            } else if (!newAvatar) {
+                localStorage.removeItem('avatar_' + newHandle);
+                if (oldHandle !== newHandle) localStorage.removeItem('avatar_' + oldHandle);
+            }
+
+            // Đồng bộ bản ghi đăng ký (nếu đang chỉnh chính mình)
+            try {
+                const stored = JSON.parse(localStorage.getItem('registered_user') || 'null');
+                if (stored && stored.handle === oldHandle) {
+                    stored.display_name = newName;
+                    stored.handle = newHandle;
+                    stored.bio = newBio;
+                    stored.avatar_url = currentProfileUser.avatar_url;
+                    localStorage.setItem('registered_user', JSON.stringify(stored));
+                }
+            } catch (e) { /* bỏ qua dữ liệu hỏng */ }
 
             localStorage.setItem('userHandle', newHandle);
             closeEditProfileModal();
-            Layout.showToast('Cập nhật hồ sơ thành công!', 'success');
+            Layout.showToast(I18n.t('profile.saved'), 'success');
+            Layout.renderHeader('appHeader');
             loadProfile();
         }
     </script>

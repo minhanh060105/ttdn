@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý ngôn ngữ | Admin Substack</title>
+    <title data-i18n="admin.langs_page_title">Quản lý ngôn ngữ | Admin Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,25 +31,25 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         <!-- Sidebar Admin -->
         <aside id="adminSidebar"></aside>
 
         <!-- Main content -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-5xl mx-auto w-full space-y-6">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-5xl w-full space-y-6">
             
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
                         <i class="fa-solid fa-language text-substackOrange"></i>
-                        <span>Quản trị danh mục ngôn ngữ</span>
+                        <span data-i18n="admin.langs_heading">Quản trị danh mục ngôn ngữ</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-1">Cấu hình các ngôn ngữ hỗ trợ xuất bản và chuyển đổi giao diện trong hệ thống.</p>
+                    <p class="text-xs text-gray-400 mt-1" data-i18n="admin.langs_heading_desc">Cấu hình các ngôn ngữ hỗ trợ xuất bản và chuyển đổi giao diện trong hệ thống.</p>
                 </div>
 
                 <button onclick="openAddLangModal()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow flex items-center space-x-2">
                     <i class="fa-solid fa-plus"></i>
-                    <span>Thêm ngôn ngữ mới</span>
+                    <span data-i18n="admin.langs_add_title">Thêm ngôn ngữ mới</span>
                 </button>
             </div>
 
@@ -59,11 +59,11 @@
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-cardBg/80 border-b border-borderDark text-gray-400 font-bold uppercase tracking-wider text-[11px]">
-                                <th class="p-3.5">Mã Code</th>
-                                <th class="p-3.5">Tên hiển thị</th>
-                                <th class="p-3.5">Mặc định hệ thống</th>
-                                <th class="p-3.5">Trạng thái hoạt động</th>
-                                <th class="p-3.5 text-right">Thao tác</th>
+                                <th class="p-3.5" data-i18n="admin.langs_code">Mã Code</th>
+                                <th class="p-3.5" data-i18n="admin.langs_name">Tên hiển thị</th>
+                                <th class="p-3.5" data-i18n="admin.langs_default_col">Mặc định hệ thống</th>
+                                <th class="p-3.5" data-i18n="admin.langs_status_col">Trạng thái hoạt động</th>
+                                <th class="p-3.5 text-right" data-i18n="common.actions">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="languagesTableBody" class="divide-y divide-borderDark">
@@ -72,6 +72,9 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Phân trang ngôn ngữ -->
+            <div id="languagesPaginationBar" class="pt-2"></div>
 
         </main>
     </div>
@@ -82,53 +85,89 @@
             <div class="flex items-center justify-between border-b border-borderDark pb-3">
                 <h3 class="font-bold text-white text-base flex items-center space-x-2">
                     <i class="fa-solid fa-globe text-substackOrange"></i>
-                    <span>Thêm ngôn ngữ hỗ trợ</span>
+                    <span data-i18n="admin.langs_modal_title">Thêm ngôn ngữ hỗ trợ</span>
                 </h3>
-                <button onclick="closeAddLangModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeAddLangModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="space-y-3 text-xs">
+            <form id="addLangForm" novalidate class="space-y-3 text-xs">
                 <div>
-                    <label class="block font-bold text-gray-300 mb-1">Mã code ngôn ngữ (ISO 639-1) *</label>
-                    <input type="text" id="langCodeInput" placeholder="ví dụ: fr, de, ko..." maxlength="5" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white uppercase focus:outline-none focus:border-substackOrange">
-                    <p class="text-[10px] text-gray-500 mt-0.5">Mã 2 ký tự viết thường (vi, en, ja, fr...)</p>
+                    <label class="block font-bold text-gray-300 mb-1" for="langCodeInput" data-i18n="admin.langs_code_label_full">Mã code ngôn ngữ (ISO 639-1) *</label>
+                    <input type="text" id="langCodeInput" name="langCode" placeholder="ví dụ: fr, de, ko..." data-i18n-placeholder="admin.langs_code_placeholder" maxlength="2" oninput="this.value = this.value.toLowerCase()" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white uppercase focus:outline-none focus:border-substackOrange">
+                    <p class="text-[10px] text-gray-500 mt-0.5" data-i18n="admin.langs_code_hint">Mã 2 ký tự viết thường (vi, en, ja, fr...)</p>
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-300 mb-1">Tên ngôn ngữ *</label>
-                    <input type="text" id="langNameInput" placeholder="ví dụ: Français (Pháp)..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
+                    <label class="block font-bold text-gray-300 mb-1" for="langNameInput" data-i18n="admin.langs_name_label_req">Tên ngôn ngữ *</label>
+                    <input type="text" id="langNameInput" name="langName" placeholder="ví dụ: Français (Pháp)..." data-i18n-placeholder="admin.langs_name_placeholder" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-white focus:outline-none focus:border-substackOrange">
                 </div>
-            </div>
 
-            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
-                <button onclick="closeAddLangModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
-                <button onclick="submitNewLanguage()" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-xl shadow">Thêm vào hệ thống</button>
-            </div>
+                <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                    <button type="button" onclick="closeAddLangModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark" data-i18n="common.cancel">Hủy</button>
+                    <button type="submit" class="px-5 py-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-xl shadow" data-i18n="admin.langs_add_submit">Thêm vào hệ thống</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Script & Mock Data -->
     <script src="../../assets/js/mock-data.js"></script>
     <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/validators.js"></script>
+    <script src="../../assets/js/pagination.js"></script>
     <script src="../../assets/js/layout.js"></script>
 
     <script>
+        let addLangValidator = null;
+
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderAdminSidebar('languages', 'adminSidebar');
+            I18n.ready(() => {
+                Layout.renderHeader('appHeader');
+                Layout.renderAdminSidebar('languages', 'adminSidebar');
 
-            renderLanguagesTable();
+                addLangValidator = Validators.attach('#addLangForm', {
+                    langCode: {
+                        required: { message: I18n.t('admin.langs_code_invalid') },
+                        pattern: { regex: /^[a-z]{2}$/, message: I18n.t('admin.langs_code_invalid') },
+                        custom: (value) => {
+                            const exists = MockData.languages.find(l => l.code === value.toLowerCase());
+                            return exists ? I18n.t('admin.langs_exists') : null;
+                        }
+                    },
+                    langName: {
+                        required: { message: I18n.t('admin.langs_name_required') },
+                        maxLength: 60
+                    }
+                }, {
+                    onSubmit: (values) => submitNewLanguage(values)
+                });
 
-            window.addEventListener('demoStateChanged', () => {
                 renderLanguagesTable();
+
+                window.addEventListener('demoStateChanged', () => {
+                    renderLanguagesTable(false);
+                });
             });
         });
 
-        function renderLanguagesTable() {
+        function resetPageInUrl() {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('page') || url.searchParams.has('pageSize')) {
+                url.searchParams.delete('page');
+                url.searchParams.delete('pageSize');
+                window.history.replaceState({}, '', url.toString());
+            }
+        }
+
+        function renderLanguagesTable(resetPage = false) {
             const state = Layout.getDemoState();
             const tbody = document.getElementById('languagesTableBody');
+            const paginationBar = document.getElementById('languagesPaginationBar');
+
+            if (resetPage) resetPageInUrl();
 
             // 1. Loading
             if (state === 'loading') {
+                paginationBar.innerHTML = '';
                 tbody.innerHTML = Array(3).fill(0).map(() => `
                     <tr><td colspan="5" class="p-4 text-center"><div class="h-6 bg-borderDark/40 rounded animate-pulse w-full"></div></td></tr>
                 `).join('');
@@ -137,7 +176,8 @@
 
             // 2. Error
             if (state === 'error') {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">Lỗi không thể tải bảng ngôn ngữ.</td></tr>`;
+                paginationBar.innerHTML = '';
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-400">${Layout.escapeHtml(I18n.t('admin.langs_load_error'))}</td></tr>`;
                 return;
             }
 
@@ -147,46 +187,56 @@
             if (state === 'empty') languages = [];
 
             if (languages.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Chưa có dữ liệu ngôn ngữ.</td></tr>`;
+                paginationBar.innerHTML = '';
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">${Layout.escapeHtml(I18n.t('admin.langs_empty'))}</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = languages.map(lang => {
-                const isDefault = !!lang.is_default;
+            Pagination.render({
+                container: paginationBar,
+                items: languages,
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50],
+                syncUrl: true,
+                onPageChange: (pagedLanguages) => {
+                    tbody.innerHTML = pagedLanguages.map(lang => {
+                        const isDefault = !!lang.is_default;
 
-                return `
-                    <tr class="hover:bg-cardBg/40 transition">
-                        <td class="p-3.5 font-mono text-sm font-bold text-white uppercase">${lang.code}</td>
-                        <td class="p-3.5 font-bold text-gray-200">${lang.name}</td>
-                        <td class="p-3.5">
-                            ${isDefault ? `
-                                <span class="px-2.5 py-1 bg-substackOrange/20 border border-substackOrange/40 text-substackOrange text-[10px] font-bold rounded-lg flex items-center space-x-1 w-max">
-                                    <i class="fa-solid fa-star"></i>
-                                    <span>MẶC ĐỊNH</span>
-                                </span>
-                            ` : `
-                                <button onclick="setDefaultLanguage(${lang.id})" class="text-xs text-gray-400 hover:text-white underline">
-                                    Đặt làm mặc định
-                                </button>
-                            `}
-                        </td>
-                        <td class="p-3.5">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" ${lang.is_active ? 'checked' : ''} ${isDefault ? 'disabled' : ''} onchange="toggleLangActive(${lang.id}, this.checked)" class="sr-only peer">
-                                <div class="w-9 h-5 bg-borderDark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 ${isDefault ? 'opacity-60 cursor-not-allowed' : ''}"></div>
-                                <span class="ml-2 text-xs font-medium ${lang.is_active ? 'text-emerald-400' : 'text-gray-500'}">
-                                    ${lang.is_active ? 'Bật (Active)' : 'Tắt'}
-                                </span>
-                            </label>
-                        </td>
-                        <td class="p-3.5 text-right whitespace-nowrap">
-                            <a href="ui-translations.html?lang_id=${lang.id}" class="px-3 py-1.5 bg-cardBg hover:bg-borderDark text-gray-300 border border-borderDark rounded-xl transition text-xs">
-                                <i class="fa-solid fa-book-atlas mr-1"></i> Xem từ điển
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                        return `
+                            <tr class="hover:bg-cardBg/40 transition">
+                                <td class="p-3.5 font-mono text-sm font-bold text-white uppercase">${Layout.escapeHtml(lang.code)}</td>
+                                <td class="p-3.5 font-bold text-gray-200">${Layout.escapeHtml(lang.name)}</td>
+                                <td class="p-3.5">
+                                    ${isDefault ? `
+                                        <span class="px-2.5 py-1 bg-substackOrange/20 border border-substackOrange/40 text-substackOrange text-[10px] font-bold rounded-lg flex items-center space-x-1 w-max">
+                                            <i class="fa-solid fa-star"></i>
+                                            <span>${Layout.escapeHtml(I18n.t('admin.langs_default_badge'))}</span>
+                                        </span>
+                                    ` : `
+                                        <button onclick="setDefaultLanguage(${lang.id})" class="text-xs text-gray-400 hover:text-white underline">
+                                            ${Layout.escapeHtml(I18n.t('admin.langs_set_default'))}
+                                        </button>
+                                    `}
+                                </td>
+                                <td class="p-3.5">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" ${lang.is_active ? 'checked' : ''} ${isDefault ? 'disabled' : ''} onchange="toggleLangActive(${lang.id}, this.checked)" class="sr-only peer">
+                                        <div class="w-9 h-5 bg-borderDark peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 ${isDefault ? 'opacity-60 cursor-not-allowed' : ''}"></div>
+                                        <span class="ml-2 text-xs font-medium ${lang.is_active ? 'text-emerald-400' : 'text-gray-500'}">
+                                            ${Layout.escapeHtml(lang.is_active ? I18n.t('admin.langs_enable') : I18n.t('admin.langs_disable'))}
+                                        </span>
+                                    </label>
+                                </td>
+                                <td class="p-3.5 text-right whitespace-nowrap">
+                                    <span class="px-2.5 py-1 bg-darkBg text-gray-400 border border-borderDark rounded-lg font-mono text-[11px]">
+                                        locales/${Layout.escapeHtml(lang.code)}.json
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            });
         }
 
         function setDefaultLanguage(langId) {
@@ -198,8 +248,8 @@
                     l.is_default = false;
                 }
             });
-            Layout.showToast('Đã đặt ngôn ngữ mặc định mới cho hệ thống!', 'success');
-            renderLanguagesTable();
+            Layout.showToast(I18n.t('admin.langs_default_set'), 'success');
+            renderLanguagesTable(false);
         }
 
         function toggleLangActive(langId, active) {
@@ -207,19 +257,20 @@
             if (!lang) return;
 
             if (lang.is_default && !active) {
-                Layout.showToast('Không thể tắt ngôn ngữ đang là mặc định của hệ thống!', 'warning');
-                renderLanguagesTable();
+                Layout.showToast(I18n.t('admin.langs_cannot_disable_default'), 'warning');
+                renderLanguagesTable(false);
                 return;
             }
 
             lang.is_active = active;
-            Layout.showToast(`Đã ${active ? 'kích hoạt' : 'vô hiệu hóa'} ngôn ngữ ${lang.name}!`, 'info');
-            renderLanguagesTable();
+            Layout.showToast(I18n.t(active ? 'admin.langs_toggled_on' : 'admin.langs_toggled_off'), 'info');
+            renderLanguagesTable(false);
         }
 
         function openAddLangModal() {
-            document.getElementById('langCodeInput').value = '';
-            document.getElementById('langNameInput').value = '';
+            const form = document.getElementById('addLangForm');
+            form.reset();
+            if (addLangValidator) addLangValidator.clear();
             document.getElementById('addLangModal').classList.remove('hidden');
         }
 
@@ -227,20 +278,9 @@
             document.getElementById('addLangModal').classList.add('hidden');
         }
 
-        function submitNewLanguage() {
-            const code = document.getElementById('langCodeInput').value.trim().toLowerCase();
-            const name = document.getElementById('langNameInput').value.trim();
-
-            if (!code || !name) {
-                Layout.showToast('Vui lòng nhập đầy đủ mã code và tên ngôn ngữ.', 'warning');
-                return;
-            }
-
-            const exists = MockData.languages.find(l => l.code === code);
-            if (exists) {
-                Layout.showToast('Mã ngôn ngữ này đã tồn tại trong hệ thống.', 'warning');
-                return;
-            }
+        function submitNewLanguage(values) {
+            const code = (values.langCode || '').trim().toLowerCase();
+            const name = (values.langName || '').trim();
 
             const newLang = {
                 id: Date.now(),
@@ -252,8 +292,8 @@
             MockData.languages.push(newLang);
 
             closeAddLangModal();
-            Layout.showToast(`Đã thêm ngôn ngữ ${name} thành công!`, 'success');
-            renderLanguagesTable();
+            Layout.showToast(I18n.t('admin.langs_added_name', { name }), 'success');
+            renderLanguagesTable(false);
         }
     </script>
 </body>

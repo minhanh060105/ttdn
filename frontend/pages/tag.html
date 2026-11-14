@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chuyên mục Thẻ | Substack</title>
+    <title data-i18n="tag.page_title">Chuyên mục Thẻ | Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,22 +31,33 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
 
         <!-- Main content -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full space-y-6">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl w-full space-y-6">
             
             <!-- Header thông tin Thẻ -->
             <div id="tagHeaderBox" class="bg-sidebarBg border border-borderDark rounded-2xl p-6 shadow-sm">
                 <!-- Render qua JS -->
             </div>
 
+            <!-- Lọc theo danh mục (dùng chung MockData.categories) -->
+            <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 block mb-2" data-i18n="home.categories_label">Danh mục:</span>
+                <div id="tagCategoryChips" class="flex flex-wrap gap-2 text-xs">
+                    <!-- Render categories qua JS -->
+                </div>
+            </div>
+
             <!-- Danh sách bài viết theo Thẻ -->
             <div id="tagPostList" class="space-y-4">
                 <!-- Render qua JS -->
             </div>
+
+            <!-- Phân trang theo Thẻ -->
+            <div id="tagPaginationBar" class="pt-2"></div>
 
         </main>
     </div>
@@ -57,30 +68,70 @@
     <!-- Script & Mock Data -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/sanitize.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
+        let selectedCategorySlug = null;
+
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderSidebar('tag', 'appSidebar');
-            Layout.renderBottomNav('tag', 'appBottomNav');
+            I18n.ready(() => {
+                Layout.renderHeader('appHeader');
+                Layout.renderSidebar('tag', 'appSidebar');
+                Layout.renderBottomNav('tag', 'appBottomNav');
 
-            renderTagPage();
-
-            window.addEventListener('demoStateChanged', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                selectedCategorySlug = urlParams.get('category') || null;
+                renderTagCategoryChips();
                 renderTagPage();
+
+                window.addEventListener('demoStateChanged', () => {
+                    renderTagPage();
+                });
             });
         });
+
+        function categoryChipClass(slug) {
+            return slug === selectedCategorySlug
+                ? 'px-3 py-1.5 rounded-full border border-substackOrange bg-substackOrange text-white font-medium transition'
+                : 'px-3 py-1.5 rounded-full border border-borderDark bg-cardBg text-gray-300 hover:border-substackOrange font-medium transition';
+        }
+
+        function renderTagCategoryChips() {
+            const container = document.getElementById('tagCategoryChips');
+            if (!container || !MockData.categories) return;
+
+            const activeCategories = MockData.categories.filter(c => c.is_active);
+            container.innerHTML = `
+                <button onclick="filterTagByCategory(null)" class="${categoryChipClass(null)}">
+                    ${Layout.escapeHtml(I18n.t('common.all_categories'))}
+                </button>
+                ${activeCategories.map(c => `
+                    <button onclick="filterTagByCategory('${c.slug}')" class="${categoryChipClass(c.slug)}">
+                        ${Layout.escapeHtml(c.name)}
+                    </button>
+                `).join('')}
+            `;
+        }
+
+        function filterTagByCategory(slug) {
+            selectedCategorySlug = slug;
+            renderTagCategoryChips();
+            renderTagPage();
+        }
 
         function renderTagPage() {
             const state = Layout.getDemoState();
             const headerBox = document.getElementById('tagHeaderBox');
             const listContainer = document.getElementById('tagPostList');
+            const paginationBar = document.getElementById('tagPaginationBar');
             const urlParams = new URLSearchParams(window.location.search);
             const slug = urlParams.get('slug') || 'cong-nghe';
 
             // 1. Loading
             if (state === 'loading') {
+                if (paginationBar) paginationBar.innerHTML = '';
                 headerBox.innerHTML = `
                     <div class="animate-pulse space-y-3">
                         <div class="w-32 h-6 bg-borderDark rounded"></div>
@@ -98,13 +149,14 @@
 
             // 2. Error
             if (state === 'error') {
-                headerBox.innerHTML = `<h2 class="text-lg font-bold text-rose-400">Không thể tải thông tin chủ đề</h2>`;
+                if (paginationBar) paginationBar.innerHTML = '';
+                headerBox.innerHTML = `<h2 class="text-lg font-bold text-rose-400">${Layout.escapeHtml(I18n.t('tag.error_header'))}</h2>`;
                 listContainer.innerHTML = `
                     <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
                         <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
-                        <h3 class="text-sm font-bold text-white">Lỗi kết nối máy chủ</h3>
-                        <p class="text-xs text-gray-400">Không thể lấy danh sách bài viết theo chủ đề.</p>
-                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
+                        <h3 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('tag.error_title'))}</h3>
+                        <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('tag.error_desc'))}</p>
+                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">${Layout.escapeHtml(I18n.t('common.retry'))}</button>
                     </div>
                 `;
                 return;
@@ -112,10 +164,11 @@
 
             const tag = MockData.tags.find(t => t.slug === slug);
             if (!tag) {
+                if (paginationBar) paginationBar.innerHTML = '';
                 headerBox.innerHTML = `
                     <div class="text-center py-4">
-                        <h1 class="text-xl font-bold text-white mb-2">Chủ đề không tồn tại</h1>
-                        <p class="text-xs text-gray-400">Thẻ hashtag bạn đang tìm không có trong hệ thống.</p>
+                        <h1 class="text-xl font-bold text-white mb-2">${Layout.escapeHtml(I18n.t('tag.not_found_title'))}</h1>
+                        <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('tag.not_found_desc'))}</p>
                     </div>
                 `;
                 listContainer.innerHTML = '';
@@ -126,6 +179,14 @@
             const postIds = MockData.post_tags.filter(pt => pt.tag_id === tag.id).map(pt => pt.post_id);
             let posts = MockData.posts.filter(p => postIds.includes(p.id) && p.status === 'published' && !p.deleted_at);
 
+            // Lọc thêm theo danh mục đang hoạt động
+            if (selectedCategorySlug) {
+                const matchedCategory = MockData.categories.find(c => c.slug === selectedCategorySlug && c.is_active);
+                if (matchedCategory) {
+                    posts = posts.filter(p => p.category_id === matchedCategory.id);
+                }
+            }
+
             // 3. Demo Empty
             if (state === 'empty') posts = [];
 
@@ -135,16 +196,16 @@
                     <div class="space-y-1.5">
                         <div class="flex items-center space-x-2">
                             <span class="w-8 h-8 rounded-xl bg-substackOrange/10 border border-substackOrange/30 text-substackOrange flex items-center justify-center font-bold">#</span>
-                            <h1 class="text-2xl font-extrabold text-white">${tag.name}</h1>
+                            <h1 class="text-2xl font-extrabold text-white">${Layout.escapeHtml(tag.name)}</h1>
                         </div>
-                        <p class="text-xs text-gray-400 max-w-md leading-relaxed">${tag.description || 'Các bài viết và thảo luận chuyên sâu liên quan đến ' + tag.name}</p>
+                        <p class="text-xs text-gray-400 max-w-md leading-relaxed">${Layout.escapeHtml(tag.description || I18n.t('tag.description', { name: tag.name }))}</p>
                     </div>
                     <div class="flex items-center space-x-3">
                         <span class="bg-darkBg border border-borderDark px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-300">
-                            ${posts.length} bài viết
+                            ${Layout.escapeHtml(I18n.t('tag.posts_count', { count: posts.length }))}
                         </span>
                         <a href="search.html" class="bg-cardBg hover:bg-borderDark border border-borderDark text-xs text-gray-300 px-3 py-1.5 rounded-xl transition">
-                            Tất cả thẻ
+                            ${Layout.escapeHtml(I18n.t('tag.all_tags'))}
                         </a>
                     </div>
                 </div>
@@ -152,53 +213,72 @@
 
             // List posts
             if (posts.length === 0) {
+                if (paginationBar) paginationBar.innerHTML = '';
                 listContainer.innerHTML = `
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-10 text-center space-y-3">
                         <i class="fa-regular fa-folder-open text-3xl text-gray-500"></i>
-                        <h3 class="text-sm font-bold text-white">Chưa có bài viết nào trong chủ đề này</h3>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Hãy quay lại sau hoặc khám phá các chủ đề khác trên hệ thống.</p>
-                        <a href="index.html" class="inline-block mt-2 text-xs text-substackOrange hover:underline font-medium">Về Trang chủ</a>
+                        <h3 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('tag.empty_title'))}</h3>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto">${Layout.escapeHtml(I18n.t('tag.empty_desc'))}</p>
+                        <a href="index.html" class="inline-block mt-2 text-xs text-substackOrange hover:underline font-medium">${Layout.escapeHtml(I18n.t('tag.back_home'))}</a>
                     </div>
                 `;
                 return;
             }
 
-            listContainer.innerHTML = posts.map(post => {
-                const author = MockData.users.find(u => u.id === post.author_id) || {
-                    display_name: 'Tác giả',
-                    handle: 'author',
-                    avatar_url: 'https://i.pravatar.cc/150'
-                };
+            Pagination.render({
+                container: paginationBar,
+                items: posts,
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50],
+                syncUrl: true,
+                onPageChange: (pagedPosts) => {
+                    listContainer.innerHTML = pagedPosts.map(post => {
+                        const author = MockData.users.find(u => u.id === post.author_id) || {
+                            display_name: I18n.t('common.author'),
+                            handle: 'author',
+                            avatar_url: 'https://i.pravatar.cc/150'
+                        };
+                        const excerpt = Sanitize.text(post.content_html || '');
+                        const category = post.category_id ? MockData.getCategoryById(post.category_id) : null;
 
-                return `
-                    <article class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
-                        <div class="flex items-center space-x-2.5">
-                            <img src="${author.avatar_url}" alt="${author.display_name}" class="w-7 h-7 rounded-full object-cover">
-                            <span class="text-xs font-bold text-white">${author.display_name}</span>
-                            <span class="text-xs text-gray-500">•</span>
-                            <span class="text-[11px] text-gray-400">${Layout.formatDate(post.published_at)}</span>
-                        </div>
+                        return `
+                            <article class="bg-sidebarBg border border-borderDark hover:border-gray-600 rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
+                                <div class="flex items-center space-x-2.5">
+                                    <img src="${Layout.escapeHtml(author.avatar_url)}" alt="${Layout.escapeHtml(author.display_name)}" class="w-7 h-7 rounded-full object-cover">
+                                    <span class="text-xs font-bold text-white">${Layout.escapeHtml(author.display_name)}</span>
+                                    <span class="text-xs text-gray-500">•</span>
+                                    <span class="text-[11px] text-gray-400">${Layout.formatDate(post.published_at)}</span>
+                                </div>
 
-                        <a href="post-detail.html?slug=${post.slug}" class="block group">
-                            <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2 leading-snug">
-                                ${post.title}
-                            </h3>
-                            <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
-                                ${post.content.replace(/<[^>]*>?/gm, '')}
-                            </p>
-                        </a>
+                                <a href="post-detail.html?slug=${encodeURIComponent(post.slug)}" class="block group">
+                                    <h3 class="text-base font-bold text-white group-hover:text-substackOrange transition line-clamp-2 leading-snug">
+                                        ${Layout.escapeHtml(post.title)}
+                                    </h3>
+                                    <p class="text-xs sm:text-sm text-gray-300 line-clamp-2 mt-1 leading-relaxed">
+                                        ${Layout.escapeHtml(excerpt)}
+                                    </p>
+                                </a>
 
-                        <div class="flex items-center justify-between text-xs text-gray-400 pt-1">
-                            <span class="text-[11px] text-gray-500">
-                                <i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)} lượt xem
-                            </span>
-                            <a href="post-detail.html?slug=${post.slug}" class="text-substackOrange hover:underline font-medium">
-                                Đọc bài viết <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
-                            </a>
-                        </div>
-                    </article>
-                `;
-            }).join('');
+                                <div class="flex items-center justify-between text-xs text-gray-400 pt-1">
+                                    <div class="flex items-center space-x-2 flex-wrap">
+                                        ${category ? `
+                                            <span class="text-[10px] text-substackOrange bg-substackOrange/15 border border-substackOrange/40 px-2 py-0.5 rounded-full font-semibold">
+                                                <i class="fa-regular fa-folder-open mr-1"></i>${Layout.escapeHtml(category.name)}
+                                            </span>
+                                        ` : ''}
+                                        <span class="text-[11px] text-gray-500">
+                                            <i class="fa-regular fa-eye mr-1"></i>${Layout.escapeHtml(I18n.t('home.views', { count: Layout.formatNumber(post.views_count) }))}
+                                        </span>
+                                    </div>
+                                    <a href="post-detail.html?slug=${encodeURIComponent(post.slug)}" class="text-substackOrange hover:underline font-medium">
+                                        ${Layout.escapeHtml(I18n.t('tag.read'))} <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+                                    </a>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                }
+            });
         }
     </script>
 </body>

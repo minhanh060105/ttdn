@@ -16,6 +16,7 @@ window.MockData = (function () {
         {
             id: 1,
             email: 'admin@substack.vn',
+            password: 'admin123',
             handle: 'nguyenadmin',
             display_name: 'Nguyễn Văn Quản Trị Viên Hệ Thống',
             bio: 'Trưởng ban điều hành nội dung và an ninh mạng của Substack Clone. Đam mê mã nguồn mở.',
@@ -42,6 +43,7 @@ window.MockData = (function () {
         {
             id: 3,
             email: 'hhoanganh0710@gmail.com',
+            password: '12345678',
             handle: 'hhoanganh0710',
             display_name: 'Phạm Đình Hoàng Anh',
             bio: 'Kỹ sư phần mềm đam mê System Architecture, Microservices, Next.js và trải nghiệm người dùng hiện đại.',
@@ -81,6 +83,7 @@ window.MockData = (function () {
         {
             id: 6,
             email: 'dangmaihoa@gmail.com',
+            password: 'user123',
             handle: 'maihoa_reader',
             display_name: 'Đặng Mai Hoa',
             bio: 'Độc giả yêu sách triết học phương Đông, thói quen ghi chú atomic notes.',
@@ -107,6 +110,7 @@ window.MockData = (function () {
         {
             id: 8,
             email: 'quangcao.spammer247@gmail.com',
+            password: 'spammer123',
             handle: 'quangcao_spammer',
             display_name: 'Đại Lý Tăng Like Kéo Sub Siêu Rẻ Nhất Quả Đất',
             bio: 'Chuyên cung cấp tương tác ảo, bán tài khoản giá rẻ, liên hệ Zalo 0999xxxxxx.',
@@ -119,6 +123,19 @@ window.MockData = (function () {
         }
     ];
 
+    // Khôi phục tài khoản đăng ký gần nhất + ảnh đại diện đã tải lên từ localStorage
+    // (mock không có server nên cần giữ dữ liệu qua các lần reload trang)
+    try {
+        const storedUser = JSON.parse(localStorage.getItem('registered_user') || 'null');
+        if (storedUser && storedUser.handle && !users.some(u => u.handle === storedUser.handle)) {
+            users.push(storedUser);
+        }
+    } catch (e) { /* dữ liệu hỏng thì bỏ qua */ }
+    users.forEach(u => {
+        const savedAvatar = localStorage.getItem('avatar_' + u.handle);
+        if (savedAvatar) u.avatar_url = savedAvatar;
+    });
+
     // 3. LANGUAGES
     const languages = [
         { id: 1, code: 'vi', name: 'Tiếng Việt', is_active: true, is_default: true },
@@ -126,76 +143,7 @@ window.MockData = (function () {
         { id: 3, code: 'ja', name: '日本語 (Japanese)', is_active: false, is_default: false }
     ];
 
-    // 4. UI TRANSLATIONS (>= 25 keys)
-    const ui_translations = [
-        // Tiếng Việt (id: 1)
-        { language_id: 1, translation_key: "nav.home", translation_value: "Trang chủ" },
-        { language_id: 1, translation_key: "nav.subscriptions", translation_value: "Đăng ký" },
-        { language_id: 1, translation_key: "nav.chat", translation_value: "Trò chuyện" },
-        { language_id: 1, translation_key: "nav.activity", translation_value: "Hoạt động" },
-        { language_id: 1, translation_key: "nav.explore", translation_value: "Khám phá" },
-        { language_id: 1, translation_key: "nav.profile", translation_value: "Hồ sơ cá nhân" },
-        { language_id: 1, translation_key: "nav.create", translation_value: "Viết bài" },
-        { language_id: 1, translation_key: "nav.my_posts", translation_value: "Bài viết của tôi" },
-        { language_id: 1, translation_key: "nav.my_notes", translation_value: "Ghi chú của tôi" },
-        { language_id: 1, translation_key: "nav.admin_review", translation_value: "Duyệt bài viết" },
-        { language_id: 1, translation_key: "nav.admin_reports", translation_value: "Xử lý báo cáo" },
-        { language_id: 1, translation_key: "nav.admin_users", translation_value: "Quản lý người dùng" },
-        { language_id: 1, translation_key: "nav.admin_languages", translation_value: "Quản trị ngôn ngữ" },
-        { language_id: 1, translation_key: "nav.admin_translations", translation_value: "Từ điển giao diện" },
-        { language_id: 1, translation_key: "banner.title", translation_value: "Kiếm tiền từ công việc bạn tin tưởng" },
-        { language_id: 1, translation_key: "banner.subtitle", translation_value: "Nền tảng xuất bản độc lập giúp bạn tự do sáng tạo và kết nối sâu sắc với độc giả." },
-        { language_id: 1, translation_key: "auth.loginTitle", translation_value: "Đăng nhập hoặc đăng ký" },
-        { language_id: 1, translation_key: "auth.desc", translation_value: "Tham gia vào các cuộc thảo luận thú vị và sâu sắc nhất." },
-        { language_id: 1, translation_key: "auth.signin", translation_value: "Đăng nhập" },
-        { language_id: 1, translation_key: "auth.signup", translation_value: "Đăng ký" },
-        { language_id: 1, translation_key: "auth.signout", translation_value: "Đăng xuất" },
-        { language_id: 1, translation_key: "auth.email_placeholder", translation_value: "Nhập địa chỉ email của bạn" },
-        { language_id: 1, translation_key: "search.placeholder", translation_value: "Tìm kiếm bài viết, tác giả, thẻ..." },
-        { language_id: 1, translation_key: "common.read_more", translation_value: "Đọc tiếp" },
-        { language_id: 1, translation_key: "common.popular", translation_value: "Đọc nhiều nhất" },
-        { language_id: 1, translation_key: "common.filter_all", translation_value: "Tất cả chủ đề" },
-        { language_id: 1, translation_key: "common.empty_posts", translation_value: "Chưa có bài viết nào ở ngôn ngữ này." },
-        { language_id: 1, translation_key: "common.comments", translation_value: "Bình luận" },
-        { language_id: 1, translation_key: "common.report", translation_value: "Báo cáo vi phạm" },
-        { language_id: 1, translation_key: "common.follow", translation_value: "Theo dõi" },
-        { language_id: 1, translation_key: "common.following", translation_value: "Đang theo dõi" },
-
-        // English (id: 2)
-        { language_id: 2, translation_key: "nav.home", translation_value: "Home" },
-        { language_id: 2, translation_key: "nav.subscriptions", translation_value: "Subscriptions" },
-        { language_id: 2, translation_key: "nav.chat", translation_value: "Chat" },
-        { language_id: 2, translation_key: "nav.activity", translation_value: "Activity" },
-        { language_id: 2, translation_key: "nav.explore", translation_value: "Explore" },
-        { language_id: 2, translation_key: "nav.profile", translation_value: "Profile" },
-        { language_id: 2, translation_key: "nav.create", translation_value: "Create post" },
-        { language_id: 2, translation_key: "nav.my_posts", translation_value: "My Posts" },
-        { language_id: 2, translation_key: "nav.my_notes", translation_value: "My Notes" },
-        { language_id: 2, translation_key: "nav.admin_review", translation_value: "Post Review" },
-        { language_id: 2, translation_key: "nav.admin_reports", translation_value: "Moderation Reports" },
-        { language_id: 2, translation_key: "nav.admin_users", translation_value: "User Management" },
-        { language_id: 2, translation_key: "nav.admin_languages", translation_value: "Languages" },
-        { language_id: 2, translation_key: "nav.admin_translations", translation_value: "UI Translations" },
-        { language_id: 2, translation_key: "banner.title", translation_value: "Make money doing the work you believe in" },
-        { language_id: 2, translation_key: "banner.subtitle", translation_value: "An independent publishing platform where you create freely and connect deeply." },
-        { language_id: 2, translation_key: "auth.loginTitle", translation_value: "Log in or sign up" },
-        { language_id: 2, translation_key: "auth.desc", translation_value: "Join the most interesting and insightful discussions." },
-        { language_id: 2, translation_key: "auth.signin", translation_value: "Sign in" },
-        { language_id: 2, translation_key: "auth.signup", translation_value: "Sign up" },
-        { language_id: 2, translation_key: "auth.signout", translation_value: "Sign out" },
-        { language_id: 2, translation_key: "auth.email_placeholder", translation_value: "Enter your email" },
-        { language_id: 2, translation_key: "search.placeholder", translation_value: "Search posts, authors, tags..." },
-        { language_id: 2, translation_key: "common.read_more", translation_value: "Read more" },
-        { language_id: 2, translation_key: "common.popular", translation_value: "Popular stories" },
-        { language_id: 2, translation_key: "common.filter_all", translation_value: "All topics" },
-        { language_id: 2, translation_key: "common.empty_posts", translation_value: "No posts found for this language." },
-        { language_id: 2, translation_key: "common.comments", translation_value: "Comments" },
-        { language_id: 2, translation_key: "common.report", translation_value: "Report" },
-        { language_id: 2, translation_key: "common.follow", translation_value: "Follow" },
-        { language_id: 2, translation_key: "common.following", translation_value: "Following" }
-    ];
-
-    // 5. TAGS (>= 8 thẻ)
+    // 4. TAGS (>= 8 thẻ)
     const tags = [
         { id: 1, name: 'Công nghệ', slug: 'cong-nghe', description: 'Kiến trúc hệ thống, phần mềm và xu hướng số' },
         { id: 2, name: 'Trí tuệ nhân tạo', slug: 'tri-tue-nhan-tao', description: 'LLMs, Prompt Engineering, Agentic AI' },
@@ -207,17 +155,28 @@ window.MockData = (function () {
         { id: 8, name: 'Kỹ năng phát triển', slug: 'ky-nang-phat-trien', description: 'Phương pháp học tập sâu, quản trị thời gian' }
     ];
 
+    // 5.1 CATEGORIES (Quản lý Danh mục bài viết)
+    const categories = [
+        { id: 1, name: 'Công nghệ & Phần mềm', slug: 'cong-nghe-phan-mem', description: 'Kiến trúc hệ thống, backend, frontend và mã nguồn mở', post_count: 6, is_active: true, created_at: '2024-01-10T08:00:00Z' },
+        { id: 2, name: 'Hạ tầng Cloud & DevOps', slug: 'ha-tang-cloud-devops', description: 'Kubernetes, Docker, CI/CD và giải pháp điện toán đám mây', post_count: 4, is_active: true, created_at: '2024-01-15T09:00:00Z' },
+        { id: 3, name: 'Thiết kế UI/UX & Typography', slug: 'thiet-ke-ui-ux', description: 'Trải nghiệm người dùng, Design tokens và Typography chuẩn công thái học', post_count: 3, is_active: true, created_at: '2024-02-01T10:00:00Z' },
+        { id: 4, name: 'Trí tuệ nhân tạo (AI)', slug: 'tri-tue-nhan-tao', description: 'LLMs, Prompt Engineering, Agentic AI và ứng dụng thực tế', post_count: 5, is_active: true, created_at: '2024-02-15T11:00:00Z' },
+        { id: 5, name: 'Đời sống & Góc nhìn Tác giả', slug: 'doi-song-goc-nhin', description: 'Tản văn, kinh nghiệm sống và triết lý làm việc', post_count: 2, is_active: true, created_at: '2024-03-01T12:00:00Z' },
+        { id: 6, name: 'Kinh doanh & Khởi nghiệp', slug: 'kinh-doanh-khoi-nghiep', description: 'Mô hình kinh doanh số, tăng trưởng và tài chính cá nhân', post_count: 1, is_active: false, created_at: '2024-03-10T14:00:00Z' }
+    ];
+
     // 6. POSTS (>= 16 bài, đủ cả 4 status: published, pending, draft, rejected)
     const posts = [
         {
             id: 1,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Kiến trúc Hệ thống Phân tán Hiện đại: Từ Monolith sang Microservices và Bài học Thực chiến Đau đớn',
             slug: 'kien-truc-he-thong-phan-tan-hien-dai',
-            content: '<p>Chuyển đổi từ một hệ thống nguyên khối đồ sộ (monolith) sang kiến trúc microservices là một hành trình đầy cạm bẫy kỹ thuật. Trong bài viết này, chúng ta sẽ mổ xẻ những quyết định sai lầm phổ biến nhất, từ việc chia domain chưa đúng cho tới việc vướng bẫy giao dịch phân tán (distributed transactions).</p><h3>1. Tại sao Monolith vẫn chưa chết?</h3><p>Nhiều nhóm kỹ sư trẻ vội vàng chia nhỏ dịch vụ khi lưu lượng truy cập còn rất thấp. Hậu quả là chi phí vận hành mạng và overhead giao tiếp tăng gấp mười lần, trong khi hiệu suất kinh doanh không đổi.</p><blockquote>"Đừng bao giờ xây dựng Microservices trừ khi Monolith của bạn đã được tối ưu hóa đến giới hạn vật lý của nó."</blockquote><p>Hãy xem xét kiến trúc Modular Monolith trước khi bạn đưa Kubernetes vào hệ sinh thái của mình.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/kien-truc-he-thong-phan-tan-hien-dai/800/450',
+            content_html: "<h2>Vì sao kiến trúc phân tán dễ thất bại?</h2><p>Chuyển từ hệ thống nguyên khối đồ sộ sang microservices là hành trình đầy cạm bẫy kỹ thuật. Nhiều nhóm chia nhỏ dịch vụ quá sớm, khi lưu lượng còn thấp, khiến chi phí vận hành mạng và độ phức tạp tăng vọt.</p><img src=\"https://picsum.photos/seed/microservices-architecture/1000/520\" alt=\"Sơ đồ kiến trúc microservices\"><h3>1. Monolith vẫn chưa chết</h3><p>Một Modular Monolith được thiết kế tốt vẫn là lựa chọn hợp lý cho phần lớn startup. Chỉ tách dịch vụ khi biên giới nghiệp vụ đã rõ ràng.</p><ul><li>Đo lường độ trễ và chi phí trước khi tách.</li><li>Cô lập schema theo module ngay từ đầu.</li><li>Giao tiếp qua interface thay vì truy cập chéo bảng.</li></ul><blockquote>\"Đừng xây dựng Microservices trừ khi Monolith của bạn đã được tối ưu đến giới hạn vật lý.\"</blockquote><h3>2. Lộ trình chuyển đổi an toàn</h3><ol><li>Bóc tách module có lưu lượng độc lập.</li><li>Dựng cơ chế quan sát và truy vết phân tán.</li><li>Chuyển dữ liệu theo từng lát cắt nhỏ.</li></ol><p>Bài học lớn nhất: kiến trúc phải phục vụ bài toán kinh doanh, không phải ngược lại.</p>",
+            cover_image: 'https://picsum.photos/seed/kien-truc-he-thong-phan-tan-hien-dai/800/450',
             status: 'published',
             reviewed_by: 1,
             reviewed_at: '2024-03-15T09:00:00Z',
@@ -231,11 +190,12 @@ window.MockData = (function () {
             id: 2,
             author_id: 4,
             group_id: 102,
+            category_id: 2,
             language_id: 1,
             title: 'Tối ưu hóa Chi phí Kubernetes trên AWS: Tiết kiệm 45% Ngân sách Cloud Hàng Tháng',
             slug: 'toi-uu-hoa-chi-phi-kubernetes-aws',
-            content: '<p>Chi phí hạ tầng điện toán đám mây là bài toán đau đầu của mọi CTO. Bài viết chia sẻ chiến lược áp dụng Spot Instances kết hợp Karpenter tự động co giãn cụm worker nodes một cách thông minh.</p><p>Nhờ phân loại đúng workload stateless và stateful, chúng tôi đã cắt giảm gần một nửa chi phí hạ tầng mà vẫn đảm bảo SLA 99.99%.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/toi-uu-hoa-chi-phi-kubernetes-aws/800/450',
+            content_html: "<h2>Bài toán chi phí Cloud không chỉ là hóa đơn</h2><p>Chi phí hạ tầng tăng nhanh khi cụm Kubernetes thiếu cơ chế co giãn thông minh. Chúng tôi kết hợp Spot Instances với Karpenter để tự động chọn loại máy phù hợp.</p><img src=\"https://picsum.photos/seed/kubernetes-cost-chart/1000/520\" alt=\"Biểu đồ chi phí Kubernetes theo tháng\"><h3>Các đòn bẩy tiết kiệm chính</h3><ul><li>Phân loại workload stateless và stateful rõ ràng.</li><li>Đặt requests/limits sát nhu cầu thực tế.</li><li>Dùng chính sách scale-down mạnh hơn cho môi trường staging.</li></ul><p>Sau ba tháng, ngân sách Cloud giảm 45% trong khi SLA vẫn giữ ở 99,99%.</p>",
+            cover_image: 'https://picsum.photos/seed/toi-uu-hoa-chi-phi-kubernetes-aws/800/450',
             status: 'published',
             reviewed_by: 1,
             reviewed_at: '2024-03-18T14:00:00Z',
@@ -249,11 +209,12 @@ window.MockData = (function () {
             id: 3,
             author_id: 5,
             group_id: 103,
+            category_id: 3,
             language_id: 1,
             title: 'Nghệ thuật Thiết kế Dark Theme Chuẩn Công Thái Học: Đừng Chỉ Dùng Màu Đen Tuyệt Đối (#000000)',
             slug: 'nghe-thuat-thiet-ke-dark-theme-chuan-cong-thai-hoc',
-            content: '<p>Tại sao giao diện của Substack, Linear hay GitHub không bao giờ dùng nền đen thuần túy? Màu đen #000000 tạo độ tương phản quá gắt với chữ trắng, gây mỏi mắt nghiêm trọng khi đọc lâu.</p><p>Hãy sử dụng các sắc xám tối như #121212 kết hợp các lớp đổ bóng phân tầng card để tạo chiều sâu tự nhiên.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/nghe-thuat-thiet-ke-dark-theme-chuan-cong-thai-hoc/800/450',
+            content_html: "<h2>Dark theme không phải là đảo màu</h2><p>Nền đen tuyệt đối tạo độ tương phản quá gắt với chữ trắng, gây mỏi mắt khi đọc lâu. Các sản phẩm tốt dùng nhiều lớp xám tối để tạo chiều sâu.</p><img src=\"https://picsum.photos/seed/dark-theme-typography/1000/520\" alt=\"Ví dụ bố cục dark theme với nhiều lớp xám\"><h3>Nguyên tắc thiết kế</h3><ul><li>Dùng #121212 thay vì #000000 cho nền chính.</li><li>Tăng độ sáng bề mặt theo cấp bậc nội dung.</li><li>Giữ độ tương phản chữ tối thiểu 4,5:1.</li></ul><blockquote>Ánh sáng trong giao diện tối đến từ sự chênh lệch tinh tế giữa các lớp bề mặt.</blockquote><p>Typography và khoảng thở quan trọng hơn hiệu ứng hào nhoáng.</p>",
+            cover_image: 'https://picsum.photos/seed/nghe-thuat-thiet-ke-dark-theme-chuan-cong-thai-hoc/800/450',
             status: 'published',
             reviewed_by: 2,
             reviewed_at: '2024-03-20T10:00:00Z',
@@ -267,11 +228,12 @@ window.MockData = (function () {
             id: 4,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 2,
             title: 'Building High-Performance Web Applications with Next.js 15 and Server Components',
             slug: 'building-high-performance-nextjs-15',
-            content: '<p>Server Components in Next.js revolutionize the mental model of React developers. Streaming SSR, partial prerendering, and zero-bundle-size dependencies enable blazing fast TTFB.</p><p>In this post, we dive deep into cache invalidation mechanics and real-world edge scenarios.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/building-high-performance-nextjs-15/800/450',
+            content_html: "<h2>Server Components thay đổi cách chia bundle</h2><p>Next.js 15 đưa streaming SSR và partial prerendering vào luồng phát triển mặc định. TTFB giảm mạnh khi phần lớn nội dung được render phía server.</p><img src=\"https://picsum.photos/seed/nextjs-server-components/1000/520\" alt=\"Luồng render Server Components\"><h3>Những điểm cần lưu ý</h3><ul><li>Xác định rõ biên giới client/server của từng component.</li><li>Cache invalidation cần chiến lược theo thẻ dữ liệu.</li><li>Tránh đẩy toàn bộ state xuống client không cần thiết.</li></ul><p>Kết quả thực tế: bundle nhỏ hơn, thời gian tương tác đầu tiên nhanh hơn và trải nghiệm ổn định hơn trên mạng yếu.</p>",
+            cover_image: 'https://picsum.photos/seed/building-high-performance-nextjs-15/800/450',
             status: 'published',
             reviewed_by: 1,
             reviewed_at: '2024-03-22T08:00:00Z',
@@ -285,11 +247,12 @@ window.MockData = (function () {
             id: 5,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Tự Động Hóa Quy Trình Code Review Với LLM: Tăng Tốc Độ Release Gấp Đôi Mà Không Giảm Chất Lượng',
             slug: 'tu-dong-hoa-code-review-voi-llm',
-            content: '<p>Tích hợp AI Agent vào GitHub Actions để phân tích Pull Request: từ phát hiện code smell, lỗ hổng injection cho đến gợi ý viết Unit Test đầy đủ.</p><p>Bài viết hướng dẫn cách setup prompt hệ thống để tránh tình trạng ảo giác (hallucination) khi đọc diff mã nguồn phức tạp.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/tu-dong-hoa-code-review-voi-llm/800/450',
+            content_html: "<p>Tích hợp AI Agent vào GitHub Actions để phân tích Pull Request là bước ngoặt lớn của quy trình phát triển phần mềm hiện đại. AI có thể đảm nhận phần lớn đánh giá thô về code smell và rủi ro bảo mật.</p><img src=\"https://picsum.photos/seed/ai-code-review-flow/1000/520\" alt=\"Quy trình tích hợp AI Code Review\"><h3>1. Cơ chế Prompting phân tầng</h3><p>Không gửi toàn bộ codebase vào context window. Thay vào đó, trích xuất diff theo từng đoạn kèm manifest và chỉ thị kiểm tra nghiệp vụ.</p><ul><li>Tầng 1: kiểm tra style và lint.</li><li>Tầng 2: phát hiện lỗi logic và bảo mật.</li><li>Tầng 3: gợi ý unit test còn thiếu.</li></ul><img src=\"https://picsum.photos/seed/prompt-benchmark/1000/500\" alt=\"Benchmark độ chính xác của AI review\"><blockquote>Thời gian phản hồi vòng đời PR giảm từ 48 giờ xuống dưới 3 giờ.</blockquote><p>Điểm mấu chốt là con người vẫn giữ vai trò quyết định cuối cùng.</p>",
+            cover_image: 'https://picsum.photos/seed/tu-dong-hoa-code-review-voi-llm/800/450',
             status: 'pending',
             reviewed_by: null,
             reviewed_at: null,
@@ -303,11 +266,12 @@ window.MockData = (function () {
             id: 6,
             author_id: 4,
             group_id: 102,
+            category_id: 2,
             language_id: 1,
             title: 'Bảo Mật Hệ Thống Thanh Toán Trực Tuyến Đạt Chuẩn PCI-DSS Dành Cho Kỹ Sư Backend Mới Vào Nghề',
             slug: 'bao-mat-he-thong-thanh-toan-pci-dss',
-            content: '<p>Không bao giờ được lưu CVV hay số thẻ nguyên bản vào cơ sở dữ liệu. Tokenization là chìa khóa vàng.</p><p>Quy trình mã hóa kép ở tầng ứng dụng và cơ sở dữ liệu cần thực hiện ra sao? Cùng tìm hiểu chi tiết.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/bao-mat-he-thong-thanh-toan-pci-dss/800/450',
+            content_html: "<h2>Tokenization là tuyến phòng thủ đầu tiên</h2><p>Không lưu số thẻ nguyên bản hay CVV trong cơ sở dữ liệu. Tokenization giúp giảm phạm vi tuân thủ PCI-DSS và hạn chế thiệt hại khi có sự cố.</p><img src=\"https://picsum.photos/seed/payment-security-pci/1000/520\" alt=\"Sơ đồ luồng thanh toán an toàn\"><h3>Danh sách kiểm tra tối thiểu</h3><ul><li>Mã hóa dữ liệu nhạy cảm ở tầng ứng dụng.</li><li>Ghi log không chứa thông tin thẻ.</li><li>Luân chuyển khóa theo lịch và kiểm soát truy cập.</li></ul><p>Bảo mật là quy trình liên tục, không phải một lần cấu hình.</p>",
+            cover_image: 'https://picsum.photos/seed/bao-mat-he-thong-thanh-toan-pci-dss/800/450',
             status: 'pending',
             reviewed_by: null,
             reviewed_at: null,
@@ -321,11 +285,12 @@ window.MockData = (function () {
             id: 7,
             author_id: 5,
             group_id: 103,
+            category_id: 3,
             language_id: 1,
             title: 'Micro-interactions: Chi Tiết Nhỏ Làm Nên Sự Khác Biệt Giữa Ứng Dụng Bình Thường Và Sản Phẩm Xuất Sắc',
             slug: 'micro-interactions-chi-tiet-nho-tao-khac-biet',
-            content: '<p>Âm thanh click nhẹ khi bấm nút like, hiệu ứng rung phản hồi haptic, hay animation biến hình mượt mà của thanh tab. Đó là những điểm chạm cảm xúc giữ chân người dùng ở lại ứng dụng.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/micro-interactions-chi-tiet-nho-tao-khac-biet/800/450',
+            content_html: "<h2>Micro-interactions tạo cảm xúc</h2><p>Một rung phản hồi nhẹ khi bấm like hay chuyển tab mượt mà là những điểm chạm giữ người dùng ở lại lâu hơn.</p><img src=\"https://picsum.photos/seed/micro-interactions-ui/1000/520\" alt=\"Ví dụ micro-interactions trong giao diện\"><blockquote>Chi tiết nhỏ, được lặp lại nhất quán, tạo nên cảm giác sản phẩm được chăm chút.</blockquote><p>Hãy bắt đầu từ những tương tác phổ biến nhất thay vì chạy theo hiệu ứng phức tạp.</p>",
+            cover_image: 'https://picsum.photos/seed/micro-interactions-chi-tiet-nho-tao-khac-biet/800/450',
             status: 'pending',
             reviewed_by: null,
             reviewed_at: null,
@@ -339,11 +304,12 @@ window.MockData = (function () {
             id: 8,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Tự Viết Một Trình Phân Tích Cú Pháp SQL Mini Bằng TypeScript Trong 500 Dòng Code',
             slug: 'tu-viet-parser-sql-mini-typescript',
-            content: '<p>Bài viết còn đang phác thảo dở dang về Lexer, Tokenizer và xây dựng cây cú pháp trừu tượng AST cho câu lệnh SELECT đơn giản.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/tu-viet-parser-sql-mini-typescript/800/450',
+            content_html: "<h3>Bản nháp: Lexer và AST</h3><p>Bài viết đang phác thảo cách xây dựng tokenizer, parser và cây cú pháp trừu tượng cho câu lệnh SELECT đơn giản bằng TypeScript.</p><ul><li>Tách token theo từ khóa và toán tử.</li><li>Xây dựng parser đệ quy.</li><li>Kiểm thử với các câu truy vấn lồng nhau.</li></ul>",
+            cover_image: 'https://picsum.photos/seed/tu-viet-parser-sql-mini-typescript/800/450',
             status: 'draft',
             reviewed_by: null,
             reviewed_at: null,
@@ -357,11 +323,12 @@ window.MockData = (function () {
             id: 9,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Kinh Nghiệm Phỏng Vấn Vị Trí Senior Fullstack Tại Các Tập Đoàn Công Nghệ Đa Quốc Gia',
             slug: 'kinh-nghiem-phong-van-senior-fullstack',
-            content: '<p>Tập trung vào Live Coding thuật toán, System Design quy mô triệu người dùng và câu hỏi văn hóa ứng xử Behavioral Questions.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/kinh-nghiem-phong-van-senior-fullstack/800/450',
+            content_html: "<h2>Chuẩn bị cho vòng phỏng vấn Senior Fullstack</h2><p>Ứng viên cần thể hiện tư duy hệ thống, khả năng giao tiếp và kinh nghiệm xử lý sự cố thực tế bên cạnh thuật toán.</p><ul><li>Luyện live coding có thuyết minh.</li><li>Chuẩn bị câu chuyện System Design theo quy mô triệu người dùng.</li><li>Rèn luyện behavioral questions bằng ví dụ cụ thể.</li></ul>",
+            cover_image: 'https://picsum.photos/seed/kinh-nghiem-phong-van-senior-fullstack/800/450',
             status: 'draft',
             reviewed_by: null,
             reviewed_at: null,
@@ -375,11 +342,12 @@ window.MockData = (function () {
             id: 10,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Bí Kíp Kiếm Hàng Triệu Đô Nhờ Tiền Điện Tử Và Dự Án Đầu Tư Lợi Nhuận Khủng 300% Mỗi Tháng Không Rủi Ro',
             slug: 'bi-kip-kiem-tien-dien-tu-loi-nhuan-khung',
-            content: '<p>Bài viết chứa liên kết tiếp thị liên kết mờ ám và hứa hẹn lợi nhuận bất khả thi về mặt tài chính.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/bi-kip-kiem-tien-dien-tu-loi-nhuan-khung/800/450',
+            content_html: "<h2>Nội dung bị từ chối</h2><p>Bài viết chứa liên kết tiếp thị mờ ám và hứa hẹn lợi nhuận bất khả thi về mặt tài chính.</p><p>Đây là dữ liệu mẫu để kiểm thử trạng thái rejected.</p>",
+            cover_image: 'https://picsum.photos/seed/bi-kip-kiem-tien-dien-tu-loi-nhuan-khung/800/450',
             status: 'rejected',
             reviewed_by: 1,
             reviewed_at: '2024-04-07T10:15:00Z',
@@ -393,11 +361,12 @@ window.MockData = (function () {
             id: 11,
             author_id: 4,
             group_id: 102,
+            category_id: 2,
             language_id: 1,
             title: 'Chia Sẻ Bản Quyền Phần Mềm Crack Windows Và Key Kích Hoạt Miễn Phí Mới Nhất 2024',
             slug: 'chia-se-crack-windows-key-mien-phi',
-            content: '<p>Nội dung chia sẻ liên kết tải tệp thực thi vi phạm bản quyền phần mềm độc hại.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/chia-se-crack-windows-key-mien-phi/800/450',
+            content_html: "<h2>Nội dung vi phạm bản quyền</h2><p>Bài viết chia sẻ liên kết tải tệp thực thi crack phần mềm, gây rủi ro bảo mật cho người dùng.</p>",
+            cover_image: 'https://picsum.photos/seed/chia-se-crack-windows-key-mien-phi/800/450',
             status: 'rejected',
             reviewed_by: 2,
             reviewed_at: '2024-04-08T11:00:00Z',
@@ -411,11 +380,12 @@ window.MockData = (function () {
             id: 12,
             author_id: 4,
             group_id: 102,
+            category_id: 2,
             language_id: 1,
             title: 'Xây Dựng Hệ Thống Giám Sát Metrics Thời Gian Thực Với Prometheus và Grafana Từ Số Không',
             slug: 'xay-dung-giam-sat-prometheus-grafana',
-            content: '<p>Giám sát không chỉ là việc nhìn đồ thị CPU/RAM. Đó là việc thiết lập các Golden Signals: Latency, Traffic, Errors và Saturation để phát hiện sự cố trước khi khách hàng phàn nàn.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/xay-dung-giam-sat-prometheus-grafana/800/450',
+            content_html: "<h2>Monitoring không chỉ là đồ thị CPU</h2><p>Một hệ thống giám sát tốt xoay quanh bốn Golden Signals: Latency, Traffic, Errors và Saturation.</p><img src=\"https://picsum.photos/seed/prometheus-grafana-dashboard/1000/520\" alt=\"Dashboard Prometheus và Grafana\"><h3>Thiết lập ban đầu</h3><ul><li>Chuẩn hóa metric theo service và endpoint.</li><li>Đặt alert theo triệu chứng người dùng cảm nhận.</li><li>Liên kết dashboard với runbook xử lý sự cố.</li></ul><blockquote>Cảnh báo tốt là cảnh báo có thể hành động ngay, không phải tiếng ồn.</blockquote><p>Mục tiêu cuối cùng là phát hiện sự cố trước khi khách hàng phàn nàn.</p>",
+            cover_image: 'https://picsum.photos/seed/xay-dung-giam-sat-prometheus-grafana/800/450',
             status: 'published',
             reviewed_by: 1,
             reviewed_at: '2024-03-25T16:00:00Z',
@@ -429,11 +399,12 @@ window.MockData = (function () {
             id: 13,
             author_id: 5,
             group_id: 103,
+            category_id: 3,
             language_id: 1,
             title: 'Design Systems Cho Startup: Làm Thế Nào Để Xây Dựng Thư Viện UI Tinh Gọn Mà Vẫn Mở Rộng Được?',
             slug: 'design-systems-cho-startup-tinh-gon',
-            content: '<p>Đừng cố sao chép Design System khổng lồ của Google Material hay Apple HIG khi team chỉ có 2 designer. Hãy bắt đầu từ Token màu sắc, Typography và 5 Component cốt lõi nhất.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/design-systems-cho-startup-tinh-gon/800/450',
+            content_html: "<h2>Design System vừa đủ cho startup</h2><p>Đừng sao chép hệ thống khổng lồ của Google hay Apple khi đội ngũ chỉ có hai designer. Hãy bắt đầu từ token màu sắc, typography và năm component cốt lõi.</p><img src=\"https://picsum.photos/seed/startup-design-system/1000/520\" alt=\"Bộ component tối giản cho startup\"><h3>Lộ trình mở rộng</h3><ol><li>Chuẩn hóa token và quy tắc đặt tên.</li><li>Tài liệu hóa trạng thái component.</li><li>Đo lường mức độ tái sử dụng theo từng sprint.</li></ol><p>Hệ thống nhỏ nhưng nhất quán luôn thắng thư viện đồ sộ nhưng rối ren.</p>",
+            cover_image: 'https://picsum.photos/seed/design-systems-cho-startup-tinh-gon/800/450',
             status: 'published',
             reviewed_by: 2,
             reviewed_at: '2024-03-28T09:30:00Z',
@@ -447,11 +418,12 @@ window.MockData = (function () {
             id: 14,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Hiểu Về Cơ Chế Concurrency Trong Go: Goroutines, Channels và Những Cạm Bẫy Deadlock Thường Gặp',
             slug: 'co-che-concurrency-trong-go-goroutines',
-            content: '<p>Go nổi tiếng nhờ mô hình CSP (Communicating Sequential Processes). Nhưng nếu không cẩn thận đóng channel hay quên sync.WaitGroup, bộ nhớ của bạn sẽ bị rò rỉ âm thầm trong bóng tối.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/co-che-concurrency-trong-go-goroutines/800/450',
+            content_html: "<h2>Mô hình CSP của Go</h2><p>Goroutines và channels giúp xử lý đồng thời gọn gàng, nhưng chỉ khi vòng đời channel và WaitGroup được quản lý cẩn thận.</p><img src=\"https://picsum.photos/seed/go-concurrency-channels/1000/520\" alt=\"Minh họa goroutines và channels\"><h3>Cạm bẫy thường gặp</h3><ul><li>Gửi vào channel đã đóng.</li><li>Quên hủy context khi request kết thúc.</li><li>Khóa mutex quá lâu trong vòng lặp nóng.</li></ul><blockquote>Đồng thời tốt là đồng thời có thể dừng đúng lúc.</blockquote><p>Hãy viết test race và kiểm tra rò rỉ goroutine trước khi lên production.</p>",
+            cover_image: 'https://picsum.photos/seed/co-che-concurrency-trong-go-goroutines/800/450',
             status: 'published',
             reviewed_by: 1,
             reviewed_at: '2024-03-30T14:20:00Z',
@@ -465,11 +437,12 @@ window.MockData = (function () {
             id: 15,
             author_id: 4,
             group_id: 102,
+            category_id: 2,
             language_id: 2,
             title: 'Mastering Docker Multi-Stage Builds: Slim Down Your Production Images from 1.2GB to 35MB',
             slug: 'mastering-docker-multi-stage-builds',
-            content: '<p>Bloated Docker images slow down deployment pipelines and introduce unexpected CVE vulnerabilities. Learn how to leverage Alpine Linux and distroless base images.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/mastering-docker-multi-stage-builds/800/450',
+            content_html: "<h2>Vì sao Docker image phình to?</h2><p>Image production chứa compiler, cache và tệp debug không cần thiết. Multi-stage builds giúp tách môi trường build khỏi runtime.</p><img src=\"https://picsum.photos/seed/docker-multistage-build/1000/520\" alt=\"So sánh kích thước Docker image trước và sau tối ưu\"><h3>Các bước tối ưu</h3><ul><li>Dùng base image distroless hoặc Alpine.</li><li>Chỉ copy artifact cần thiết sang stage runtime.</li><li>Chạy container bằng user không phải root.</li></ul><p>Kết quả mẫu: image giảm từ 1,2GB xuống còn 35MB và ít lỗ hổng CVE hơn.</p>",
+            cover_image: 'https://picsum.photos/seed/mastering-docker-multi-stage-builds/800/450',
             status: 'published',
             reviewed_by: 2,
             reviewed_at: '2024-04-01T08:00:00Z',
@@ -483,11 +456,12 @@ window.MockData = (function () {
             id: 16,
             author_id: 3,
             group_id: 101,
+            category_id: 1,
             language_id: 1,
             title: 'Bài Viết Đã Bị Xóa Nháp Để Thử Nghiệm Trường Hợp Lỗi Dữ Liệu Tồn Tại Trong Cơ Sở Dữ Liệu Cũ',
             slug: 'bai-viet-da-bi-xoa-thu-nghiem',
-            content: '<p>Nội dung này đã bị đánh dấu xóa mềm deleted_at.</p>',
-            thumbnail_url: 'https://picsum.photos/seed/bai-viet-da-bi-xoa-thu-nghiem/800/450',
+            content_html: "<p>Nội dung này đã bị đánh dấu xóa mềm deleted_at để kiểm thử trường hợp dữ liệu cũ.</p>",
+            cover_image: 'https://picsum.photos/seed/bai-viet-da-bi-xoa-thu-nghiem/800/450',
             status: 'published',
             reviewed_by: 1,
             reviewed_at: '2024-01-01T00:00:00Z',
@@ -498,6 +472,11 @@ window.MockData = (function () {
             views_count: 10
         }
     ];
+
+    // Đồng bộ số bài viết của từng danh mục từ nguồn dữ liệu posts
+    categories.forEach(cat => {
+        cat.post_count = posts.filter(p => p.category_id === cat.id && !p.deleted_at).length;
+    });
 
     // 7. POST_TAGS (Liên kết bài viết và thẻ)
     const post_tags = [
@@ -759,18 +738,75 @@ window.MockData = (function () {
         }
     ];
 
+    // 13. TRUY VẤN DÙNG CHUNG (single source of truth)
+    // Badge số đếm và nội dung danh sách trên profile đều phải đi qua các hàm này
+    // để luôn khớp nhau. Khi chuyển sang API thật, chỉ cần thay phần thân hàm bằng
+    // lời gọi endpoint (vd: GET /api/users/:id/notes) mà không phải sửa UI.
+    function getNotesByUser(userId) {
+        return notes.filter(n => n.author_id === userId);
+    }
+
+    function getPublishedPostsByUser(userId) {
+        return posts.filter(p => p.author_id === userId && p.status === 'published' && !p.deleted_at);
+    }
+
+    function getFollowers(userId) {
+        const followerIds = follows.filter(f => f.following_id === userId).map(f => f.follower_id);
+        return users.filter(u => followerIds.includes(u.id) && u.is_active);
+    }
+
+    function getFollowing(userId) {
+        const followingIds = follows.filter(f => f.follower_id === userId).map(f => f.following_id);
+        return users.filter(u => followingIds.includes(u.id) && u.is_active);
+    }
+
+    function isFollowing(followerId, followingId) {
+        return follows.some(f => f.follower_id === followerId && f.following_id === followingId);
+    }
+
+    function toggleFollow(followerId, followingId) {
+        const idx = follows.findIndex(f => f.follower_id === followerId && f.following_id === followingId);
+        if (idx !== -1) {
+            follows.splice(idx, 1);
+            return false;
+        }
+        follows.push({ follower_id: followerId, following_id: followingId });
+        return true;
+    }
+
+    function getCategoryPostCount(categoryId) {
+        return posts.filter(p => p.category_id === categoryId && !p.deleted_at).length;
+    }
+
+    function getCategoryById(categoryId) {
+        return categories.find(c => c.id === categoryId) || null;
+    }
+
+    function getLanguageById(languageId) {
+        return languages.find(l => l.id === languageId) || null;
+    }
+
     return {
         roles,
         users,
         languages,
-        ui_translations,
         tags,
+        categories,
         posts,
         post_tags,
         notes,
         comments,
         follows,
         reactions,
-        reports
+        reports,
+        getNotesByUser,
+        getPublishedPostsByUser,
+        getFollowers,
+        getFollowing,
+        isFollowing,
+        toggleFollow,
+        getCategoryPostCount,
+        getCategoryById,
+        getLanguageById
     };
 })();

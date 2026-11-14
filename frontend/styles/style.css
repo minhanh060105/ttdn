@@ -20,3 +20,73 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #3a3a3a;
 }
+/* Nội dung bài viết đã sanitize (post-detail, preview, editor) */
+.post-content {
+    color: #e5e7eb;
+    line-height: 1.8;
+    word-break: break-word;
+}
+.post-content > *:first-child { margin-top: 0; }
+.post-content > *:last-child { margin-bottom: 0; }
+.post-content p { margin: 1rem 0; }
+.post-content h2 {
+    font-size: 1.5rem;
+    line-height: 1.35;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 2rem 0 0.85rem;
+    letter-spacing: -0.015em;
+}
+.post-content h3 {
+    font-size: 1.15rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 1.6rem 0 0.65rem;
+}
+.post-content ul,
+.post-content ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+.post-content ul { list-style: disc; }
+.post-content ol { list-style: decimal; }
+.post-content li { margin: 0.35rem 0; padding-left: 0.15rem; }
+.post-content blockquote {
+    margin: 1.5rem 0;
+    padding: 0.9rem 1.1rem;
+    border-left: 3px solid #ff6719;
+    border-radius: 0 0.75rem 0.75rem 0;
+    background: #181818;
+    color: #d1d5db;
+    font-style: italic;
+}
+.post-content a {
+    color: #ff6719;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.post-content a:hover { color: #e05b15; }
+.post-content strong { color: #ffffff; font-weight: 700; }
+.post-content em { font-style: italic; }
+.post-content u { text-decoration: underline; text-underline-offset: 2px; }
+.post-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    border-radius: 1rem;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.post-content br { line-height: 1.8; }
+
+/* Vùng soạn thảo WYSIWYG */
+.editor-surface { min-height: 320px; cursor: text; }
+.editor-surface:focus { outline: none; }
+.editor-surface:empty:before {
+    content: attr(data-placeholder);
+    color: #6b7280;
+    pointer-events: none;
+}
+.editor-surface img { cursor: default; }

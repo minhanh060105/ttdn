@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 
+// Cho phép frontend tĩnh (file:// hoặc cổng khác) gọi API mock
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+};
+
 // Dữ liệu mô phỏng bảng Users trong Database
 const databaseMock = {
     users: [
         { id: 1, email: "hoanganh@example.com", name: "Trần Văn Hoàng Anh", is_active: true }
     ]
 };
+
+export async function OPTIONS() {
+    return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 export async function POST(request) {
     try {
@@ -33,8 +44,8 @@ export async function POST(request) {
             message: "Xác thực và lưu thông tin người dùng thành công",
             token: "nextjs-mock-jwt-token-999",
             user: user
-        });
+        }, { headers: corsHeaders });
     } catch (error) {
-        return NextResponse.json({ error: "Lỗi xử lý dữ liệu từ client" }, { status: 500 });
+        return NextResponse.json({ error: "Lỗi xử lý dữ liệu từ client" }, { status: 500, headers: corsHeaders });
     }
 }

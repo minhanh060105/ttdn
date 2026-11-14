@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký tài khoản | Substack</title>
+    <title data-i18n="register.page_title">Đăng ký tài khoản | Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -35,8 +35,8 @@
             <span class="text-white text-base tracking-tight font-extrabold">Substack</span>
         </a>
         <div class="flex items-center space-x-3 text-xs">
-            <span>Đã có tài khoản?</span>
-            <a href="login.html" class="text-substackOrange font-semibold hover:underline">Đăng nhập</a>
+            <span data-i18n="auth.has_account">Đã có tài khoản?</span>
+            <a href="login.html" class="text-substackOrange font-semibold hover:underline" data-i18n="auth.login_now">Đăng nhập</a>
         </div>
     </header>
 
@@ -48,32 +48,32 @@
                 <div class="w-12 h-12 bg-substackOrange/10 border border-substackOrange/30 text-substackOrange rounded-2xl flex items-center justify-center mx-auto text-xl">
                     <i class="fa-solid fa-user-plus"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-white tracking-tight">Tạo tài khoản mới</h1>
-                <p class="text-xs text-gray-400">Bắt đầu hành trình đọc & viết bài trên Substack</p>
+                <h1 class="text-2xl font-bold text-white tracking-tight" data-i18n="register.heading">Tạo tài khoản mới</h1>
+                <p class="text-xs text-gray-400" data-i18n="register.subheading">Bắt đầu hành trình đọc & viết bài trên Substack</p>
             </div>
 
             <!-- Banner Lỗi -->
             <div id="registerErrorAlert" class="hidden p-3.5 bg-red-950/60 border border-red-500/50 text-red-200 rounded-xl text-xs space-y-1">
                 <div class="flex items-center space-x-2 font-bold">
                     <i class="fa-solid fa-circle-exclamation text-red-400"></i>
-                    <span>Thông tin chưa hợp lệ</span>
+                    <span data-i18n="register.error_title">Thông tin chưa hợp lệ</span>
                 </div>
                 <div id="registerErrorDesc" class="leading-relaxed"></div>
             </div>
 
-            <form onsubmit="handleRegisterSubmit(event)" class="space-y-4" novalidate>
+            <form id="registerForm" class="space-y-4" novalidate>
                 <!-- Email -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Địa chỉ Email *</label>
-                    <input type="email" id="regEmail" required placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5" data-i18n="register.email_label">Địa chỉ Email *</label>
+                    <input type="email" id="regEmail" name="regEmail" placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
                 </div>
 
                 <!-- Password -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Mật khẩu (tối thiểu 8 ký tự) *</label>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5" data-i18n="register.password_label">Mật khẩu (tối thiểu 8 ký tự) *</label>
                     <div class="relative">
-                        <input type="password" id="regPassword" required oninput="checkPasswordStrength(this.value)" placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
-                        <button type="button" onclick="togglePass('regPassword', 'passEyeIcon1')" class="absolute right-3.5 top-3 text-gray-400 hover:text-white text-sm">
+                        <input type="password" id="regPassword" name="regPassword" oninput="checkPasswordStrength(this.value)" placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
+                        <button type="button" onclick="togglePass('regPassword', 'passEyeIcon1')" class="absolute right-3.5 top-3 text-gray-400 hover:text-white text-sm" data-i18n-title="login.hide_password" title="Hiện/ẩn mật khẩu">
                             <i id="passEyeIcon1" class="fa-regular fa-eye"></i>
                         </button>
                     </div>
@@ -82,16 +82,16 @@
                         <div class="w-full bg-darkBg h-1.5 rounded-full overflow-hidden border border-borderDark">
                             <div id="strengthBar" class="h-full w-0 bg-red-500 transition-all duration-300"></div>
                         </div>
-                        <p id="strengthText" class="text-[10px] text-gray-500">Độ bảo mật: Chưa nhập</p>
+                        <p id="strengthText" class="text-[10px] text-gray-500" data-i18n="register.strength_empty">Độ bảo mật: Chưa nhập</p>
                     </div>
                 </div>
 
                 <!-- Confirm Password -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Xác nhận mật khẩu *</label>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5" data-i18n="register.confirm_label">Xác nhận mật khẩu *</label>
                     <div class="relative">
-                        <input type="password" id="regConfirmPassword" required placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
-                        <button type="button" onclick="togglePass('regConfirmPassword', 'passEyeIcon2')" class="absolute right-3.5 top-3 text-gray-400 hover:text-white text-sm">
+                        <input type="password" id="regConfirmPassword" name="regConfirmPassword" placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-xl pl-4 pr-11 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
+                        <button type="button" onclick="togglePass('regConfirmPassword', 'passEyeIcon2')" class="absolute right-3.5 top-3 text-gray-400 hover:text-white text-sm" data-i18n-title="login.hide_password" title="Hiện/ẩn mật khẩu">
                             <i id="passEyeIcon2" class="fa-regular fa-eye"></i>
                         </button>
                     </div>
@@ -100,13 +100,13 @@
                 <!-- Checkbox Điều khoản -->
                 <div class="pt-1">
                     <label class="flex items-start space-x-2 text-xs text-gray-400 cursor-pointer">
-                        <input type="checkbox" id="regTerms" class="mt-0.5 rounded bg-darkBg border-borderDark text-substackOrange">
-                        <span class="leading-relaxed">Tôi đồng ý với <a href="#" class="text-substackOrange hover:underline">Điều khoản dịch vụ</a> và <a href="#" class="text-substackOrange hover:underline">Chính sách quyền riêng tư</a> của nền tảng Substack.</span>
+                        <input type="checkbox" id="regTerms" name="regTerms" class="mt-0.5 rounded bg-darkBg border-borderDark text-substackOrange">
+                        <span class="leading-relaxed"><span data-i18n="register.terms_prefix">Tôi đồng ý với</span> <a href="#" class="text-substackOrange hover:underline" data-i18n="register.terms_link">Điều khoản dịch vụ</a> <span data-i18n="register.terms_and">và</span> <a href="#" class="text-substackOrange hover:underline" data-i18n="register.privacy_link">Chính sách quyền riêng tư</a> <span data-i18n="register.terms_suffix">của nền tảng Substack.</span></span>
                     </label>
                 </div>
 
                 <button type="submit" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg text-xs sm:text-sm">
-                    Tiếp tục thiết lập hồ sơ <i class="fa-solid fa-arrow-right ml-1"></i>
+                    <span data-i18n="register.submit">Tiếp tục thiết lập hồ sơ</span> <i class="fa-solid fa-arrow-right ml-1"></i>
                 </button>
             </form>
 
@@ -114,16 +114,54 @@
     </main>
 
     <!-- Footer -->
-    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-gray-500 py-4">
+    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-gray-500 py-4" data-i18n="auth.footer">
         Substack Clone © 2026. Mọi quyền được bảo lưu.
     </footer>
 
     <!-- Script & Mock Data -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/validators.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            I18n.ready(() => {
+                Validators.attach('#registerForm', {
+                    regEmail: {
+                        required: true,
+                        email: true
+                    },
+                    regPassword: {
+                        required: true,
+                        minLength: 8
+                    },
+                    regConfirmPassword: {
+                        required: true,
+                        minLength: 8,
+                        custom: (val, formVals) => {
+                            if (val !== formVals.regPassword) {
+                                return I18n.t('validation.passwordMismatch');
+                            }
+                            return null;
+                        }
+                    },
+                    regTerms: {
+                        custom: (val, formVals) => {
+                            if (!formVals.regTerms) {
+                                return I18n.t('auth.terms_required');
+                            }
+                            return null;
+                        }
+                    }
+                }, {
+                    onSubmit: (values) => {
+                        executeRegister(values.regEmail, values.regPassword);
+                    }
+                });
+            });
+        });
+
         function togglePass(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -139,9 +177,10 @@
         function checkPasswordStrength(val) {
             const bar = document.getElementById('strengthBar');
             const text = document.getElementById('strengthText');
+            const label = window.I18n ? I18n.t('register.strength_label') : 'Độ bảo mật:';
             if (!val) {
                 bar.style.width = '0%';
-                text.textContent = 'Độ bảo mật: Chưa nhập';
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_empty') : 'Chưa nhập'}`;
                 text.className = 'text-[10px] text-gray-500';
                 return;
             }
@@ -155,69 +194,41 @@
             if (score <= 1) {
                 bar.style.width = '25%';
                 bar.className = 'h-full bg-red-500';
-                text.textContent = 'Độ bảo mật: Yếu';
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_weak') : 'Yếu'}`;
                 text.className = 'text-[10px] text-red-400';
             } else if (score === 2) {
                 bar.style.width = '50%';
                 bar.className = 'h-full bg-amber-500';
-                text.textContent = 'Độ bảo mật: Trung bình';
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_medium') : 'Trung bình'}`;
                 text.className = 'text-[10px] text-amber-400';
             } else if (score === 3) {
                 bar.style.width = '75%';
                 bar.className = 'h-full bg-blue-500';
-                text.textContent = 'Độ bảo mật: Khá tốt';
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_good') : 'Khá tốt'}`;
                 text.className = 'text-[10px] text-blue-400';
             } else {
                 bar.style.width = '100%';
                 bar.className = 'h-full bg-emerald-500';
-                text.textContent = 'Độ bảo mật: Rất mạnh!';
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_strong') : 'Rất mạnh!'}`;
                 text.className = 'text-[10px] text-emerald-400';
             }
         }
 
-        function handleRegisterSubmit(e) {
-            e.preventDefault();
-            const alert = document.getElementById('registerErrorAlert');
-            const desc = document.getElementById('registerErrorDesc');
-            alert.classList.add('hidden');
-
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirmPassword').value;
-            const terms = document.getElementById('regTerms').checked;
-
-            // 1. Kiểm tra Email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email || !emailRegex.test(email)) {
+        function executeRegister(email, password) {
+            // Kiểm tra email trùng trong MockData
+            const exists = MockData.users.some(u => u.email.toLowerCase() === email.toLowerCase());
+            if (exists) {
+                const alert = document.getElementById('registerErrorAlert');
+                const desc = document.getElementById('registerErrorDesc');
                 alert.classList.remove('hidden');
-                desc.textContent = 'Vui lòng nhập định dạng email hợp lệ (ví dụ: yourname@domain.com).';
+                desc.textContent = I18n.t('register.email_exists');
                 return;
             }
 
-            // 2. Kiểm tra độ dài mật khẩu
-            if (password.length < 8) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Mật khẩu phải có độ dài tối thiểu từ 8 ký tự trở lên.';
-                return;
-            }
-
-            // 3. Kiểm tra khớp mật khẩu
-            if (password !== confirm) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Mật khẩu xác nhận không trùng khớp với mật khẩu đã nhập.';
-                return;
-            }
-
-            // 4. Kiểm tra điều khoản
-            if (!terms) {
-                alert.classList.remove('hidden');
-                desc.textContent = 'Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư để tiếp tục.';
-                return;
-            }
-
-            // Lưu email tạm thời sang onboarding
+            // Lưu email + mật khẩu tạm thời sang onboarding (không lưu mật khẩu dạng thô ngoài demo)
             sessionStorage.setItem('pending_register_email', email);
-            Layout.showToast('Đăng ký tài khoản bước 1 thành công! Đang chuyển sang thiết lập hồ sơ...', 'success');
+            sessionStorage.setItem('pending_register_password', password);
+            Layout.showToast(I18n.t('register.success_toast'), 'success');
             setTimeout(() => {
                 window.location.href = 'onboarding.html';
             }, 500);

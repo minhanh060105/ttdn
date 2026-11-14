@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết bài viết | Substack</title>
+    <title data-i18n="detail.page_title">Chi tiết bài viết | Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -32,12 +32,12 @@
     <header id="appHeader"></header>
 
     <!-- Khung chính -->
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
 
         <!-- Nội dung bài viết ở giữa -->
-        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl mx-auto w-full">
+        <main class="flex-1 px-4 sm:px-8 py-6 max-w-3xl w-full">
             <div id="postDetailContainer">
                 <!-- Nội dung bài viết render qua JS -->
             </div>
@@ -50,39 +50,41 @@
             <div class="flex items-center justify-between border-b border-borderDark pb-3">
                 <div class="flex items-center space-x-2 text-rose-400">
                     <i class="fa-solid fa-flag"></i>
-                    <h3 class="font-bold text-white text-base">Báo cáo vi phạm</h3>
+                    <h3 class="font-bold text-white text-base" data-i18n="detail.report_title">Báo cáo vi phạm</h3>
                 </div>
-                <button onclick="closeReportModal()" class="text-gray-400 hover:text-white">
+                <button type="button" onclick="closeReportModal()" class="text-gray-400 hover:text-white">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <p class="text-xs text-gray-400">Vui lòng chọn lý do bạn báo cáo nội dung này để Ban quản trị xem xét:</p>
-            <div class="space-y-2 text-xs">
-                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
-                    <input type="radio" name="reportReason" value="Spam, quảng cáo trái phép" checked class="text-substackOrange">
-                    <span>Spam, tin nhắn rác hoặc quảng cáo trái phép</span>
-                </label>
-                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
-                    <input type="radio" name="reportReason" value="Lừa đảo, tin giả mạo" class="text-substackOrange">
-                    <span>Lừa đảo tài chính hoặc lan truyền thông tin sai lệch</span>
-                </label>
-                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
-                    <input type="radio" name="reportReason" value="Nội dung xúc phạm, quấy rối" class="text-substackOrange">
-                    <span>Ngôn từ thù địch, xúc phạm danh dự hoặc quấy rối</span>
-                </label>
-                <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
-                    <input type="radio" name="reportReason" value="Vi phạm bản quyền sở hữu trí tuệ" class="text-substackOrange">
-                    <span>Vi phạm bản quyền sở hữu trí tuệ tác giả</span>
-                </label>
-            </div>
-            <div>
-                <label class="block text-xs text-gray-400 mb-1">Chi tiết bổ sung (tùy chọn):</label>
-                <textarea id="reportNoteInput" rows="2" placeholder="Cung cấp thêm ngữ cảnh cho kiểm duyệt viên..." class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
-            </div>
-            <div class="flex justify-end space-x-2 pt-2">
-                <button onclick="closeReportModal()" class="px-4 py-2 bg-cardBg hover:bg-borderDark text-gray-300 text-xs rounded-xl border border-borderDark transition">Hủy</button>
-                <button onclick="submitReport()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow transition">Gửi báo cáo</button>
-            </div>
+            <form id="reportForm" novalidate class="space-y-4">
+                <p class="text-xs text-gray-400" data-i18n="detail.report_intro">Vui lòng chọn lý do bạn báo cáo nội dung này để Ban quản trị xem xét:</p>
+                <div class="space-y-2 text-xs">
+                    <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportReason" value="spam" checked class="text-substackOrange">
+                        <span data-i18n="detail.report_reason_spam_ads">Spam, tin nhắn rác hoặc quảng cáo trái phép</span>
+                    </label>
+                    <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportReason" value="scam" class="text-substackOrange">
+                        <span data-i18n="detail.report_reason_scam">Lừa đảo tài chính hoặc lan truyền thông tin sai lệch</span>
+                    </label>
+                    <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportReason" value="harass" class="text-substackOrange">
+                        <span data-i18n="detail.report_reason_harass">Ngôn từ thù địch, xúc phạm danh dự hoặc quấy rối</span>
+                    </label>
+                    <label class="flex items-center space-x-2.5 p-2.5 bg-darkBg border border-borderDark rounded-xl cursor-pointer hover:border-gray-500">
+                        <input type="radio" name="reportReason" value="copyright" class="text-substackOrange">
+                        <span data-i18n="detail.report_reason_copyright">Vi phạm bản quyền sở hữu trí tuệ tác giả</span>
+                    </label>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1" for="reportNoteInput" data-i18n="detail.report_note_label">Chi tiết bổ sung (tùy chọn):</label>
+                    <textarea id="reportNoteInput" name="reportNote" rows="2" placeholder="Cung cấp thêm ngữ cảnh cho kiểm duyệt viên..." data-i18n-placeholder="detail.report_placeholder" class="w-full bg-darkBg border border-borderDark rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeReportModal()" class="px-4 py-2 bg-cardBg hover:bg-borderDark text-gray-300 text-xs rounded-xl border border-borderDark transition" data-i18n="common.cancel">Hủy</button>
+                    <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow transition" data-i18n="detail.report_submit">Gửi báo cáo</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -92,6 +94,9 @@
     <!-- Nạp dữ liệu & Script -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/validators.js"></script>
+    <script src="../assets/js/pagination.js"></script>
+    <script src="../assets/js/sanitize.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
@@ -99,14 +104,22 @@
         let reportingTarget = null; // { type: 'post'|'comment', id: number }
 
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderSidebar('home', 'appSidebar');
-            Layout.renderBottomNav('home', 'appBottomNav');
+            I18n.ready(() => {
+                Layout.renderHeader('appHeader');
+                Layout.renderSidebar('home', 'appSidebar');
+                Layout.renderBottomNav('home', 'appBottomNav');
 
-            loadPostDetail();
+                Validators.attach('#reportForm', {
+                    reportNote: { maxLength: 300 }
+                }, {
+                    onSubmit: (values) => submitReport(values)
+                });
 
-            window.addEventListener('demoStateChanged', () => {
                 loadPostDetail();
+
+                window.addEventListener('demoStateChanged', () => {
+                    loadPostDetail();
+                });
             });
         });
 
@@ -146,10 +159,10 @@
                         <div class="w-12 h-12 bg-rose-950/60 text-rose-500 rounded-full flex items-center justify-center mx-auto text-xl">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h3 class="text-base font-bold text-white">Không thể tải nội dung bài viết</h3>
-                        <p class="text-xs text-gray-400">Đã xảy ra lỗi đường truyền mạng. Vui lòng thử lại sau.</p>
+                        <h3 class="text-base font-bold text-white">${Layout.escapeHtml(I18n.t('detail.error_title'))}</h3>
+                        <p class="text-xs text-gray-400">${Layout.escapeHtml(I18n.t('detail.error_desc'))}</p>
                         <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-lg">
-                            Thử lại
+                            ${Layout.escapeHtml(I18n.t('common.retry'))}
                         </button>
                     </div>
                 `;
@@ -166,11 +179,11 @@
                         <div class="w-16 h-16 bg-borderDark/60 text-gray-500 rounded-full flex items-center justify-center mx-auto text-3xl">
                             <i class="fa-regular fa-file-circle-xmark"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-white">Không tìm thấy bài viết</h2>
-                        <p class="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">Bài viết này không tồn tại, đã bị tác giả gỡ bỏ hoặc chưa được phê duyệt xuất bản công khai.</p>
+                        <h2 class="text-xl font-bold text-white">${Layout.escapeHtml(I18n.t('detail.not_found_title'))}</h2>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">${Layout.escapeHtml(I18n.t('detail.not_found_desc'))}</p>
                         <a href="index.html" class="inline-flex items-center space-x-2 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow">
                             <i class="fa-solid fa-arrow-left"></i>
-                            <span>Quay về Trang chủ</span>
+                            <span>${Layout.escapeHtml(I18n.t('detail.back_home'))}</span>
                         </a>
                     </div>
                 `;
@@ -184,13 +197,15 @@
         function renderPostContent(post) {
             const container = document.getElementById('postDetailContainer');
             const author = MockData.users.find(u => u.id === post.author_id) || {
-                display_name: 'Tác giả',
+                display_name: I18n.t('detail.author_badge'),
                 handle: 'author',
                 avatar_url: 'https://i.pravatar.cc/150'
             };
 
             const postTagIds = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
             const postTags = MockData.tags.filter(t => postTagIds.includes(t.id));
+            const category = post.category_id ? MockData.getCategoryById(post.category_id) : null;
+            const language = post.language_id ? MockData.getLanguageById(post.language_id) : null;
 
             // Đếm các loại phản ứng (4 loại)
             const postReactions = MockData.reactions.filter(r => r.target_type === 'post' && r.post_id === post.id);
@@ -200,38 +215,56 @@
                 insightful: postReactions.filter(r => r.type === 'insightful').length,
                 funny: postReactions.filter(r => r.type === 'funny').length
             };
+            const currentUser = Layout.getCurrentUser();
+            const myReaction = currentUser ? postReactions.find(r => r.user_id === currentUser.id) : null;
+            const reactionBtnClass = (type) => myReaction && myReaction.type === type
+                ? 'flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-substackOrange/15 border border-substackOrange/60 text-xs font-medium text-white transition'
+                : 'flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white';
 
             container.innerHTML = `
                 <article class="space-y-6">
+                    <!-- Ảnh bìa riêng phía trên tiêu đề -->
+                    ${post.cover_image ? `
+                        <div class="rounded-2xl overflow-hidden aspect-video border border-borderDark shadow-xl">
+                            <img src="${Layout.escapeHtml(post.cover_image)}" alt="${Layout.escapeHtml(post.title)}" class="w-full h-full object-cover">
+                        </div>
+                    ` : ''}
+
                     <!-- Thẻ Tag -->
                     <div class="flex flex-wrap gap-2">
+                        ${category ? `
+                            <span class="bg-substackOrange/15 border border-substackOrange/40 text-substackOrange px-3 py-1 rounded-full text-xs font-semibold">
+                                <i class="fa-regular fa-folder-open mr-1"></i>${Layout.escapeHtml(category.name)}
+                            </span>
+                        ` : ''}
                         ${postTags.map(t => `
-                            <a href="tag.html?slug=${t.slug}" class="bg-cardBg hover:bg-borderDark text-substackOrange border border-borderDark px-3 py-1 rounded-full text-xs font-medium transition">
-                                # ${t.name}
+                            <a href="tag.html?slug=${encodeURIComponent(t.slug)}" class="bg-cardBg hover:bg-borderDark text-substackOrange border border-borderDark px-3 py-1 rounded-full text-xs font-medium transition">
+                                # ${Layout.escapeHtml(t.name)}
                             </a>
                         `).join('')}
                     </div>
 
                     <!-- Tiêu đề lớn -->
                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                        ${post.title}
+                        ${Layout.escapeHtml(post.title)}
                     </h1>
 
                     <!-- Tác giả bar & Theo dõi -->
                     <div class="flex items-center justify-between border-y border-borderDark py-4">
                         <div class="flex items-center space-x-3">
-                            <a href="profile.html?handle=${author.handle}">
-                                <img src="${author.avatar_url}" alt="${author.display_name}" class="w-11 h-11 rounded-full object-cover border border-borderDark">
+                            <a href="profile.html?handle=${encodeURIComponent(author.handle)}">
+                                <img src="${Layout.escapeHtml(author.avatar_url)}" alt="${Layout.escapeHtml(author.display_name)}" class="w-11 h-11 rounded-full object-cover border border-borderDark">
                             </a>
                             <div>
-                                <a href="profile.html?handle=${author.handle}" class="font-bold text-white text-sm hover:underline block">
-                                    ${author.display_name}
+                                <a href="profile.html?handle=${encodeURIComponent(author.handle)}" class="font-bold text-white text-sm hover:underline block">
+                                    ${Layout.escapeHtml(author.display_name)}
                                 </a>
-                                <div class="flex items-center space-x-2 text-xs text-gray-400 mt-0.5">
-                                    <span>@${author.handle}</span>
+                                <div class="flex flex-wrap items-center gap-x-2 text-xs text-gray-400 mt-0.5">
+                                    <span>@${Layout.escapeHtml(author.handle)}</span>
                                     <span>•</span>
                                     <span>${Layout.formatDate(post.published_at)}</span>
                                     <span>•</span>
+                                    ${language ? `<span><i class="fa-solid fa-language mr-1"></i>${Layout.escapeHtml(language.name)}</span><span>•</span>` : ''}
                                     <span><i class="fa-regular fa-eye mr-1"></i>${Layout.formatNumber(post.views_count)}</span>
                                 </div>
                             </div>
@@ -239,47 +272,40 @@
 
                         <div class="flex items-center space-x-2">
                             <button onclick="toggleFollowAuthor(${author.id}, this)" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-1.5 rounded-full transition shadow">
-                                Theo dõi
+                                ${Layout.escapeHtml(I18n.t('common.follow'))}
                             </button>
-                            <button onclick="openReportModal('post', ${post.id})" class="text-gray-400 hover:text-rose-400 p-2 text-sm" title="Báo cáo bài viết này">
+                            <button onclick="openReportModal('post', ${post.id})" class="text-gray-400 hover:text-rose-400 p-2 text-sm" title="${Layout.escapeHtml(I18n.t('detail.report_post_title'))}">
                                 <i class="fa-regular fa-flag"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Ảnh đại diện bài viết nếu có -->
-                    ${post.thumbnail_url ? `
-                        <div class="rounded-2xl overflow-hidden aspect-video border border-borderDark shadow-xl">
-                            <img src="${post.thumbnail_url}" alt="${post.title}" class="w-full h-full object-cover">
-                        </div>
-                    ` : ''}
-
-                    <!-- Thân bài viết HTML -->
-                    <div class="prose prose-invert max-w-none text-gray-200 leading-relaxed text-sm sm:text-base space-y-4 pt-2">
-                        ${post.content}
+                    <!-- Thân bài viết HTML (nội dung đã qua sanitize whitelist) -->
+                    <div class="post-content max-w-none text-gray-200 text-sm sm:text-base pt-2">
+                        ${Sanitize.html(post.content_html || '')}
                     </div>
 
                     <!-- Thanh 4 Cảm Xúc (Like, Love, Insightful, Funny) -->
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-md my-8">
                         <div class="flex items-center space-x-2 flex-wrap gap-2">
-                            <button onclick="reactToPost('like')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                            <button onclick="reactToPost('like')" class="${reactionBtnClass('like')}">
                                 <i class="fa-regular fa-thumbs-up text-blue-400"></i>
-                                <span>Thích</span>
+                                <span>${Layout.escapeHtml(I18n.t('detail.reaction_like'))}</span>
                                 <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.like}</span>
                             </button>
-                            <button onclick="reactToPost('love')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                            <button onclick="reactToPost('love')" class="${reactionBtnClass('love')}">
                                 <i class="fa-solid fa-heart text-rose-500"></i>
-                                <span>Yêu thích</span>
+                                <span>${Layout.escapeHtml(I18n.t('detail.reaction_love'))}</span>
                                 <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.love}</span>
                             </button>
-                            <button onclick="reactToPost('insightful')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                            <button onclick="reactToPost('insightful')" class="${reactionBtnClass('insightful')}">
                                 <i class="fa-regular fa-lightbulb text-amber-400"></i>
-                                <span>Sâu sắc</span>
+                                <span>${Layout.escapeHtml(I18n.t('detail.reaction_insightful'))}</span>
                                 <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.insightful}</span>
                             </button>
-                            <button onclick="reactToPost('funny')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cardBg hover:bg-borderDark border border-borderDark text-xs font-medium text-gray-300 transition hover:text-white">
+                            <button onclick="reactToPost('funny')" class="${reactionBtnClass('funny')}">
                                 <i class="fa-regular fa-face-laugh-squint text-emerald-400"></i>
-                                <span>Hài hước</span>
+                                <span>${Layout.escapeHtml(I18n.t('detail.reaction_funny'))}</span>
                                 <span class="bg-darkBg px-1.5 py-0.5 rounded text-[10px] text-gray-400 font-bold">${counts.funny}</span>
                             </button>
                         </div>
@@ -295,58 +321,79 @@
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-bold text-white flex items-center space-x-2">
                                 <i class="fa-regular fa-comments text-substackOrange"></i>
-                                <span>Thảo luận & Bình luận</span>
+                                <span>${Layout.escapeHtml(I18n.t('detail.discussion_heading'))}</span>
                             </h3>
                             <span id="commentTotalCountBadge" class="text-xs text-gray-400 font-medium"></span>
                         </div>
 
                         <!-- Ô nhập bình luận mới -->
-                        <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 shadow-sm space-y-3">
-                            <textarea id="newCommentInput" rows="3" placeholder="Chia sẻ góc nhìn hoặc đặt câu hỏi cho tác giả..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange"></textarea>
+                        <form id="newCommentForm" novalidate class="bg-sidebarBg border border-borderDark rounded-2xl p-4 shadow-sm space-y-3">
+                            <textarea id="newCommentInput" name="newComment" rows="3" placeholder="Chia sẻ góc nhìn hoặc đặt câu hỏi cho tác giả..." data-i18n-placeholder="detail.comment_placeholder" class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange"></textarea>
                             <div class="flex justify-between items-center">
-                                <span class="text-[11px] text-gray-500">Giữ văn minh và tôn trọng trong tranh luận</span>
-                                <button onclick="submitNewComment()" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow">
-                                    Gửi bình luận
+                                <span class="text-[11px] text-gray-500">${Layout.escapeHtml(I18n.t('detail.comment_policy'))}</span>
+                                <button type="submit" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow">
+                                    ${Layout.escapeHtml(I18n.t('detail.send_comment'))}
                                 </button>
                             </div>
-                        </div>
+                        </form>
 
                         <!-- Danh sách bình luận -->
                         <div id="commentList" class="space-y-4">
                             <!-- Render qua JS -->
                         </div>
+
+                        <!-- Phân trang bình luận -->
+                        <div id="commentsPaginationBar" class="pt-2"></div>
                     </section>
                 </article>
             `;
 
+            attachNewCommentValidator();
             renderComments(post.id);
         }
 
-        // Render bình luận lồng 1 cấp
+        function attachNewCommentValidator() {
+            Validators.attach('#newCommentForm', {
+                newComment: { required: true, maxLength: 500 }
+            }, {
+                onSubmit: (values) => submitNewComment(values)
+            });
+        }
+
+        // Render bình luận lồng 1 cấp + Phân trang dùng chung
         function renderComments(postId) {
             const container = document.getElementById('commentList');
+            const paginationBar = document.getElementById('commentsPaginationBar');
             const role = Layout.getDemoRole();
             const currentUser = Layout.getCurrentUser();
             const post = MockData.posts.find(p => p.id === postId);
 
             const allComments = MockData.comments.filter(c => c.post_id === postId && !c.deleted_at);
-            document.getElementById('commentTotalCountBadge').textContent = `${allComments.length} bình luận`;
+            document.getElementById('commentTotalCountBadge').textContent = I18n.t('detail.comment_count_badge', { count: allComments.length });
 
             // Lọc bình luận gốc (parent_id === null)
             const rootComments = allComments.filter(c => !c.parent_id);
 
             if (rootComments.length === 0) {
+                if (paginationBar) paginationBar.innerHTML = '';
                 container.innerHTML = `
                     <div class="text-center py-8 text-gray-500 text-xs border border-dashed border-borderDark rounded-2xl">
-                        Chưa có bình luận nào. Hãy là người đầu tiên để lại ý kiến!
+                        ${Layout.escapeHtml(I18n.t('detail.no_comments'))}
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = rootComments.map(comment => {
+            Pagination.render({
+                container: paginationBar,
+                items: rootComments,
+                pageSize: 10,
+                pageSizeOptions: [10, 20, 50],
+                syncUrl: true,
+                onPageChange: (pagedRootComments) => {
+                    container.innerHTML = pagedRootComments.map(comment => {
                 const commentUser = MockData.users.find(u => u.id === comment.user_id) || {
-                    display_name: 'Độc giả',
+                    display_name: I18n.t('detail.reader'),
                     handle: 'guest',
                     avatar_url: 'https://i.pravatar.cc/150'
                 };
@@ -364,11 +411,11 @@
                     <div class="bg-sidebarBg border border-borderDark rounded-2xl p-4 space-y-3" id="comment-block-${comment.id}">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-2.5">
-                                <img src="${commentUser.avatar_url}" alt="${commentUser.display_name}" class="w-8 h-8 rounded-full object-cover border border-borderDark">
+                                <img src="${Layout.escapeHtml(commentUser.avatar_url)}" alt="${Layout.escapeHtml(commentUser.display_name)}" class="w-8 h-8 rounded-full object-cover border border-borderDark">
                                 <div>
                                     <div class="flex items-center space-x-1.5">
-                                        <span class="font-bold text-xs text-white">${commentUser.display_name}</span>
-                                        ${post.author_id === comment.user_id ? '<span class="bg-substackOrange/20 text-substackOrange text-[10px] font-bold px-1.5 py-0.2 rounded">Tác giả</span>' : ''}
+                                        <span class="font-bold text-xs text-white">${Layout.escapeHtml(commentUser.display_name)}</span>
+                                        ${post.author_id === comment.user_id ? `<span class="bg-substackOrange/20 text-substackOrange text-[10px] font-bold px-1.5 py-0.2 rounded">${Layout.escapeHtml(I18n.t('detail.author_badge'))}</span>` : ''}
                                     </div>
                                     <span class="text-[10px] text-gray-500">${Layout.formatDate(comment.created_at)}</span>
                                 </div>
@@ -376,33 +423,33 @@
 
                             <div class="flex items-center space-x-2 text-xs text-gray-400">
                                 ${canEdit ? `
-                                    <button onclick="editComment(${comment.id})" class="hover:text-white" title="Sửa bình luận"><i class="fa-regular fa-pen-to-square"></i></button>
+                                    <button onclick="editComment(${comment.id})" class="hover:text-white" title="${Layout.escapeHtml(I18n.t('detail.edit_comment_title'))}"><i class="fa-regular fa-pen-to-square"></i></button>
                                 ` : ''}
                                 ${canDelete ? `
-                                    <button onclick="deleteComment(${comment.id})" class="hover:text-red-400" title="Xóa bình luận"><i class="fa-regular fa-trash-can"></i></button>
+                                    <button onclick="deleteComment(${comment.id})" class="hover:text-red-400" title="${Layout.escapeHtml(I18n.t('detail.delete_comment_title'))}"><i class="fa-regular fa-trash-can"></i></button>
                                 ` : ''}
-                                <button onclick="openReportModal('comment', ${comment.id})" class="hover:text-rose-400" title="Báo cáo bình luận"><i class="fa-regular fa-flag"></i></button>
+                                <button onclick="openReportModal('comment', ${comment.id})" class="hover:text-rose-400" title="${Layout.escapeHtml(I18n.t('detail.report_comment_title'))}"><i class="fa-regular fa-flag"></i></button>
                             </div>
                         </div>
 
                         <!-- Nội dung comment -->
                         <div id="comment-content-${comment.id}" class="text-xs sm:text-sm text-gray-200 leading-relaxed">
-                            ${comment.content}
+                            ${Layout.escapeHtml(comment.content)}
                         </div>
 
                         <!-- Nút trả lời -->
                         <div class="pt-1 flex items-center space-x-3 text-xs text-gray-400">
                             <button onclick="showReplyBox(${comment.id})" class="text-substackOrange hover:underline font-medium">
-                                <i class="fa-solid fa-reply mr-1"></i> Trả lời
+                                <i class="fa-solid fa-reply mr-1"></i> ${Layout.escapeHtml(I18n.t('detail.reply'))}
                             </button>
                         </div>
 
                         <!-- Hộp nhập reply (ẩn mặc định) -->
                         <div id="reply-box-${comment.id}" class="hidden pt-2 pl-4 border-l-2 border-borderDark space-y-2">
-                            <input type="text" id="reply-input-${comment.id}" placeholder="Viết phản hồi của bạn..." class="w-full bg-darkBg border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-substackOrange">
+                            <input type="text" id="reply-input-${comment.id}" name="replyText" maxlength="500" placeholder="${Layout.escapeHtml(I18n.t('detail.reply_placeholder'))}" class="w-full bg-darkBg border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-substackOrange">
                             <div class="flex justify-end space-x-2">
-                                <button onclick="hideReplyBox(${comment.id})" class="px-2.5 py-1 text-gray-400 hover:text-white text-xs">Hủy</button>
-                                <button onclick="submitReply(${comment.id})" class="px-3 py-1 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-lg shadow">Gửi</button>
+                                <button onclick="hideReplyBox(${comment.id})" class="px-2.5 py-1 text-gray-400 hover:text-white text-xs">${Layout.escapeHtml(I18n.t('common.cancel'))}</button>
+                                <button onclick="submitReply(${comment.id})" class="px-3 py-1 bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold rounded-lg shadow">${Layout.escapeHtml(I18n.t('common.send'))}</button>
                             </div>
                         </div>
 
@@ -411,7 +458,7 @@
                             <div class="pt-3 pl-4 border-l-2 border-borderDark space-y-3 mt-3">
                                 ${replies.map(reply => {
                                     const replyUser = MockData.users.find(u => u.id === reply.user_id) || {
-                                        display_name: 'Độc giả',
+                                        display_name: I18n.t('detail.reader'),
                                         avatar_url: 'https://i.pravatar.cc/150'
                                     };
                                     const canDeleteReply = (currentUser && currentUser.id === reply.user_id) || isAuthorOfPost || (role === 'admin');
@@ -421,10 +468,10 @@
                                         <div class="bg-cardBg/60 border border-borderDark/60 rounded-xl p-3 space-y-2" id="comment-block-${reply.id}">
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center space-x-2">
-                                                    <img src="${replyUser.avatar_url}" alt="${replyUser.display_name}" class="w-6 h-6 rounded-full object-cover">
+                                                    <img src="${Layout.escapeHtml(replyUser.avatar_url)}" alt="${Layout.escapeHtml(replyUser.display_name)}" class="w-6 h-6 rounded-full object-cover">
                                                     <div>
-                                                        <span class="font-bold text-xs text-white">${replyUser.display_name}</span>
-                                                        ${post.author_id === reply.user_id ? '<span class="bg-substackOrange/20 text-substackOrange text-[9px] font-bold px-1 rounded ml-1">Tác giả</span>' : ''}
+                                                        <span class="font-bold text-xs text-white">${Layout.escapeHtml(replyUser.display_name)}</span>
+                                                        ${post.author_id === reply.user_id ? `<span class="bg-substackOrange/20 text-substackOrange text-[9px] font-bold px-1 rounded ml-1">${Layout.escapeHtml(I18n.t('detail.author_badge'))}</span>` : ''}
                                                         <span class="text-[10px] text-gray-500 ml-1">• ${Layout.formatDate(reply.created_at)}</span>
                                                     </div>
                                                 </div>
@@ -435,7 +482,7 @@
                                                 </div>
                                             </div>
                                             <div id="comment-content-${reply.id}" class="text-xs text-gray-300">
-                                                ${reply.content}
+                                                ${Layout.escapeHtml(reply.content)}
                                             </div>
                                         </div>
                                     `;
@@ -444,17 +491,14 @@
                         ` : ''}
                     </div>
                 `;
-            }).join('');
+                    }).join('');
+                }
+            });
         }
 
-        function submitNewComment() {
+        function submitNewComment(values) {
             Layout.requireAuth(() => {
-                const input = document.getElementById('newCommentInput');
-                const content = input.value.trim();
-                if (!content) {
-                    Layout.showToast('Vui lòng nhập nội dung bình luận.', 'warning');
-                    return;
-                }
+                const content = (values.newComment || '').trim();
                 const user = Layout.getCurrentUser();
                 const newComment = {
                     id: Date.now(),
@@ -466,8 +510,10 @@
                     deleted_at: null
                 };
                 MockData.comments.push(newComment);
-                input.value = '';
-                Layout.showToast('Đã gửi bình luận thành công!', 'success');
+                const form = document.getElementById('newCommentForm');
+                form.reset();
+                form.querySelectorAll('.field-error').forEach(el => el.remove());
+                Layout.showToast(I18n.t('detail.comment_added'), 'success');
                 renderComments(currentPost.id);
             });
         }
@@ -485,11 +531,12 @@
         function submitReply(parentId) {
             Layout.requireAuth(() => {
                 const input = document.getElementById(`reply-input-${parentId}`);
-                const content = input.value.trim();
-                if (!content) {
-                    Layout.showToast('Vui lòng nhập phản hồi.', 'warning');
+                const err = Validators.validateField(input, { required: true, maxLength: 500, noHtml: true });
+                if (err) {
+                    input.focus();
                     return;
                 }
+                const content = input.value.trim();
                 const user = Layout.getCurrentUser();
                 const newReply = {
                     id: Date.now(),
@@ -501,7 +548,7 @@
                     deleted_at: null
                 };
                 MockData.comments.push(newReply);
-                Layout.showToast('Đã gửi trả lời thành công!', 'success');
+                Layout.showToast(I18n.t('detail.reply_added'), 'success');
                 renderComments(currentPost.id);
             });
         }
@@ -512,10 +559,10 @@
             const contentBox = document.getElementById(`comment-content-${commentId}`);
             contentBox.innerHTML = `
                 <div class="space-y-2 pt-1">
-                    <textarea id="edit-input-${commentId}" rows="2" class="w-full bg-darkBg border border-borderDark rounded-lg p-2 text-xs text-white focus:outline-none focus:border-substackOrange">${comment.content}</textarea>
+                    <textarea id="edit-input-${commentId}" name="editCommentText" rows="2" maxlength="500" class="w-full bg-darkBg border border-borderDark rounded-lg p-2 text-xs text-white focus:outline-none focus:border-substackOrange">${Layout.escapeHtml(comment.content)}</textarea>
                     <div class="flex justify-end space-x-2">
-                        <button onclick="renderComments(${currentPost.id})" class="px-2.5 py-1 text-gray-400 text-xs">Hủy</button>
-                        <button onclick="saveEditComment(${commentId})" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">Lưu</button>
+                        <button onclick="renderComments(${currentPost.id})" class="px-2.5 py-1 text-gray-400 text-xs">${Layout.escapeHtml(I18n.t('detail.cancel'))}</button>
+                        <button onclick="saveEditComment(${commentId})" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg">${Layout.escapeHtml(I18n.t('detail.save'))}</button>
                     </div>
                 </div>
             `;
@@ -523,23 +570,28 @@
 
         function saveEditComment(commentId) {
             const input = document.getElementById(`edit-input-${commentId}`);
+            const err = Validators.validateField(input, { required: true, maxLength: 500, noHtml: true });
+            if (err) {
+                input.focus();
+                return;
+            }
             const comment = MockData.comments.find(c => c.id === commentId);
-            if (comment && input.value.trim()) {
+            if (comment) {
                 comment.content = input.value.trim();
-                Layout.showToast('Đã cập nhật bình luận.', 'success');
+                Layout.showToast(I18n.t('detail.comment_updated'), 'success');
                 renderComments(currentPost.id);
             }
         }
 
         function deleteComment(commentId) {
             Layout.showConfirmModal({
-                title: 'Xóa bình luận',
-                message: 'Bạn có chắc chắn muốn xóa bình luận này vĩnh viễn?',
-                confirmText: 'Xóa ngay',
+                title: I18n.t('detail.delete_comment_title'),
+                message: I18n.t('detail.delete_comment_message'),
+                confirmText: I18n.t('common.delete'),
                 onConfirm: () => {
                     const c = MockData.comments.find(item => item.id === commentId);
                     if (c) c.deleted_at = new Date().toISOString();
-                    Layout.showToast('Đã xóa bình luận thành công!', 'success');
+                    Layout.showToast(I18n.t('detail.comment_deleted'), 'success');
                     renderComments(currentPost.id);
                 }
             });
@@ -548,15 +600,29 @@
         function reactToPost(type) {
             Layout.requireAuth(() => {
                 const user = Layout.getCurrentUser();
-                MockData.reactions.push({
-                    user_id: user.id,
-                    target_type: 'post',
-                    post_id: currentPost.id,
-                    note_id: null,
-                    comment_id: null,
-                    type: type
-                });
-                Layout.showToast(`Bạn đã thể hiện cảm xúc: ${type.toUpperCase()}!`, 'success');
+                if (!user) return;
+
+                const reactions = MockData.reactions;
+                const existingIndex = reactions.findIndex(r =>
+                    r.target_type === 'post' && r.post_id === currentPost.id && r.user_id === user.id
+                );
+
+                // Mỗi người chỉ có 1 reaction/bài: bấm lại cùng loại để bỏ, khác loại thì thay thế.
+                // Chỉ cập nhật UI tại chỗ, KHÔNG hiển thị toast/notify.
+                if (existingIndex !== -1 && reactions[existingIndex].type === type) {
+                    reactions.splice(existingIndex, 1);
+                } else if (existingIndex !== -1) {
+                    reactions[existingIndex].type = type;
+                } else {
+                    reactions.push({
+                        user_id: user.id,
+                        target_type: 'post',
+                        post_id: currentPost.id,
+                        note_id: null,
+                        comment_id: null,
+                        type: type
+                    });
+                }
                 renderPostContent(currentPost);
             });
         }
@@ -566,13 +632,13 @@
                 if (btn.classList.contains('followed')) {
                     btn.classList.remove('followed', 'bg-cardBg', 'border-borderDark');
                     btn.classList.add('bg-substackOrange');
-                    btn.textContent = 'Theo dõi';
-                    Layout.showToast('Đã hủy theo dõi.', 'info');
+                    btn.textContent = I18n.t('common.follow');
+                    Layout.showToast(I18n.t('detail.unfollow_success'), 'info');
                 } else {
                     btn.classList.add('followed', 'bg-cardBg', 'border-borderDark');
                     btn.classList.remove('bg-substackOrange');
-                    btn.textContent = 'Đang theo dõi';
-                    Layout.showToast('Đã theo dõi tác giả!', 'success');
+                    btn.textContent = I18n.t('common.following');
+                    Layout.showToast(I18n.t('detail.follow_success'), 'success');
                 }
             });
         }
@@ -589,9 +655,16 @@
             document.getElementById('reportModal').classList.add('hidden');
         }
 
-        function submitReport() {
-            const selectedReason = document.querySelector('input[name="reportReason"]:checked')?.value || 'Nội dung không phù hợp';
-            const note = document.getElementById('reportNoteInput').value;
+        function submitReport(values) {
+            const reasonKeyMap = {
+                spam: 'detail.report_reason_spam_ads',
+                scam: 'detail.report_reason_scam',
+                harass: 'detail.report_reason_harass',
+                copyright: 'detail.report_reason_copyright'
+            };
+            const selectedReason = (values && values.reportReason) || 'spam';
+            const reason = I18n.t(reasonKeyMap[selectedReason] || 'detail.default_report_reason');
+            const note = ((values && values.reportNote) || '').trim();
             const user = Layout.getCurrentUser();
 
             const newReport = {
@@ -601,7 +674,7 @@
                 post_id: reportingTarget.type === 'post' ? reportingTarget.id : null,
                 note_id: null,
                 comment_id: reportingTarget.type === 'comment' ? reportingTarget.id : null,
-                reason: selectedReason + (note ? ` (${note})` : ''),
+                reason: reason + (note ? ` (${note})` : ''),
                 status: 'pending',
                 action: null,
                 handle_note: null,
@@ -612,7 +685,10 @@
 
             MockData.reports.push(newReport);
             closeReportModal();
-            Layout.showToast('Cảm ơn bạn! Báo cáo vi phạm đã được gửi đến Ban quản trị kiểm duyệt.', 'success');
+            const form = document.getElementById('reportForm');
+            form.reset();
+            form.querySelectorAll('.field-error').forEach(el => el.remove());
+            Layout.showToast(I18n.t('detail.report_success'), 'success');
         }
     </script>
 </body>

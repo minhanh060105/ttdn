@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Không tìm thấy trang | Substack</title>
+    <title data-i18n="notfound.page_title">404 - Không tìm thấy trang | Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,7 +31,7 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+    <div class="flex flex-1 w-full">
         <!-- Sidebar trái -->
         <aside id="appSidebar"></aside>
 
@@ -46,8 +46,8 @@
                 </div>
 
                 <div class="space-y-2">
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white">Trang bạn tìm không tồn tại</h1>
-                    <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white" data-i18n="notfound.title">Trang bạn tìm không tồn tại</h1>
+                    <p class="text-xs sm:text-sm text-gray-400 leading-relaxed" data-i18n="notfound.desc">
                         Đường dẫn có thể đã bị thay đổi, bài viết đã bị gỡ bỏ hoặc bạn đã nhập sai địa chỉ URL trên trình duyệt.
                     </p>
                 </div>
@@ -55,11 +55,11 @@
                 <div class="flex flex-wrap gap-3 justify-center pt-2">
                     <a href="index.html" class="bg-substackOrange hover:bg-substackOrangeHover text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition shadow flex items-center space-x-2">
                         <i class="fa-solid fa-house"></i>
-                        <span>Về Trang chủ</span>
+                        <span data-i18n="notfound.home">Về Trang chủ</span>
                     </a>
                     <a href="search.html" class="bg-cardBg hover:bg-borderDark border border-borderDark text-gray-200 text-xs font-semibold px-5 py-2.5 rounded-xl transition flex items-center space-x-2">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <span>Tìm kiếm bài viết</span>
+                        <span data-i18n="notfound.search">Tìm kiếm bài viết</span>
                     </a>
                 </div>
             </div>
@@ -76,9 +76,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            Layout.renderHeader('appHeader');
-            Layout.renderSidebar('', 'appSidebar');
-            Layout.renderBottomNav('', 'appBottomNav');
+            I18n.ready(() => {
+                Layout.renderHeader('appHeader');
+                Layout.renderSidebar('', 'appSidebar');
+                Layout.renderBottomNav('', 'appBottomNav');
+            });
         });
     </script>
 </body>
