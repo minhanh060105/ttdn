@@ -28,7 +28,7 @@
 </head>
 <body class="bg-darkBg text-gray-200 min-h-screen flex flex-col justify-between p-4">
 
-    <!-- Top nav tối giản -->
+    <!-- Top nav -->
     <header class="max-w-4xl mx-auto w-full flex items-center justify-between py-4">
         <a href="index.html" class="text-substackOrange text-2xl font-bold flex items-center space-x-2">
             <i class="fa-solid fa-book-bookmark"></i>
@@ -52,19 +52,13 @@
                 <p class="text-xs text-gray-400" data-i18n="login.subheading">Tham gia không gian đọc và viết độc lập chất lượng cao</p>
             </div>
 
-            <!-- Thông báo khi được chuyển từ trang cần đăng nhập -->
-            <div id="loginRedirectNotice" class="hidden p-3 rounded-xl border border-substackOrange/30 bg-substackOrange/10 text-[11px] text-orange-200 items-center space-x-2">
-                <i class="fa-solid fa-lock"></i>
-                <span data-i18n="login.redirect_notice">Vui lòng đăng nhập để tiếp tục.</span>
-            </div>
-
-            <!-- Banner Thông Báo Lỗi (Sai thông tin hoặc Tài khoản bị Ban) -->
+            <!-- Banner Thông Báo Lỗi -->
             <div id="loginErrorAlert" class="hidden p-4 rounded-xl border text-xs space-y-1">
                 <div class="flex items-center space-x-2 font-bold" id="errorTitle"></div>
                 <div id="errorDesc" class="leading-relaxed"></div>
             </div>
 
-            <form id="loginForm" class="space-y-4">
+            <form id="loginForm" class="space-y-4" onsubmit="event.preventDefault();">
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 mb-1.5" data-i18n="auth.email">Địa chỉ Email</label>
                     <input type="text" id="emailInput" name="emailInput" placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-substackOrange transition">
@@ -90,8 +84,8 @@
                     </label>
                 </div>
 
-                <button type="submit" id="loginSubmitBtn" class="w-full bg-substackOrange hover:bg-substackOrangeHover disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg text-xs sm:text-sm" data-i18n="login.submit">
-                    Đăng nhập ngay
+                <button type="submit" id="loginSubmitBtn" class="w-full bg-substackOrange hover:bg-substackOrangeHover disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg text-xs sm:text-sm flex items-center justify-center space-x-2" data-i18n="login.submit">
+                    <span>Đăng nhập ngay</span>
                 </button>
             </form>
 
@@ -99,19 +93,19 @@
             <div class="pt-4 border-t border-borderDark space-y-2">
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-center" data-i18n="login.quick_accounts">Hoặc chọn nhanh tài khoản thử:</span>
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button onclick="fillDemoAccount('blogger')" class="bg-cardBg hover:bg-borderDark border border-borderDark p-2 rounded-xl text-left transition">
+                    <button type="button" onclick="fillDemoAccount('blogger')" class="bg-cardBg hover:bg-borderDark border border-borderDark p-2 rounded-xl text-left transition">
                         <p class="font-bold text-white text-[11px]" data-i18n="login.account_blogger">Blogger Hoàng Anh</p>
                         <p class="text-[10px] text-gray-400 truncate">hhoanganh0710@...</p>
                     </button>
-                    <button onclick="fillDemoAccount('admin')" class="bg-cardBg hover:bg-borderDark border border-borderDark p-2 rounded-xl text-left transition">
+                    <button type="button" onclick="fillDemoAccount('admin')" class="bg-cardBg hover:bg-borderDark border border-borderDark p-2 rounded-xl text-left transition">
                         <p class="font-bold text-white text-[11px]" data-i18n="login.account_admin">Admin Quản Trị</p>
                         <p class="text-[10px] text-gray-400 truncate">admin@substack.vn</p>
                     </button>
-                    <button onclick="fillDemoAccount('user')" class="bg-cardBg hover:bg-borderDark border border-borderDark p-2 rounded-xl text-left transition">
+                    <button type="button" onclick="fillDemoAccount('user')" class="bg-cardBg hover:bg-borderDark border border-borderDark p-2 rounded-xl text-left transition">
                         <p class="font-bold text-white text-[11px]" data-i18n="login.account_user">User Đặng Mai Hoa</p>
                         <p class="text-[10px] text-gray-400 truncate">dangmaihoa@...</p>
                     </button>
-                    <button onclick="fillDemoAccount('banned')" class="bg-red-950/40 hover:bg-red-950/60 border border-red-500/40 p-2 rounded-xl text-left transition">
+                    <button type="button" onclick="fillDemoAccount('banned')" class="bg-red-950/40 hover:bg-red-950/60 border border-red-500/40 p-2 rounded-xl text-left transition">
                         <p class="font-bold text-red-300 text-[11px]" data-i18n="login.account_banned">Tài khoản bị Ban</p>
                         <p class="text-[10px] text-red-400 truncate">quangcao.spammer247@...</p>
                     </button>
@@ -126,28 +120,19 @@
         Substack Clone © 2026. Mọi quyền được bảo lưu.
     </footer>
 
-    <!-- Script & Mock Data -->
+    <!-- Scripts -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/validators.js"></script>
     <script src="../assets/js/layout.js"></script>
 
     <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
         document.addEventListener('DOMContentLoaded', () => {
             I18n.ready(() => {
-                // Mặc định điền sẵn tài khoản blogger để dễ test
                 fillDemoAccount('blogger');
 
-                // Hiển thị nhắc nhở nếu người dùng bị chặn từ trang cần đăng nhập
-                if (Layout.getRedirectParam()) {
-                    document.getElementById('loginRedirectNotice').classList.remove('hidden');
-                    document.getElementById('loginRedirectNotice').classList.add('flex');
-                }
-
-                // Bổ sung nút mô phỏng lỗi riêng vào thanh Demo
-                setupPageDemoControls();
-
-                // Gắn Validation dùng chung
                 Validators.attach('#loginForm', {
                     emailInput: {
                         required: true,
@@ -166,23 +151,6 @@
                 });
             });
         });
-
-        function setupPageDemoControls() {
-            const container = document.getElementById('pageCustomDemoControls');
-            if (!container) return;
-            container.classList.remove('hidden');
-            container.innerHTML = `
-                <label class="block text-gray-400 text-[11px] mb-1.5 font-medium">${I18n.t('login.demo_label')}</label>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <button onclick="simulateLoginError('wrong_credentials')" class="py-1 px-2 rounded bg-cardBg hover:bg-borderDark border border-borderDark text-amber-400 text-left text-[10px]">
-                        ${I18n.t('login.demo_wrong')}
-                    </button>
-                    <button onclick="simulateLoginError('banned_user')" class="py-1 px-2 rounded bg-red-950/50 hover:bg-red-900 border border-red-500/50 text-red-300 text-left text-[10px]">
-                        ${I18n.t('login.demo_banned')}
-                    </button>
-                </div>
-            `;
-        }
 
         function togglePasswordVisibility() {
             const input = document.getElementById('passwordInput');
@@ -218,115 +186,12 @@
             }
         }
 
-        // Gọi API backend mock (nếu đang chạy) để lấy token; lỗi/CORS/timeout -> trả null
-        async function requestBackendLogin(email, password) {
-            try {
-                const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), 1500);
-                const res = await fetch('http://localhost:3000/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
-                    signal: controller.signal
-                });
-                clearTimeout(timer);
-                if (!res.ok) return null;
-                const data = await res.json();
-                return data && data.success ? data : null;
-            } catch (error) {
-                // Backend chưa chạy hoặc bị CORS -> fallback MockData
-                return null;
-            }
-        }
-
         function setLoginLoading(isLoading) {
             const btn = document.getElementById('loginSubmitBtn');
             btn.disabled = isLoading;
             btn.innerHTML = isLoading
-                ? `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>${I18n.t('login.submitting')}`
-                : I18n.t('login.submit');
-        }
-
-        function showPasswordError(messageKey) {
-            Validators.showError(document.getElementById('passwordInput'), I18n.t(messageKey));
-            document.getElementById('passwordInput').focus();
-            document.getElementById('passwordInput').select();
-        }
-
-        async function executeLogin(emailVal, passVal) {
-            const email = (emailVal || document.getElementById('emailInput').value).trim();
-            const password = (passVal || document.getElementById('passwordInput').value).trim();
-            const passwordInput = document.getElementById('passwordInput');
-
-            hideError();
-            Validators.clearError(passwordInput);
-
-            setLoginLoading(true);
-            const apiData = await requestBackendLogin(email, password);
-
-            // MockData là nguồn dữ liệu chuẩn cho demo -> kiểm tra mật khẩu & trạng thái ban
-            const user = MockData.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-            if (!user) {
-                setLoginLoading(false);
-                Validators.showError(document.getElementById('emailInput'), I18n.t('login.error_email_not_found'));
-                showError(I18n.t('login.error_wrong_title'), I18n.t('login.error_wrong_desc'), 'warning');
-                return;
-            }
-
-            if (user.password && user.password !== password) {
-                setLoginLoading(false);
-                showPasswordError('login.error_wrong_password');
-                return;
-            }
-
-            if (!user.is_active) {
-                setLoginLoading(false);
-                const reason = user.ban_reason || I18n.t('login.banned_reason_default');
-                showError(
-                    I18n.t('login.banned_title'),
-                    I18n.t('login.banned_desc', {
-                        date: Layout.formatDate(user.banned_at),
-                        reason: escapeHtml(reason)
-                    }),
-                    'danger'
-                );
-                return;
-            }
-
-            // Đăng nhập thành công: lưu phiên (user + token) rồi điều hướng theo ?redirect / vai trò
-            Layout.saveSession(user, apiData && apiData.token);
-            Layout.showToast(I18n.t('login.welcome_back', { name: user.display_name }), 'success');
-            window.location.href = Layout.resolvePostLoginRedirect(user);
-        }
-
-        function simulateLoginError(type) {
-            if (type === 'wrong_credentials') {
-                document.getElementById('emailInput').value = 'wrong_email@notfound.com';
-                document.getElementById('passwordInput').value = 'wrongpassword';
-                Validators.showError(document.getElementById('emailInput'), I18n.t('login.error_email_not_found'));
-                showError(I18n.t('login.error_wrong_title'), I18n.t('login.error_wrong_desc'), 'warning');
-            } else if (type === 'banned_user') {
-                fillDemoAccount('banned');
-                const bannedUser = MockData.users.find(u => u.email === 'quangcao.spammer247@gmail.com');
-                showError(
-                    I18n.t('login.banned_title'),
-                    I18n.t('login.banned_desc', {
-                        date: Layout.formatDate(bannedUser.banned_at),
-                        reason: escapeHtml(bannedUser.ban_reason || I18n.t('login.banned_reason_default'))
-                    }),
-                    'danger'
-                );
-            }
-        }
-
-        function escapeHtml(value) {
-            return String(value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+                ? `<i class="fa-solid fa-circle-notch fa-spin mr-2"></i><span>Đang xác thực...</span>`
+                : `<span>${window.I18n ? I18n.t('login.submit', 'Đăng nhập ngay') : 'Đăng nhập ngay'}</span>`;
         }
 
         function showError(title, desc, level = 'warning') {
@@ -350,6 +215,82 @@
 
         function hideError() {
             document.getElementById('loginErrorAlert').classList.add('hidden');
+        }
+
+        async function executeLogin(emailVal, passVal) {
+            const email = (emailVal || document.getElementById('emailInput').value).trim().toLowerCase();
+            const password = (passVal || document.getElementById('passwordInput').value).trim();
+            const passwordInput = document.getElementById('passwordInput');
+
+            hideError();
+            Validators.clearError(passwordInput);
+            setLoginLoading(true);
+
+            // 1. ƯU TIÊN GỌI BACKEND API XÁC THỰC MẬT KHẨU THẬT TỪ MYSQL
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                    signal: AbortSignal.timeout(3000)
+                });
+
+                const data = await res.json();
+
+                // NẾU BACKEND BÁO SAI MẬT KHẨU HOẶC KHÔNG TÌM THẤY TÀI KHOẢN
+                if (!res.ok || !data.success) {
+                    setLoginLoading(false);
+                    Validators.showError(passwordInput, data.message || 'Mật khẩu hoặc email không chính xác.');
+                    showError('Đăng nhập thất bại', data.message || 'Mật khẩu hoặc email không chính xác.', 'warning');
+                    passwordInput.focus();
+                    passwordInput.select();
+                    return; // DỪNG LUỒNG, TUYỆT ĐỐI KHÔNG CHO PHÉP ĐĂNG NHẬP
+                }
+
+                // XÁC THỰC THÀNH CÔNG VỚI MYSQL
+                setLoginLoading(false);
+                Layout.saveSession(data.user, data.token);
+                Layout.showToast(window.I18n ? I18n.t('login.welcome_back', { name: data.user.display_name }) : `Chào mừng trở lại, ${data.user.display_name}!`, 'success');
+                window.location.href = Layout.resolvePostLoginRedirect(data.user);
+                return;
+
+            } catch (networkError) {
+                console.warn('Backend API offline hoặc CORS, chuyển sang chế độ kiểm tra MockData local:', networkError);
+            }
+
+            // 2. CHẾ ĐỘ DỰ PHÒNG CHỈ CHẠY KHI BACKEND HOÀN TOÀN MẤT KẾT NỐI
+            const user = window.MockData?.users ? window.MockData.users.find(u => u.email.toLowerCase() === email) : null;
+
+            if (!user) {
+                setLoginLoading(false);
+                Validators.showError(document.getElementById('emailInput'), 'Không tìm thấy tài khoản với email này.');
+                showError('Tài khoản không tồn tại', 'Địa chỉ email này chưa được đăng ký.', 'warning');
+                return;
+            }
+
+            // KIỂM TRA MẬT KHẨU BẮT BUỘC (Không cho qua nếu sai hoặc rỗng)
+            const registeredUserLocal = JSON.parse(localStorage.getItem('registered_user') || '{}');
+            const expectedPassword = user.password || (registeredUserLocal.email === email ? registeredUserLocal.password : null) || '12345678';
+
+            if (password !== expectedPassword) {
+                setLoginLoading(false);
+                Validators.showError(passwordInput, 'Mật khẩu không chính xác.');
+                showError('Sai mật khẩu', 'Mật khẩu bạn vừa nhập không đúng. Vui lòng thử lại.', 'warning');
+                passwordInput.focus();
+                passwordInput.select();
+                return;
+            }
+
+            if (!user.is_active) {
+                setLoginLoading(false);
+                showError('Tài khoản bị tạm khóa', user.ban_reason || 'Tài khoản của bạn đã bị khóa do vi phạm tiêu chuẩn cộng đồng.', 'danger');
+                return;
+            }
+
+            setLoginLoading(false);
+            Layout.saveSession(user);
+            Layout.showToast(`Chào mừng trở lại, ${user.display_name}!`, 'success');
+            window.location.href = Layout.resolvePostLoginRedirect(user);
         }
     </script>
 </body>
