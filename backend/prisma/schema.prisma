@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique(map: "name") @db.VarChar(100)
+  slug  String  @unique(map: "slug") @db.VarChar(120)
+  posts posts[]
+}
+
+model comments {
+  id             BigInt     @id @default(autoincrement())
+  post_id        BigInt
+  user_id        BigInt
+  parent_id      BigInt?
+  content        String     @db.Text
+  is_deleted     Boolean    @default(false)
+  created_at     DateTime?  @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at     DateTime?  @db.Timestamp(0)
+  posts          posts      @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_ibfk_1")
+  users          users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_ibfk_2")
+  comments       comments?  @relation("commentsTocomments", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_ibfk_3")
+  other_comments comments[] @relation("commentsTocomments")
+
+  @@index([parent_id], map: "parent_id")
+  @@index([post_id], map: "post_id")
+  @@index([user_id], map: "user_id")
+}
+
+model follows {
+  follower_id                       BigInt
+  following_id                      BigInt
+  created_at                        DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  users_follows_follower_idTousers  users     @relation("follows_follower_idTousers", fields: [follower_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "follows_ibfk_1")
+  users_follows_following_idTousers users     @relation("follows_following_idTousers", fields: [following_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "follows_ibfk_2")
+
+  @@id([follower_id, following_id])
+  @@index([following_id], map: "following_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model languages {
+  id              Int               @id @default(autoincrement())
+  code            String            @unique(map: "code") @db.VarChar(10)
+  name            String            @db.VarChar(50)
+  is_default      Boolean           @default(false)
+  is_active       Boolean           @default(true)
+  posts           posts[]
+  ui_translations ui_translations[]
+}
+
+model notes {
+  id         BigInt    @id @default(autoincrement())
+  author_id  BigInt
+  content    String    @db.Text
+  image_url  String?   @db.VarChar(500)
+  created_at DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      users     @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notes_ibfk_1")
+
+  @@index([author_id], map: "author_id")
+}
+
+model post_tags {
+  post_id BigInt
+  tag_id  Int
+  posts   posts  @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_tags_ibfk_1")
+  tags    tags   @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "post_tags_ibfk_2")
+
+  @@id([post_id, tag_id])
+  @@index([tag_id], map: "tag_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model posts {
+  id                             BigInt       @id @default(autoincrement())
+  author_id                      BigInt
+  publication_id                 BigInt
+  category_id                    Int?
+  language_id                    Int
+  title                          String       @db.VarChar(255)
+  slug                           String       @db.VarChar(255)
+  content                        String       @db.LongText
+  thumbnail_url                  String?      @db.VarChar(500)
+  status                         String       @default("draft") @db.VarChar(20)
+  reviewed_by                    BigInt?
+  reviewed_at                    DateTime?    @db.Timestamp(0)
+  reject_reason                  String?      @db.VarChar(500)
+  published_at                   DateTime?    @db.Timestamp(0)
+  created_at                     DateTime?    @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at                     DateTime?    @db.Timestamp(0)
+  comments                       comments[]
+  post_tags                      post_tags[]
+  users_posts_author_idTousers   users        @relation("posts_author_idTousers", fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_ibfk_1")
+  publications                   publications @relation(fields: [publication_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_ibfk_2")
+  categories                     categories?  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_ibfk_3")
+  languages                      languages    @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_ibfk_4")
+  users_posts_reviewed_byTousers users?       @relation("posts_reviewed_byTousers", fields: [reviewed_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_ibfk_5")
+
+  @@unique([publication_id, slug], map: "posts_index_2")
+  @@index([author_id], map: "author_id")
+  @@index([category_id], map: "category_id")
+  @@index([language_id, status], map: "posts_index_3")
+  @@index([reviewed_by], map: "reviewed_by")
+}
+
+model publications {
+  id            BigInt          @id @default(autoincrement())
+  owner_id      BigInt
+  name          String          @db.VarChar(150)
+  slug          String          @unique(map: "slug") @db.VarChar(150)
+  description   String?         @db.Text
+  logo_url      String?         @db.VarChar(500)
+  cover_url     String?         @db.VarChar(500)
+  created_at    DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  posts         posts[]
+  users         users           @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "publications_ibfk_1")
+  subscriptions subscriptions[]
+
+  @@index([owner_id], map: "owner_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model reactions {
+  id          BigInt    @id @default(autoincrement())
+  user_id     BigInt
+  target_type String    @db.VarChar(20)
+  target_id   BigInt
+  type        String    @default("like") @db.VarChar(20)
+  created_at  DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reactions_ibfk_1")
+
+  @@unique([user_id, target_type, target_id], map: "reactions_index_4")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model reports {
+  id                               BigInt    @id @default(autoincrement())
+  reporter_id                      BigInt
+  target_type                      String    @db.VarChar(20)
+  target_id                        BigInt
+  reason                           String    @db.VarChar(500)
+  status                           String    @default("pending") @db.VarChar(20)
+  action                           String?   @db.VarChar(30)
+  handle_note                      String?   @db.VarChar(500)
+  handled_by                       BigInt?
+  handled_at                       DateTime? @db.Timestamp(0)
+  created_at                       DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  users_reports_reporter_idTousers users     @relation("reports_reporter_idTousers", fields: [reporter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reports_ibfk_1")
+  users_reports_handled_byTousers  users?    @relation("reports_handled_byTousers", fields: [handled_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reports_ibfk_2")
+
+  @@index([handled_by], map: "handled_by")
+  @@index([reporter_id], map: "reporter_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model roles {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique(map: "code") @db.VarChar(30)
+  name        String    @db.VarChar(60)
+  description String?   @db.VarChar(255)
+  is_system   Boolean   @default(false)
+  created_at  DateTime? @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  users       users[]
+}
+
+model subscriptions {
+  id             BigInt       @id @default(autoincrement())
+  user_id        BigInt
+  publication_id BigInt
+  created_at     DateTime?    @default(dbgenerated("(now())")) @db.Timestamp(0)
+  users          users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "subscriptions_ibfk_1")
+  publications   publications @relation(fields: [publication_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "subscriptions_ibfk_2")
+
+  @@unique([user_id, publication_id], map: "subscriptions_index_1")
+  @@index([publication_id], map: "publication_id")
+}
+
+model tags {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique(map: "name") @db.VarChar(60)
+  slug      String      @unique(map: "slug") @db.VarChar(60)
+  post_tags post_tags[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ui_translations {
+  id          Int       @id @default(autoincrement())
+  language_id Int
+  key         String    @db.VarChar(100)
+  value       String    @db.Text
+  languages   languages @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ui_translations_ibfk_1")
+
+  @@unique([language_id, key], map: "ui_translations_index_0")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id                                  BigInt          @id @default(autoincrement())
+  email                               String          @unique(map: "email") @db.VarChar(255)
+  password_hash                       String          @db.VarChar(255)
+  handle                              String          @unique(map: "handle") @db.VarChar(60)
+  display_name                        String          @db.VarChar(120)
+  bio                                 String?         @db.Text
+  avatar_url                          String?         @db.VarChar(500)
+  role_id                             Int             @default(1)
+  is_active                           Boolean         @default(true)
+  ban_reason                          String?         @db.VarChar(500)
+  banned_at                           DateTime?       @db.Timestamp(0)
+  created_at                          DateTime?       @default(dbgenerated("(now())")) @db.Timestamp(0)
+  updated_at                          DateTime?       @db.Timestamp(0)
+  comments                            comments[]
+  follows_follows_follower_idTousers  follows[]       @relation("follows_follower_idTousers")
+  follows_follows_following_idTousers follows[]       @relation("follows_following_idTousers")
+  notes                               notes[]
+  posts_posts_author_idTousers        posts[]         @relation("posts_author_idTousers")
+  posts_posts_reviewed_byTousers      posts[]         @relation("posts_reviewed_byTousers")
+  publications                        publications[]
+  reactions                           reactions[]
+  reports_reports_reporter_idTousers  reports[]       @relation("reports_reporter_idTousers")
+  reports_reports_handled_byTousers   reports[]       @relation("reports_handled_byTousers")
+  subscriptions                       subscriptions[]
+  roles                               roles           @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_ibfk_1")
+
+  @@index([role_id], map: "role_id")
+}

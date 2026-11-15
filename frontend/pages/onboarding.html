@@ -26,145 +26,306 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-darkBg text-gray-200 font-sans antialiased min-h-screen flex flex-col justify-between pb-28">
 
-    <!-- Logo chung -->
-    <div class="text-substackOrange text-3xl mb-4 bg-borderDark p-3 rounded-full cursor-pointer hover:scale-105 transition" onclick="window.location.href='index.html'" data-i18n-title="onboarding.home_title" title="Trang chủ Substack">
-        <i class="fa-solid fa-book-bookmark"></i>
-    </div>
-
-    <!-- BƯỚC 1: Chọn chủ đề quan tâm -->
-    <div id="step1" class="w-full max-w-xl text-center space-y-4">
-        <h2 class="text-2xl font-bold text-white" data-i18n="onboarding.topics_heading">Chọn 3 chủ đề bạn quan tâm</h2>
-        <p class="text-xs text-gray-400" data-i18n="onboarding.topics_desc">Chúng tôi sẽ đề xuất những bản tin Substack phù hợp nhất với sở thích của bạn.</p>
-        
-        <div class="bg-cardBg border border-borderDark rounded-xl p-6 flex flex-wrap gap-2 justify-center max-h-72 overflow-y-auto">
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_culture">Văn hóa & Đời sống</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_tech">Công nghệ & Phần mềm</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_ai">Trí tuệ nhân tạo (AI)</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_business">Kinh doanh & Khởi nghiệp</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_finance">Tài chính cá nhân</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_design">Thiết kế UI/UX</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_science">Khoa học & Kỹ thuật</button>
-            <button onclick="toggleTopic(this)" class="px-3 py-1.5 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition" data-i18n="onboarding.topic_philosophy">Triết học & Tư duy</button>
+    <!-- Header Logo -->
+    <header class="w-full pt-8 flex justify-center">
+        <div class="text-substackOrange text-3xl bg-borderDark p-3 rounded-full cursor-pointer hover:scale-105 transition" onclick="window.location.href='index.html'" title="Trang chủ Substack">
+            <i class="fa-solid fa-book-bookmark"></i>
         </div>
+    </header>
 
-        <button id="step1Btn" onclick="goToStep(2)" disabled class="w-full max-w-md bg-gray-700 text-gray-400 font-semibold py-3 px-4 rounded-lg transition text-sm cursor-not-allowed">
-            <span id="step1BtnText" data-i18n="onboarding.select_topics">Chọn thêm 3 chủ đề nữa để tiếp tục</span>
-        </button>
-    </div>
+    <!-- MAIN CONTAINER CHỨA CÁC BƯỚC -->
+    <main class="w-full flex-1 flex flex-col items-center justify-center px-4 py-6">
 
-    <!-- BƯỚC 2: Điền Email & Checkbox điều khoản dịch vụ -->
-    <div id="step2" class="w-full max-w-md text-center space-y-4 hidden">
-        <h2 class="text-2xl font-bold text-white" data-i18n="onboarding.email_heading">Xác nhận email tài khoản</h2>
-        <p class="text-xs text-gray-400"><span data-i18n="auth.has_account">Đã có tài khoản?</span> <span class="text-substackOrange cursor-pointer hover:underline" onclick="window.location.href='login.html'" data-i18n="auth.login_now">Đăng nhập</span></p>
-        
-        <div class="bg-cardBg border border-borderDark rounded-xl p-6 text-left space-y-4">
-            <div>
-                <label class="text-xs text-gray-400 block mb-1" data-i18n="onboarding.email_label">Địa chỉ email</label>
-                <input type="email" id="userEmail" placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-substackOrange">
-            </div>
-            <label class="flex items-start space-x-2 text-xs text-gray-400 cursor-pointer">
-                <input type="checkbox" id="termsCheckbox" checked onchange="toggleTermsCheckbox(this)" class="mt-0.5 rounded bg-darkBg border-borderDark cursor-pointer text-substackOrange">
-                <span><span data-i18n="onboarding.terms_prefix">Tôi đồng ý với</span> <a href="#" class="text-substackOrange hover:underline" data-i18n="onboarding.terms_link">Điều khoản sử dụng</a> <span data-i18n="register.terms_and">và</span> <a href="#" class="text-substackOrange hover:underline" data-i18n="onboarding.privacy_link">Chính sách thu thập dữ liệu người dùng</a> <span data-i18n="onboarding.terms_suffix">của Substack.</span></span>
-            </label>
-        </div>
-        
-        <button id="step2Btn" onclick="goToStep(3)" class="w-full max-w-md bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-lg transition text-sm shadow cursor-pointer">
-            <span data-i18n="onboarding.next_step">Tiếp tục bước tiếp theo</span>
-        </button>
-    </div>
-
-    <!-- BƯỚC 3: Điền Profile (Name, Handle, Bio) -->
-    <div id="step3" class="w-full max-w-md text-center space-y-4 hidden">
-        <h2 class="text-2xl font-bold text-white" data-i18n="onboarding.profile_heading">Giới thiệu về bạn</h2>
-        <p class="text-xs text-gray-400" data-i18n="onboarding.profile_desc">Thêm tên hiển thị, tên định danh handle và một chút thông tin về bạn.</p>
-        
-        <div class="bg-cardBg border border-borderDark rounded-xl p-6 text-left space-y-4">
-            <div>
-                <label class="text-xs text-gray-400 block mb-1"><span data-i18n="onboarding.display_name">Tên hiển thị</span> *</label>
-                <input type="text" id="userName" value="Độc Giả Mới" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange">
-            </div>
-            <div>
-                <label class="text-xs text-gray-400 block mb-1"><span data-i18n="onboarding.handle">Tên định danh (Handle)</span> *</label>
-                <div class="flex items-center bg-darkBg border border-borderDark rounded-lg px-3 focus-within:border-substackOrange">
-                    <span class="text-gray-500 text-xs">@</span>
-                    <input type="text" id="userHandle" value="docgia_moi" placeholder="your_handle" data-i18n-placeholder="onboarding.handle_placeholder" data-i18n-title="onboarding.handle_hint" class="w-full bg-transparent border-none px-2 py-2.5 text-sm text-white focus:outline-none">
+        <!-- BƯỚC 1: Nhập email & đồng ý điều khoản -->
+        <div id="step1" class="w-full max-w-md text-center space-y-4">
+            <h2 class="text-2xl font-bold text-white">Xác nhận địa chỉ email</h2>
+            <p class="text-xs text-gray-400">
+                <span>Đã có tài khoản?</span> 
+                <span class="text-substackOrange cursor-pointer hover:underline font-medium" onclick="window.location.href='login.html'">Đăng nhập ngay</span>
+            </p>
+            
+            <div class="bg-cardBg border border-borderDark rounded-2xl p-6 text-left space-y-4 shadow-xl">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1.5 font-medium">Địa chỉ email</label>
+                    <input 
+                        type="email" 
+                        id="userEmail" 
+                        required
+                        placeholder="name@example.com" 
+                        class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-substackOrange transition"
+                    >
                 </div>
-            </div>
-            <div>
-                <label class="text-xs text-gray-400 block mb-1" data-i18n="onboarding.bio">Tiểu sử ngắn (Bio)</label>
-                <textarea id="userBio" placeholder="Chia sẻ một chút về đam mê hoặc công việc của bạn..." data-i18n-placeholder="onboarding.bio_placeholder" rows="2" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange">Yêu thích đọc sách và cập nhật tin tức công nghệ trên Substack.</textarea>
-            </div>
-            <div>
-                <label class="text-xs text-gray-400 block mb-2" data-i18n="onboarding.avatar">Ảnh đại diện</label>
-                <div id="onboardingAvatarUpload"></div>
+
+                <label class="flex items-start space-x-2 text-xs text-gray-400 cursor-pointer select-none">
+                    <input 
+                        type="checkbox" 
+                        id="termsCheckbox" 
+                        checked 
+                        onchange="toggleTermsCheckbox(this)" 
+                        class="mt-0.5 rounded bg-darkBg border-borderDark cursor-pointer accent-substackOrange"
+                    >
+                    <span class="leading-relaxed">
+                        Tôi đồng ý với <a href="#" class="text-substackOrange hover:underline">Điều khoản dịch vụ</a> và <a href="#" class="text-substackOrange hover:underline">Chính sách thu thập dữ liệu người dùng</a> của Substack.
+                    </span>
+                </label>
+
+                <p id="emailErrorMsg" class="hidden text-xs text-rose-400 font-medium"></p>
             </div>
         </div>
-        <button onclick="submitOnboardingData()" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-lg transition text-sm shadow">
-            <span data-i18n="onboarding.finish">Hoàn tất thiết lập</span>
-        </button>
-    </div>
 
-    <!-- BƯỚC 4: Hoàn tất (Done) -->
-    <div id="step4" class="w-full max-w-md text-center space-y-4 hidden">
-        <div class="w-16 h-16 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl mb-2">
-            <i class="fa-solid fa-check"></i>
+        <!-- BƯỚC 1.5: Xác thực email (Mã kích hoạt / Kiểm tra hộp thư) -->
+        <div id="stepVerifyEmail" class="w-full max-w-md text-center space-y-4 hidden">
+            <div class="w-14 h-14 bg-substackOrange/10 border border-substackOrange/30 text-substackOrange rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg">
+                <i class="fa-regular fa-envelope-open"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Kiểm tra hộp thư của bạn</h2>
+            <p class="text-xs text-gray-400 leading-relaxed">
+                Chúng tôi đã gửi mã xác thực tới <strong id="verifyEmailDisplay" class="text-white"></strong>. Vui lòng nhập mã gồm 6 số để tiếp tục:
+            </p>
+            
+            <div class="bg-cardBg border border-borderDark rounded-2xl p-6 text-left space-y-4 shadow-xl">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1.5 font-medium text-center">Mã xác nhận (OTP)</label>
+                    <input 
+                        type="text" 
+                        id="emailOtpInput" 
+                        maxlength="6"
+                        placeholder="123456" 
+                        value="123456"
+                        class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-center text-lg tracking-[0.4em] font-mono font-bold text-white focus:outline-none focus:border-substackOrange transition"
+                    >
+                </div>
+                <p class="text-[11px] text-gray-400 text-center">
+                    Chưa nhận được mã? <button type="button" onclick="resendOtp()" class="text-substackOrange hover:underline font-semibold">Gửi lại mã</button>
+                </p>
+                <p id="otpErrorMsg" class="hidden text-xs text-rose-400 font-medium text-center"></p>
+            </div>
         </div>
-        <h2 class="text-2xl font-bold text-white" data-i18n="onboarding.done_heading">Bạn đã hoàn tất!</h2>
-        <p class="text-xs text-gray-400 leading-relaxed" data-i18n="onboarding.done_desc">Chào mừng bạn gia nhập cộng đồng Substack. Các bài viết từ tác giả bạn theo dõi sẽ xuất hiện ngay tại trang chủ của bạn.</p>
-        
-        <!-- Bấm Done hoàn tất và quay về index.html -->
-        <button onclick="finishRegistration()" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-lg transition text-sm shadow">
-            <span data-i18n="onboarding.go_home">Bắt đầu khám phá ngay</span>
-        </button>
-    </div>
 
-    <!-- Script nạp thư viện -->
+        <!-- BƯỚC 2: Chọn 3 chủ đề quan tâm -->
+        <div id="step2" class="w-full max-w-xl text-center space-y-4 hidden">
+            <h2 class="text-2xl font-bold text-white">Chọn 3 chủ đề bạn quan tâm</h2>
+            <p class="text-xs text-gray-400">Chúng tôi sẽ đề xuất những bản tin Substack phù hợp nhất với sở thích của bạn.</p>
+            
+            <div class="bg-cardBg border border-borderDark rounded-2xl p-6 flex flex-wrap gap-2.5 justify-center max-h-72 overflow-y-auto shadow-xl">
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Văn hóa & Đời sống</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Công nghệ & Phần mềm</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Trí tuệ nhân tạo (AI)</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Kinh doanh & Khởi nghiệp</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Tài chính cá nhân</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Thiết kế UI/UX</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Khoa học & Kỹ thuật</button>
+                <button type="button" onclick="toggleTopic(this)" class="px-3.5 py-2 rounded-full border border-borderDark text-xs text-gray-300 hover:border-substackOrange transition">Triết học & Tư duy</button>
+            </div>
+            <p id="topicsHintText" class="text-xs text-gray-400">Chọn ít nhất 3 chủ đề để tiếp tục.</p>
+        </div>
+
+        <!-- BƯỚC 3: Hoàn thiện hồ sơ (Màn hình của bạn) -->
+        <div id="step3" class="w-full max-w-md text-center space-y-4 hidden">
+            <h2 class="text-2xl font-bold text-white">Hoàn thiện hồ sơ của bạn</h2>
+            <p class="text-xs text-gray-400">Tên hiển thị, handle và tiểu sử giúp độc giả nhận ra bạn.</p>
+            
+            <div class="bg-cardBg border border-borderDark rounded-2xl p-6 text-left space-y-4 shadow-xl">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1 font-medium">Tên hiển thị *</label>
+                    <input type="text" id="userName" value="ada" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange transition">
+                </div>
+
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1 font-medium">Handle *</label>
+                    <div class="flex items-center bg-darkBg border border-borderDark rounded-xl px-3 focus-within:border-substackOrange transition">
+                        <span class="text-gray-500 text-xs font-mono">@</span>
+                        <input type="text" id="userHandle" value="ads" placeholder="your_handle" class="w-full bg-transparent border-none px-2 py-2.5 text-sm text-white focus:outline-none font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1 font-medium">Tiểu sử</label>
+                    <textarea id="userBio" rows="2" class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange resize-none leading-relaxed">Yêu thích đọc sách và cập nhật tin tức công nghệ trên Substack.</textarea>
+                </div>
+
+                <div>
+                    <label class="text-xs text-gray-400 block mb-2 font-medium">Ảnh đại diện</label>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 rounded-full bg-darkBg border border-borderDark overflow-hidden flex items-center justify-center">
+                            <img id="avatarPreview" src="" class="w-full h-full object-cover hidden">
+                            <i id="avatarFallbackIcon" class="fa-regular fa-user text-xl text-gray-500"></i>
+                        </div>
+                        <input type="file" id="onboardingAvatarInput" accept="image/*" class="hidden" onchange="previewAvatar(event)">
+                        <button type="button" onclick="document.getElementById('onboardingAvatarInput').click()" class="px-3 py-1.5 bg-sidebarBg hover:bg-borderDark border border-borderDark rounded-xl text-xs text-gray-300 font-medium transition">
+                            <i class="fa-solid fa-arrow-up-from-bracket mr-1"></i> Tải ảnh lên
+                        </button>
+                    </div>
+                </div>
+
+                <p id="profileErrorMsg" class="hidden text-xs text-rose-400 font-medium"></p>
+            </div>
+        </div>
+
+        <!-- BƯỚC 4: Hoàn tất (Done) -->
+        <div id="step4" class="w-full max-w-md text-center space-y-4 hidden">
+            <div class="w-16 h-16 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl mb-2 shadow-lg">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Bạn đã hoàn tất!</h2>
+            <p class="text-xs text-gray-400 leading-relaxed">Chào mừng bạn gia nhập cộng đồng Substack. Các bài viết từ tác giả bạn theo dõi sẽ xuất hiện ngay tại trang chủ của bạn.</p>
+        </div>
+
+    </main>
+
+    <!-- THANH BOTTOM BAR CỐ ĐỊNH CHUẨN SUBSTACK VỚI NÚT CONTINUE TRẢI DÀI -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-darkBg/95 border-t border-borderDark/80 p-4 z-40 backdrop-blur-md">
+        <div class="max-w-2xl mx-auto w-full">
+            <button 
+                type="button" 
+                id="mainContinueBtn" 
+                onclick="handleContinue()" 
+                class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3.5 px-6 rounded-xl transition text-sm shadow-lg flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.99]"
+            >
+                <span id="continueBtnText">Continue</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="../assets/js/mock-data.js"></script>
     <script src="../assets/js/i18n.js"></script>
-    <script src="../assets/js/validators.js"></script>
-    <script src="../assets/js/image-upload.js"></script>
     <script src="../assets/js/layout.js"></script>
 
-    <!-- Script điều khiển luồng Onboarding -->
     <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let currentStep = 1;
         let selectedTopicsCount = 0;
-        let onboardingAvatarUpload = null;
+        let uploadedAvatarBase64 = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            I18n.ready(() => {
-                const pendingEmail = sessionStorage.getItem('pending_register_email');
-                if (pendingEmail) {
-                    document.getElementById('userEmail').value = pendingEmail;
-                }
-                document.getElementById('userName').value = I18n.t('onboarding.default_name');
-                document.getElementById('userBio').value = I18n.t('onboarding.default_bio');
-                onboardingAvatarUpload = ImageUpload.mount('#onboardingAvatarUpload', {
-                    name: 'onboardingAvatar',
-                    shape: 'circle',
-                    maxSizeMB: 2
-                });
-                updateStep1Button();
-            });
+            const savedEmail = sessionStorage.getItem('pending_register_email');
+            if (savedEmail) {
+                document.getElementById('userEmail').value = savedEmail;
+            }
+            updateBottomButtonState();
         });
 
-        function updateStep1Button() {
-            const btnStep1 = document.getElementById('step1Btn');
-            const textEl = document.getElementById('step1BtnText');
-            if (!btnStep1 || !textEl) return;
+        // Đổi trạng thái nút Continue theo từng bước
+        function updateBottomButtonState() {
+            const btn = document.getElementById('mainContinueBtn');
+            const btnText = document.getElementById('continueBtnText');
 
-            if (selectedTopicsCount >= 3) {
-                btnStep1.disabled = false;
-                btnStep1.className = "w-full max-w-md bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-lg transition text-sm shadow cursor-pointer";
-                textEl.textContent = I18n.t('onboarding.next_step');
-            } else {
-                btnStep1.disabled = true;
-                btnStep1.className = "w-full max-w-md bg-gray-700 text-gray-400 font-semibold py-3 px-4 rounded-lg transition text-sm cursor-not-allowed";
-                textEl.textContent = I18n.t('onboarding.select_topics', { count: 3 - selectedTopicsCount });
+            if (currentStep === 1) {
+                const terms = document.getElementById('termsCheckbox').checked;
+                btn.disabled = !terms;
+                btn.className = terms 
+                    ? "w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3.5 px-6 rounded-xl transition text-sm shadow cursor-pointer flex items-center justify-center space-x-2"
+                    : "w-full bg-gray-700 text-gray-400 font-semibold py-3.5 px-6 rounded-xl transition text-sm cursor-not-allowed flex items-center justify-center space-x-2";
+                btnText.textContent = "Continue";
+            } else if (currentStep === 1.5) {
+                btn.disabled = false;
+                btn.className = "w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3.5 px-6 rounded-xl transition text-sm shadow cursor-pointer flex items-center justify-center space-x-2";
+                btnText.textContent = "Xác nhận mã & Tiếp tục";
+            } else if (currentStep === 2) {
+                const valid = selectedTopicsCount >= 3;
+                btn.disabled = !valid;
+                btn.className = valid 
+                    ? "w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3.5 px-6 rounded-xl transition text-sm shadow cursor-pointer flex items-center justify-center space-x-2"
+                    : "w-full bg-gray-700 text-gray-400 font-semibold py-3.5 px-6 rounded-xl transition text-sm cursor-not-allowed flex items-center justify-center space-x-2";
+                btnText.textContent = valid ? "Continue" : `Chọn thêm ${3 - selectedTopicsCount} chủ đề nữa`;
+            } else if (currentStep === 3) {
+                btn.disabled = false;
+                btn.className = "w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3.5 px-6 rounded-xl transition text-sm shadow cursor-pointer flex items-center justify-center space-x-2";
+                btnText.textContent = "Hoàn tất thiết lập";
+            } else if (currentStep === 4) {
+                btn.disabled = false;
+                btn.className = "w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3.5 px-6 rounded-xl transition text-sm shadow cursor-pointer flex items-center justify-center space-x-2";
+                btnText.textContent = "Bắt đầu khám phá ngay";
             }
         }
 
+        // Xử lý nút Continue duy nhất ở đáy
+        async function handleContinue() {
+            if (currentStep === 1) {
+                await processStep1Email();
+            } else if (currentStep === 1.5) {
+                processStepVerifyOtp();
+            } else if (currentStep === 2) {
+                goToStep(3);
+            } else if (currentStep === 3) {
+                await processStep3Profile();
+            } else if (currentStep === 4) {
+                finishRegistration();
+            }
+        }
+
+        // Bước 1: Gửi email xác thực sang Backend
+        async function processStep1Email() {
+            const emailInput = document.getElementById('userEmail');
+            const errorEl = document.getElementById('emailErrorMsg');
+            const btn = document.getElementById('mainContinueBtn');
+            const email = emailInput.value.trim();
+
+            errorEl.classList.add('hidden');
+
+            if (!email || !email.includes('@')) {
+                errorEl.textContent = 'Vui lòng điền địa chỉ email hợp lệ.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang xác thực...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/onboarding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                    signal: AbortSignal.timeout(2500)
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    errorEl.innerHTML = (data.message || 'Email này không hợp lệ.') + 
+                        (data.isExisting ? ` <a href="login.html" class="underline text-white font-bold ml-1">Đăng nhập ngay →</a>` : '');
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                sessionStorage.setItem('pending_register_email', email);
+                document.getElementById('verifyEmailDisplay').textContent = email;
+                goToStep(1.5);
+            } catch (err) {
+                console.warn('Backend API offline, chuyển thẳng tới xác thực OTP:', err);
+                sessionStorage.setItem('pending_register_email', email);
+                document.getElementById('verifyEmailDisplay').textContent = email;
+                goToStep(1.5);
+            } finally {
+                updateBottomButtonState();
+            }
+        }
+
+        // Bước 1.5: Xác thực OTP
+        function processStepVerifyOtp() {
+            const otp = document.getElementById('emailOtpInput').value.trim();
+            const errEl = document.getElementById('otpErrorMsg');
+            errEl.classList.add('hidden');
+
+            if (!otp || otp.length < 6) {
+                errEl.textContent = 'Vui lòng nhập đầy đủ mã xác nhận 6 số.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            // Giả lập xác thực email thành công
+            sessionStorage.setItem('email_verified', 'true');
+            goToStep(2);
+        }
+
+        function resendOtp() {
+            alert('Mã xác nhận mới đã được gửi lại vào email của bạn!');
+        }
+
+        // Bước 2: Chọn topics
         function toggleTopic(btn) {
             btn.classList.toggle('bg-substackOrange');
             btn.classList.toggle('text-white');
@@ -175,139 +336,123 @@
             } else {
                 selectedTopicsCount--;
             }
-
-            updateStep1Button();
+            updateBottomButtonState();
         }
 
-        function toggleTermsCheckbox(checkbox) {
-            const btnStep2 = document.getElementById('step2Btn');
-            if (checkbox.checked) {
-                btnStep2.disabled = false;
-                btnStep2.className = "w-full max-w-md bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-lg transition text-sm shadow cursor-pointer";
-            } else {
-                btnStep2.disabled = true;
-                btnStep2.className = "w-full max-w-md bg-gray-700 text-gray-400 font-semibold py-3 px-4 rounded-lg transition text-sm cursor-not-allowed";
-            }
+        // Preview ảnh đại diện
+        function previewAvatar(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                uploadedAvatarBase64 = evt.target.result;
+                const img = document.getElementById('avatarPreview');
+                img.src = uploadedAvatarBase64;
+                img.classList.remove('hidden');
+                document.getElementById('avatarFallbackIcon').classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
         }
 
-        function goToStep(stepNumber) {
-            // Validate trước khi sang bước 3 (từ bước 2)
-            if (stepNumber === 3) {
-                const emailEl = document.getElementById('userEmail');
-                const err = Validators.validateField(emailEl, {
-                    required: true,
-                    email: true,
-                    noHtml: true
-                });
-                if (err) {
-                    emailEl.focus();
-                    return;
-                }
-            }
-
-            document.querySelectorAll('[id^="step"]').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`step${stepNumber}`).classList.remove('hidden');
-        }
-
-        // Gửi dữ liệu đăng ký qua API Next.js Backend (nếu có) + Lưu local
-        async function submitOnboardingData() {
-            const emailEl = document.getElementById('userEmail');
+        // Bước 3: Đăng ký Profile vào MySQL
+        async function processStep3Profile() {
+            const email = sessionStorage.getItem('pending_register_email') || document.getElementById('userEmail').value.trim() || 'ada@example.com';
             const nameEl = document.getElementById('userName');
             const handleEl = document.getElementById('userHandle');
             const bioEl = document.getElementById('userBio');
+            const errEl = document.getElementById('profileErrorMsg');
+            const btn = document.getElementById('mainContinueBtn');
 
-            // Validate các trường ở Bước 3
-            const nameErr = Validators.validateField(nameEl, { required: true, minLength: 2, noHtml: true });
-            const handleErr = Validators.validateField(handleEl, { 
-                required: true, 
-                minLength: 3, 
-                pattern: { regex: /^[a-zA-Z0-9_]+$/, message: I18n.t('validation.handle') },
-                noHtml: true 
-            });
-            const bioErr = Validators.validateField(bioEl, { noHtml: true, maxLength: 250 });
+            errEl.classList.add('hidden');
+            const name = nameEl.value.trim();
+            const handle = handleEl.value.trim();
+            const bio = bioEl.value.trim();
 
-            if (nameErr || handleErr || bioErr) {
-                const firstErr = nameErr ? nameEl : (handleErr ? handleEl : bioEl);
-                firstErr.focus();
+            if (!name) {
+                errEl.textContent = 'Vui lòng điền tên hiển thị.';
+                errEl.classList.remove('hidden');
                 return;
             }
 
-            const email = emailEl.value;
-            const name = nameEl.value;
-            const handle = handleEl.value;
-            const bio = bioEl.value;
+            if (!handle || !/^[a-zA-Z0-9_]+$/.test(handle)) {
+                errEl.textContent = 'Handle chỉ bao gồm chữ, số và dấu gạch dưới (_).';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang lưu hồ sơ...';
+
+            const avatarUrl = uploadedAvatarBase64 || `https://i.pravatar.cc/150?u=${handle}`;
 
             try {
-                await fetch('http://localhost:3000/api/auth/login', {
+                await fetch(`${API_BASE_URL}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, name, handle, bio }),
-                    signal: AbortSignal.timeout(1000)
+                    body: JSON.stringify({ email, name, handle, bio, avatar_url: avatarUrl }),
+                    signal: AbortSignal.timeout(3000)
                 });
             } catch (e) {
-                console.log("Gửi API backend tạm thời ngoại tuyến, chuyển bước tiếp theo.");
+                console.warn('Backend offline, lưu thông tin vào mock session:', e);
             }
 
-            // Nếu email đã tồn tại (đăng ký dở) thì cập nhật hồ sơ, ngược lại tạo người dùng mới
-            const finalHandle = handle || 'docgia_moi';
-            const finalEmail = email || 'docgia@substack.vn';
-            const uploadedAvatar = onboardingAvatarUpload ? onboardingAvatarUpload.getValue() : '';
-            let newUser = window.MockData.users.find(u => u.email.toLowerCase() === finalEmail.toLowerCase());
+            const newUser = {
+                id: Date.now(),
+                email: email,
+                handle: handle,
+                display_name: name,
+                bio: bio,
+                avatar_url: avatarUrl,
+                role_id: 3,
+                is_active: true,
+                created_at: new Date().toISOString()
+            };
 
-            if (newUser) {
-                Object.assign(newUser, {
-                    handle: finalHandle,
-                    display_name: name || I18n.t('onboarding.default_name'),
-                    bio: bio || I18n.t('onboarding.new_member_bio'),
-                    avatar_url: uploadedAvatar || newUser.avatar_url
-                });
-            } else {
-                newUser = {
-                    id: Date.now(),
-                    email: finalEmail,
-                    handle: finalHandle,
-                    password: sessionStorage.getItem('pending_register_password') || '12345678',
-                    display_name: name || I18n.t('onboarding.default_name'),
-                    bio: bio || I18n.t('onboarding.new_member_bio'),
-                    avatar_url: uploadedAvatar || `https://i.pravatar.cc/150?u=${finalHandle}`,
-                    role_id: 3, // user
-                    is_active: true,
-                    ban_reason: null,
-                    banned_at: null,
-                    created_at: new Date().toISOString()
-                };
-                window.MockData.users.push(newUser);
-            }
-
-            // Lưu tài khoản đang đăng ký dở: nếu người dùng thoát trước bước 4,
-            // lần đăng nhập sau sẽ được đưa trở lại onboarding (xem Layout.resolvePostLoginRedirect)
             localStorage.setItem('registered_user', JSON.stringify(newUser));
             localStorage.setItem('onboarding_completed', 'false');
-            if (uploadedAvatar) {
-                localStorage.setItem('avatar_' + finalHandle, uploadedAvatar);
-            }
 
             goToStep(4);
+        }
+
+        function toggleTermsCheckbox(cb) {
+            updateBottomButtonState();
+        }
+
+        // Chuyển bước
+        function goToStep(step) {
+            currentStep = step;
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('stepVerifyEmail').classList.add('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('step4').classList.add('hidden');
+
+            if (step === 1) document.getElementById('step1').classList.remove('hidden');
+            else if (step === 1.5) document.getElementById('stepVerifyEmail').classList.remove('hidden');
+            else if (step === 2) document.getElementById('step2').classList.remove('hidden');
+            else if (step === 3) document.getElementById('step3').classList.remove('hidden');
+            else if (step === 4) document.getElementById('step4').classList.remove('hidden');
+
+            updateBottomButtonState();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function finishRegistration() {
             let pendingUser = null;
             try {
                 pendingUser = JSON.parse(localStorage.getItem('registered_user') || 'null');
-            } catch (e) { /* dữ liệu hỏng thì dùng fallback bên dưới */ }
+            } catch (e) { }
 
             localStorage.setItem('onboarding_completed', 'true');
             sessionStorage.removeItem('pending_register_email');
-            sessionStorage.removeItem('pending_register_password');
 
-            if (pendingUser) {
+            if (pendingUser && window.Layout) {
                 Layout.saveSession(pendingUser);
                 window.location.href = 'index.html';
                 return;
             }
 
-            // Fallback khi không có dữ liệu tạm (ví dụ vào thẳng onboarding)
-            Layout.setDemoRole('user');
+            window.location.href = 'index.html';
         }
     </script>
 </body>
