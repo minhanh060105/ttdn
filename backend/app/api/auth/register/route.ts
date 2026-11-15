@@ -13,46 +13,50 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanHandle = handle.trim().toLowerCase();
     const cleanEmail = email.trim().toLowerCase();
+    const cleanHandle = handle.trim().toLowerCase();
 
-    // 1. Kiểm tra trùng handle
-    const existingHandle = await prisma.users.findUnique({
-      where: { handle: cleanHandle }
+    // 1. Kiểm tra xem email hoặc handle đã tồn tại chưa
+    const existing = await prisma.users.findFirst({
+      where: {
+        OR: [{ email: cleanEmail }, { handle: cleanHandle }]
+      }
     });
 
-    if (existingHandle) {
+    if (existing) {
       return NextResponse.json(
-        { success: false, message: 'Handle này đã có người sử dụng. Hãy chọn handle khác.' },
+        { success: false, message: 'Email hoặc Handle đã tồn tại trong hệ thống.' },
         { status: 409 }
       );
     }
 
-    // 2. Tạo bản ghi mới trong bảng users của MySQL
+    // 2. Chèn bản ghi mới (đã loại bỏ preferred_language)
     const newUser = await prisma.users.create({
       data: {
         email: cleanEmail,
         handle: cleanHandle,
         display_name: name.trim(),
-        bio: bio?.trim() || '',
+        password_hash: '$2a$10$demo_hash_password_placeholder',
+        bio: bio?.trim() || null,
         avatar_url: avatar_url || null,
-        password_hash: 'default_dev_hash', // Mật khẩu tạm cho giai đoạn dev
-        role_id: 3, // Role mặc định: user/độc giả
-        preferred_language: 'vi',
-        email_verified_at: new Date()
+        roles: {
+          connect: {
+            id: 3
+          }
+        }
       }
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Đăng ký tài khoản thành công!',
-      user: newUser
+      message: 'Tạo tài khoản thành công vào MySQL!',
+      data: newUser
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error('Lỗi đăng ký user:', error);
+    console.error('Lỗi khi lưu user vào MySQL:', error);
     return NextResponse.json(
-      { success: false, message: 'Lỗi lưu thông tin vào cơ sở dữ liệu.', error: error.message },
+      { success: false, message: 'Lỗi server khi lưu vào cơ sở dữ liệu.', error: error.message },
       { status: 500 }
     );
   }

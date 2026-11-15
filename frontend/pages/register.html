@@ -105,8 +105,9 @@
                     </label>
                 </div>
 
-                <button type="submit" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg text-xs sm:text-sm">
-                    <span data-i18n="register.submit">Tiếp tục thiết lập hồ sơ</span> <i class="fa-solid fa-arrow-right ml-1"></i>
+                <button type="submit" id="submitRegisterBtn" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg text-xs sm:text-sm flex items-center justify-center space-x-2">
+                    <span data-i18n="register.submit">Tiếp tục thiết lập hồ sơ</span> 
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </form>
 
@@ -125,6 +126,8 @@
     <script src="../assets/js/layout.js"></script>
 
     <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
         document.addEventListener('DOMContentLoaded', () => {
             I18n.ready(() => {
                 Validators.attach('#registerForm', {
@@ -141,7 +144,7 @@
                         minLength: 8,
                         custom: (val, formVals) => {
                             if (val !== formVals.regPassword) {
-                                return I18n.t('validation.passwordMismatch');
+                                return I18n.t('validation.passwordMismatch', 'Mật khẩu xác nhận không trùng khớp.');
                             }
                             return null;
                         }
@@ -149,7 +152,7 @@
                     regTerms: {
                         custom: (val, formVals) => {
                             if (!formVals.regTerms) {
-                                return I18n.t('auth.terms_required');
+                                return I18n.t('auth.terms_required', 'Vui lòng đồng ý với Điều khoản dịch vụ.');
                             }
                             return null;
                         }
@@ -177,10 +180,10 @@
         function checkPasswordStrength(val) {
             const bar = document.getElementById('strengthBar');
             const text = document.getElementById('strengthText');
-            const label = window.I18n ? I18n.t('register.strength_label') : 'Độ bảo mật:';
+            const label = window.I18n ? I18n.t('register.strength_label', 'Độ bảo mật:') : 'Độ bảo mật:';
             if (!val) {
                 bar.style.width = '0%';
-                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_empty') : 'Chưa nhập'}`;
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_empty', 'Chưa nhập') : 'Chưa nhập'}`;
                 text.className = 'text-[10px] text-gray-500';
                 return;
             }
@@ -194,45 +197,86 @@
             if (score <= 1) {
                 bar.style.width = '25%';
                 bar.className = 'h-full bg-red-500';
-                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_weak') : 'Yếu'}`;
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_weak', 'Yếu') : 'Yếu'}`;
                 text.className = 'text-[10px] text-red-400';
             } else if (score === 2) {
                 bar.style.width = '50%';
                 bar.className = 'h-full bg-amber-500';
-                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_medium') : 'Trung bình'}`;
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_medium', 'Trung bình') : 'Trung bình'}`;
                 text.className = 'text-[10px] text-amber-400';
             } else if (score === 3) {
                 bar.style.width = '75%';
                 bar.className = 'h-full bg-blue-500';
-                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_good') : 'Khá tốt'}`;
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_good', 'Khá tốt') : 'Khá tốt'}`;
                 text.className = 'text-[10px] text-blue-400';
             } else {
                 bar.style.width = '100%';
                 bar.className = 'h-full bg-emerald-500';
-                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_strong') : 'Rất mạnh!'}`;
+                text.textContent = `${label} ${window.I18n ? I18n.t('register.strength_strong', 'Rất mạnh!') : 'Rất mạnh!'}`;
                 text.className = 'text-[10px] text-emerald-400';
             }
         }
 
-        function executeRegister(email, password) {
-            // Kiểm tra email trùng trong MockData
-            const exists = MockData.users.some(u => u.email.toLowerCase() === email.toLowerCase());
-            if (exists) {
-                const alert = document.getElementById('registerErrorAlert');
-                const desc = document.getElementById('registerErrorDesc');
-                alert.classList.remove('hidden');
-                desc.textContent = I18n.t('register.email_exists');
-                return;
-            }
+        function showRegisterError(msg) {
+            const alertBox = document.getElementById('registerErrorAlert');
+            const desc = document.getElementById('registerErrorDesc');
+            desc.innerHTML = msg;
+            alertBox.classList.remove('hidden');
+        }
 
-            // Lưu email + mật khẩu tạm thời sang onboarding (không lưu mật khẩu dạng thô ngoài demo)
-            sessionStorage.setItem('pending_register_email', email);
-            sessionStorage.setItem('pending_register_password', password);
-            Layout.showToast(I18n.t('register.success_toast'), 'success');
-            setTimeout(() => {
+        function hideRegisterError() {
+            const alertBox = document.getElementById('registerErrorAlert');
+            alertBox.classList.add('hidden');
+        }
+
+        // Xử lý gửi thông tin kiểm tra sang Backend Next.js
+        async function executeRegister(email, password) {
+            hideRegisterError();
+            const btn = document.getElementById('submitRegisterBtn');
+            const cleanEmail = (email || '').trim().toLowerCase();
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i><span>Đang kiểm tra...</span>';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/onboarding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: cleanEmail }),
+                    signal: AbortSignal.timeout(3000)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    const errorMsg = (data.message || 'Địa chỉ email này đã được sử dụng.') + 
+                        (data.isExisting ? ` <a href="login.html" class="underline text-white font-bold ml-1">Đăng nhập ngay →</a>` : '');
+                    showRegisterError(errorMsg);
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Tiếp tục thiết lập hồ sơ</span> <i class="fa-solid fa-arrow-right ml-1"></i>';
+                    return;
+                }
+
+                // Nếu hợp lệ: Lưu dữ liệu tạm để hoàn tất bên onboarding
+                sessionStorage.setItem('pending_register_email', cleanEmail);
+                sessionStorage.setItem('pending_register_password', password);
+
+                Layout.showToast(window.I18n ? I18n.t('register.success_toast', 'Xác nhận email thành công!') : 'Xác nhận email thành công!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'onboarding.html';
+                }, 400);
+
+            } catch (err) {
+                console.warn('Backend Next.js chưa bật hoặc lỗi CORS. Chuyển sang Onboarding với session tạm:', err);
+                sessionStorage.setItem('pending_register_email', cleanEmail);
+                sessionStorage.setItem('pending_register_password', password);
                 window.location.href = 'onboarding.html';
-            }, 500);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Tiếp tục thiết lập hồ sơ</span> <i class="fa-solid fa-arrow-right ml-1"></i>';
+            }
         }
     </script>
 </body>
 </html>
+```[cite: 21]
