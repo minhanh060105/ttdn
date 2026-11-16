@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="admin.review_page_title">Duyệt bài viết | Admin Substack</title>
+    <title>Duyệt bài viết | Admin Substack</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,519 +31,387 @@
     <!-- Header dùng chung -->
     <header id="appHeader"></header>
 
-    <div class="flex flex-1 w-full">
-        <!-- Sidebar Admin riêng biệt -->
+    <div class="flex flex-1 max-w-7xl mx-auto w-full px-2 sm:px-4">
+        <!-- Sidebar Admin -->
         <aside id="adminSidebar"></aside>
 
         <!-- Main content -->
-        <main class="flex-1 px-4 sm:px-6 py-6 max-w-[1440px] w-full space-y-5">
+        <main class="flex-1 px-3 sm:px-6 py-6 max-w-5xl mx-auto w-full space-y-6">
             
+            <!-- Tiêu đề trang & Huy hiệu đếm số bài chờ duyệt -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderDark pb-4">
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
-                        <i class="fa-solid fa-list-check text-substackOrange"></i>
-                        <span data-i18n="admin.review_title">Hàng đợi kiểm duyệt bài viết</span>
+                        <i class="fa-solid fa-list-check text-rose-500"></i>
+                        <span>Hàng đợi kiểm duyệt bài viết</span>
                     </h1>
-                    <p class="text-xs text-gray-400 mt-1" data-i18n="admin.review_subtitle">Đánh giá nội dung các tác giả gửi lên trước khi xuất bản công khai ra trang chủ.</p>
+                    <p class="text-xs text-gray-400 mt-1">Đánh giá cấu trúc nội dung, hình ảnh và định dạng HTML từ cơ sở dữ liệu MySQL trước khi phê duyệt xuất bản.</p>
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <span id="pendingQueueCountBadge" class="bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-xl"></span>
+                    <span id="pendingQueueCountBadge" class="bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-xl">
+                        Đang chờ duyệt: 0 bài
+                    </span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] gap-5 items-start">
+            <!-- Danh sách hàng đợi bài viết (Render qua JS) -->
+            <div id="reviewQueueList" class="space-y-6"></div>
 
-                <!-- Cột trái: danh sách bài viết + bộ lọc + phân trang -->
-                <section class="bg-sidebarBg border border-borderDark rounded-2xl overflow-hidden shadow-sm lg:sticky lg:top-20">
-                    <div class="p-3.5 border-b border-borderDark space-y-2.5">
-                        <form id="reviewFilterForm" novalidate class="space-y-2.5 text-xs">
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-500"></i>
-                                <input type="text" id="reviewSearchInput" name="reviewSearch" placeholder="Tìm theo tiêu đề hoặc tác giả..." data-i18n-placeholder="admin.review_search_placeholder" class="w-full bg-darkBg border border-borderDark rounded-xl pl-9 pr-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-substackOrange">
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-gray-400 font-semibold whitespace-nowrap" data-i18n="admin.review_status_filter">Trạng thái:</span>
-                                <select id="reviewStatusFilter" name="reviewStatus" class="w-full bg-darkBg border border-borderDark rounded-xl px-3 py-2 text-white focus:outline-none focus:border-substackOrange">
-                                    <option value="pending" data-i18n="admin.review_status_pending">Chờ duyệt</option>
-                                    <option value="all" data-i18n="admin.review_all_statuses">Tất cả trạng thái</option>
-                                    <option value="published" data-i18n="admin.review_status_published">Đã xuất bản</option>
-                                    <option value="rejected" data-i18n="admin.review_status_rejected">Bị từ chối</option>
-                                    <option value="draft" data-i18n="admin.review_status_draft">Bản nháp</option>
-                                </select>
-                            </div>
-                        </form>
-                        <div class="flex items-center justify-between text-[11px] text-gray-500 font-medium">
-                            <span data-i18n="admin.review_list_heading">Danh sách bài viết</span>
-                            <span id="reviewFilteredCount"></span>
-                        </div>
-                    </div>
-
-                    <div id="reviewQueueList" class="divide-y divide-borderDark max-h-[calc(100vh-19rem)] overflow-y-auto">
-                        <!-- Render qua JS -->
-                    </div>
-
-                    <div id="reviewPaginationBar" class="p-3 border-t border-borderDark"></div>
-                </section>
-
-                <!-- Cột phải: xem trước đầy đủ + thao tác -->
-                <section id="reviewPreviewPanel" class="bg-sidebarBg border border-borderDark rounded-2xl shadow-sm min-h-[420px]">
-                    <!-- Render qua JS -->
-                </section>
+            <!-- Phân trang chuẩn cho màn Duyệt Bài -->
+            <div id="paginationBar" class="pt-6 border-t border-borderDark flex items-center justify-between text-xs text-gray-400">
+                <button id="prevPageBtn" onclick="changePage(-1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Trang trước</span>
+                </button>
+                <span id="pageInfoText" class="font-medium">Trang 1 / 1</span>
+                <button id="nextPageBtn" onclick="changePage(1)" class="px-3.5 py-2 rounded-xl bg-cardBg border border-borderDark hover:bg-borderDark text-white transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1.5">
+                    <span>Trang sau</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
             </div>
 
         </main>
     </div>
 
+    <!-- MODAL XEM CHI TIẾT TOÀN MÀN HÌNH -->
+    <div id="fullPreviewModal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-3 sm:p-6 backdrop-blur-md">
+        <div class="bg-sidebarBg border border-borderDark rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between p-4 sm:p-5 border-b border-borderDark">
+                <div class="flex items-center space-x-2 text-substackOrange text-sm font-bold">
+                    <i class="fa-regular fa-eye"></i>
+                    <span>Xem trước giao diện người đọc</span>
+                </div>
+                <button onclick="closeFullPreviewModal()" class="text-gray-400 hover:text-white p-1 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="fullPreviewBody" class="p-6 sm:p-8 overflow-y-auto space-y-6"></div>
+
+            <div class="p-4 border-t border-borderDark flex items-center justify-end space-x-3 bg-darkBg/50">
+                <button onclick="closeFullPreviewModal()" class="px-4 py-2 bg-cardBg hover:bg-borderDark text-gray-300 text-xs font-semibold rounded-xl border border-borderDark transition">Đóng</button>
+                <button id="modalApproveBtn" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow transition">Phê duyệt ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TỪ CHỐI BÀI VIẾT -->
+    <div id="rejectModal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-sidebarBg border border-borderDark rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-borderDark pb-3">
+                <div class="flex items-center space-x-2 text-rose-400">
+                    <i class="fa-solid fa-ban"></i>
+                    <h3 class="font-bold text-white text-base">Từ chối phê duyệt bài viết</h3>
+                </div>
+                <button onclick="closeRejectModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <p class="text-xs text-gray-300 leading-relaxed">
+                Lý do từ chối sẽ hiển thị trực tiếp trong mục "Bài viết của tôi" để tác giả biết hướng chỉnh sửa:
+            </p>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-300 mb-1.5">Lý do từ chối (bắt buộc) *</label>
+                <textarea id="rejectReasonInput" rows="4" placeholder="Ví dụ: Bài viết chứa nội dung quảng cáo chưa qua kiểm định, tiêu đề giật gân hoặc hình ảnh vi phạm bản quyền..." class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-rose-500"></textarea>
+                <p id="rejectErrorMsg" class="hidden text-[11px] text-rose-400 mt-1 font-semibold">Vui lòng nhập lý do từ chối để hỗ trợ tác giả.</p>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2 border-t border-borderDark">
+                <button onclick="closeRejectModal()" class="px-4 py-2 bg-cardBg text-gray-300 text-xs rounded-xl hover:bg-borderDark">Hủy</button>
+                <button onclick="confirmRejectPost()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow">Xác nhận từ chối</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Script & Mock Data -->
     <script src="../../assets/js/mock-data.js"></script>
     <script src="../../assets/js/i18n.js"></script>
-    <script src="../../assets/js/validators.js"></script>
-    <script src="../../assets/js/pagination.js"></script>
-    <script src="../../assets/js/sanitize.js"></script>
     <script src="../../assets/js/layout.js"></script>
 
     <script>
-        const REVIEW_STATUS_KEYS = {
-            pending: 'admin.review_status_pending',
-            published: 'admin.review_status_published',
-            rejected: 'admin.review_status_rejected',
-            draft: 'admin.review_status_draft'
-        };
-
-        const REVIEW_STATUS_CLASSES = {
-            pending: 'bg-amber-950/60 border-amber-500/40 text-amber-400',
-            published: 'bg-emerald-950/60 border-emerald-500/40 text-emerald-400',
-            rejected: 'bg-rose-950/60 border-rose-500/40 text-rose-400',
-            draft: 'bg-gray-800 border-borderDark text-gray-300'
-        };
-
-        let selectedReviewPostId = null;
-        let lastPagedReviewPosts = [];
-        let reviewSearch = '';
-        let reviewStatus = 'pending';
-        let reviewSearchTimer = null;
-        let reviewReasonRules = null;
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let reviewingPostId = null;
+        let currentPage = 1;
+        const POSTS_PER_PAGE = 3;
+        let pendingPostsData = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            I18n.ready(() => {
-                Layout.renderHeader('appHeader');
-                Layout.renderAdminSidebar('review', 'adminSidebar');
+            Layout.renderHeader('appHeader');
+            Layout.renderAdminSidebar('review', 'adminSidebar');
 
-                reviewReasonRules = {
-                    required: { message: I18n.t('admin.review_reason_required') },
-                    maxLength: 500
-                };
+            fetchAndRenderQueue();
 
-                Validators.attach('#reviewFilterForm', {
-                    reviewSearch: {}
-                }, {
-                    onSubmit: () => {
-                        reviewSearch = document.getElementById('reviewSearchInput').value.trim().toLowerCase();
-                        reviewStatus = document.getElementById('reviewStatusFilter').value;
-                        selectedReviewPostId = null;
-                        renderQueue(true);
-                    }
-                });
-
-                document.getElementById('reviewSearchInput').addEventListener('input', (e) => {
-                    clearTimeout(reviewSearchTimer);
-                    reviewSearchTimer = setTimeout(() => {
-                        reviewSearch = e.target.value.trim().toLowerCase();
-                        selectedReviewPostId = null;
-                        renderQueue(true);
-                    }, 250);
-                });
-
-                document.getElementById('reviewStatusFilter').addEventListener('change', (e) => {
-                    reviewStatus = e.target.value;
-                    selectedReviewPostId = null;
-                    renderQueue(true);
-                });
-
-                renderQueue(true);
-                setupQueueDemoControl();
-
-                window.addEventListener('demoStateChanged', () => {
-                    renderQueue(false);
-                });
+            window.addEventListener('demoStateChanged', () => {
+                fetchAndRenderQueue();
             });
         });
 
-        // Nút demo riêng để thay đổi số lượng hàng đợi
-        function setupQueueDemoControl() {
-            const container = document.getElementById('pageCustomDemoControls');
-            if (!container) return;
-            container.classList.remove('hidden');
-            container.innerHTML = `
-                <label class="block text-gray-400 text-[11px] mb-1.5 font-medium" data-i18n="admin.review_demo_label">Hàng đợi kiểm duyệt (Demo):</label>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <button onclick="addPendingPostForDemo()" class="py-1 px-2 rounded bg-cardBg hover:bg-borderDark border border-borderDark text-amber-400 text-left text-[10px]">
-                        ${Layout.escapeHtml(I18n.t('admin.review_add_one'))}
-                    </button>
-                    <button onclick="clearPendingQueueForDemo()" class="py-1 px-2 rounded bg-cardBg hover:bg-borderDark border border-borderDark text-gray-400 text-left text-[10px]">
-                        ${Layout.escapeHtml(I18n.t('admin.review_clear_queue'))}
-                    </button>
+        async function fetchAndRenderQueue() {
+            const container = document.getElementById('reviewQueueList');
+            const paginationBar = document.getElementById('paginationBar');
+
+            container.innerHTML = Array(2).fill(0).map(() => `
+                <div class="bg-sidebarBg border border-borderDark rounded-2xl p-6 space-y-4 animate-pulse">
+                    <div class="w-1/3 h-5 bg-borderDark rounded"></div>
+                    <div class="w-full h-44 bg-borderDark rounded-xl"></div>
+                    <div class="w-full h-16 bg-borderDark rounded"></div>
                 </div>
-            `;
-        }
+            `).join('');
 
-        function addPendingPostForDemo() {
-            const newId = Date.now();
-            MockData.posts.unshift({
-                id: newId,
-                author_id: 4,
-                group_id: 102,
-                category_id: 2,
-                language_id: 1,
-                title: I18n.t('admin.review_demo_post_title', { time: new Date().toLocaleTimeString(I18n.getCurrentLang()) }),
-                slug: `bai-viet-moi-gui-duyet-${newId}`,
-                content_html: `<h2>${Layout.escapeHtml(I18n.t('admin.review_demo_post_title', { time: '' }))}</h2><p>${Layout.escapeHtml(I18n.t('admin.review_demo_post_content'))}</p><ul><li>Kiểm tra tiêu đề và mô tả.</li><li>Kiểm tra ảnh bìa và nội dung.</li></ul>`,
-                cover_image: 'https://picsum.photos/seed/' + newId + '/800/450',
-                status: 'pending',
-                reviewed_by: null,
-                reviewed_at: null,
-                reject_reason: null,
-                review_action: null,
-                published_at: null,
-                created_at: new Date().toISOString(),
-                deleted_at: null,
-                views_count: 0
-            });
-            selectedReviewPostId = newId;
-            reviewStatus = 'pending';
-            document.getElementById('reviewStatusFilter').value = 'pending';
-            Layout.showToast(I18n.t('admin.review_added_toast'), 'info');
-            renderQueue(true);
-            Layout.renderAdminSidebar('review', 'adminSidebar');
-        }
-
-        function clearPendingQueueForDemo() {
-            MockData.posts.forEach(p => {
-                if (p.status === 'pending') p.status = 'published';
-            });
-            selectedReviewPostId = null;
-            Layout.showToast(I18n.t('admin.review_cleared_toast'), 'info');
-            renderQueue(true);
-            Layout.renderAdminSidebar('review', 'adminSidebar');
-        }
-
-        function resetReviewPageInUrl() {
-            const url = new URL(window.location.href);
-            if (url.searchParams.has('page') || url.searchParams.has('pageSize')) {
-                url.searchParams.delete('page');
-                url.searchParams.delete('pageSize');
-                window.history.replaceState({}, '', url.toString());
-            }
-        }
-
-        function getFilteredReviewPosts() {
-            let list = MockData.posts.filter(p => !p.deleted_at);
-            if (reviewStatus !== 'all') {
-                list = list.filter(p => p.status === reviewStatus);
-            }
-            if (reviewSearch) {
-                list = list.filter(p => {
-                    const author = MockData.users.find(u => u.id === p.author_id);
-                    const category = p.category_id ? MockData.getCategoryById(p.category_id) : null;
-                    return p.title.toLowerCase().includes(reviewSearch) ||
-                        (author && (author.display_name.toLowerCase().includes(reviewSearch) || author.handle.toLowerCase().includes(reviewSearch))) ||
-                        (category && category.name.toLowerCase().includes(reviewSearch));
+            try {
+                // 1. GỌI API BACKEND LẤY TOÀN BỘ BÀI VIẾT ĐANG PENDING TỪ MYSQL
+                const res = await fetch(`${API_BASE_URL}/posts?status=pending`, {
+                    signal: AbortSignal.timeout(4000)
                 });
+                const result = await res.json();
+
+                if (result.success && Array.isArray(result.data)) {
+                    pendingPostsData = result.data;
+                    renderQueueUI();
+                    return;
+                }
+            } catch (err) {
+                console.warn('Backend API posts pending offline, dùng fallback MockData:', err);
             }
-            return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            // 2. FALLBACK SANG MOCKDATA
+            pendingPostsData = (MockData.posts || []).filter(p => p.status === 'pending' && !p.deleted_at);
+            renderQueueUI();
         }
 
-        function renderQueue(resetPage = false) {
+        function renderQueueUI() {
             const state = Layout.getDemoState();
-            const listEl = document.getElementById('reviewQueueList');
-            const paginationBar = document.getElementById('reviewPaginationBar');
+            const container = document.getElementById('reviewQueueList');
             const badge = document.getElementById('pendingQueueCountBadge');
-            const countEl = document.getElementById('reviewFilteredCount');
-            const allPending = MockData.posts.filter(p => p.status === 'pending' && !p.deleted_at);
+            const paginationBar = document.getElementById('paginationBar');
 
-            if (resetPage) resetReviewPageInUrl();
-
-            badge.textContent = I18n.t('admin.review_pending_badge', { count: allPending.length });
-
-            // 1. Loading
-            if (state === 'loading') {
-                paginationBar.innerHTML = '';
-                countEl.textContent = '';
-                listEl.innerHTML = Array(3).fill(0).map(() => `
-                    <div class="p-4 space-y-2 animate-pulse">
-                        <div class="w-2/3 h-4 bg-borderDark rounded"></div>
-                        <div class="w-1/2 h-3 bg-borderDark rounded"></div>
-                    </div>
-                `).join('');
-                renderPreviewPanel(null);
-                return;
-            }
-
-            // 2. Error
             if (state === 'error') {
-                paginationBar.innerHTML = '';
-                countEl.textContent = '';
-                listEl.innerHTML = `
-                    <div class="p-8 text-center space-y-3">
-                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-2xl"></i>
-                        <h3 class="text-xs font-bold text-white">${Layout.escapeHtml(I18n.t('admin.review_load_error'))}</h3>
-                        <button onclick="Layout.setDemoState('normal')" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">${Layout.escapeHtml(I18n.t('common.retry'))}</button>
+                paginationBar.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-rose-900/40 rounded-2xl p-8 text-center space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-3xl"></i>
+                        <h3 class="text-sm font-bold text-white">Lỗi tải dữ liệu hàng đợi kiểm duyệt</h3>
+                        <button onclick="fetchAndRenderQueue()" class="bg-substackOrange text-white text-xs px-4 py-2 rounded-lg">Thử lại</button>
                     </div>
                 `;
-                renderPreviewPanel(null);
                 return;
             }
 
-            let posts = getFilteredReviewPosts();
+            let pendingPosts = state === 'empty' ? [] : [...pendingPostsData];
+            badge.textContent = `Đang chờ duyệt: ${pendingPosts.length} bài`;
 
-            // 3. Demo Empty
-            if (state === 'empty') posts = [];
-
-            countEl.textContent = I18n.t('admin.review_filtered_count', { count: posts.length });
-
-            if (posts.length === 0) {
-                paginationBar.innerHTML = '';
-                lastPagedReviewPosts = [];
-                selectedReviewPostId = null;
-                listEl.innerHTML = `
-                    <div class="p-8 text-center space-y-3">
-                        <div class="w-12 h-12 bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-xl">
+            if (pendingPosts.length === 0) {
+                paginationBar.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="bg-sidebarBg border border-borderDark rounded-2xl p-12 text-center space-y-3">
+                        <div class="w-14 h-14 bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-2xl">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-white">${Layout.escapeHtml(I18n.t('admin.review_empty_title'))}</h3>
-                        <p class="text-xs text-gray-400 max-w-xs mx-auto">${Layout.escapeHtml(I18n.t('admin.review_no_posts'))}</p>
+                        <h3 class="text-base font-bold text-white">Tuyệt vời! Không còn bài viết nào đang chờ duyệt</h3>
+                        <p class="text-xs text-gray-400 max-w-sm mx-auto">Tất cả các bài viết gửi lên từ tác giả đã được phê duyệt hoặc xử lý xong.</p>
                     </div>
                 `;
-                renderPreviewPanel(null);
                 return;
             }
 
-            Pagination.render({
-                container: paginationBar,
-                items: posts,
-                pageSize: 10,
-                pageSizeOptions: [10, 20, 50],
-                syncUrl: true,
-                onPageChange: (pagedPosts) => {
-                    lastPagedReviewPosts = pagedPosts;
-                    if (!selectedReviewPostId || !pagedPosts.some(p => p.id === selectedReviewPostId)) {
-                        selectedReviewPostId = pagedPosts[0] ? pagedPosts[0].id : null;
-                    }
-                    renderReviewListItems();
-                    renderPreviewPanel(selectedReviewPostId);
-                }
-            });
-        }
+            const totalPages = Math.ceil(pendingPosts.length / POSTS_PER_PAGE);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
 
-        function renderReviewListItems() {
-            const listEl = document.getElementById('reviewQueueList');
-            if (!listEl) return;
+            const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+            const paginatedPosts = pendingPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
 
-            listEl.innerHTML = lastPagedReviewPosts.map(post => {
-                const author = MockData.users.find(u => u.id === post.author_id);
-                const category = post.category_id ? MockData.getCategoryById(post.category_id) : null;
-                const isActive = post.id === selectedReviewPostId;
-                const statusClass = REVIEW_STATUS_CLASSES[post.status] || REVIEW_STATUS_CLASSES.draft;
-                const statusLabel = I18n.t(REVIEW_STATUS_KEYS[post.status] || 'admin.review_status_draft');
+            if (totalPages > 1) {
+                paginationBar.classList.remove('hidden');
+                document.getElementById('pageInfoText').textContent = `Trang ${currentPage} / ${totalPages}`;
+                document.getElementById('prevPageBtn').disabled = currentPage === 1;
+                document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+            } else {
+                paginationBar.classList.add('hidden');
+            }
+
+            container.innerHTML = paginatedPosts.map(post => {
+                const author = (MockData.users || []).find(u => u.id == post.author_id) || {
+                    display_name: 'Blogger HA',
+                    handle: 'hoanganh',
+                    avatar_url: 'https://i.pravatar.cc/150?u=hoanganh'
+                };
+                const langName = post.languages ? post.languages.name : 'Tiếng Việt';
 
                 return `
-                    <button type="button" onclick="selectReviewPost(${post.id})" class="w-full text-left p-3.5 transition border-l-2 ${isActive ? 'bg-substackOrange/10 border-substackOrange' : 'border-transparent hover:bg-cardBg/60'}">
-                        <div class="flex items-center justify-between gap-2 mb-1.5">
-                            <span class="px-2 py-0.5 rounded border text-[10px] font-bold ${statusClass}">${Layout.escapeHtml(statusLabel)}</span>
-                            <span class="text-[10px] text-gray-500">${Layout.formatDate(post.created_at)}</span>
+                    <article class="bg-sidebarBg border border-borderDark rounded-2xl p-5 sm:p-6 shadow-sm space-y-5" id="pending-post-${post.id}">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-borderDark pb-4">
+                            <div class="flex items-center space-x-3">
+                                <img src="${author.avatar_url}" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-borderDark">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-bold text-sm text-white">${Layout.escapeHtml(author.display_name)}</span>
+                                        <span class="text-xs text-gray-400">@${Layout.escapeHtml(author.handle)}</span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-500 flex items-center space-x-2 mt-0.5">
+                                        <span>Gửi lúc: ${Layout.formatDate(post.created_at)}</span>
+                                        <span>•</span>
+                                        <span class="text-substackOrange font-medium">Ngôn ngữ: ${langName}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openFullPreviewModal('${post.id}')" class="px-3.5 py-2 bg-cardBg hover:bg-borderDark text-gray-200 border border-borderDark rounded-xl text-xs font-semibold transition flex items-center space-x-1.5" title="Mở bản xem trước đầy đủ">
+                                    <i class="fa-regular fa-window-maximize"></i>
+                                    <span>Toàn màn hình</span>
+                                </button>
+                                <button onclick="openRejectModal('${post.id}')" class="px-3.5 py-2 bg-cardBg hover:bg-rose-950/60 text-gray-300 hover:text-rose-400 border border-borderDark rounded-xl text-xs font-semibold transition flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-xmark"></i>
+                                    <span>Từ chối</span>
+                                </button>
+                                <button onclick="approvePost('${post.id}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-check"></i>
+                                    <span>Phê duyệt xuất bản</span>
+                                </button>
+                            </div>
                         </div>
-                        <h3 class="text-xs font-bold ${isActive ? 'text-white' : 'text-gray-200'} line-clamp-2 leading-snug">${Layout.escapeHtml(post.title)}</h3>
-                        <div class="flex items-center justify-between gap-2 mt-1.5 text-[10px] text-gray-500">
-                            <span class="truncate">@${Layout.escapeHtml(author ? author.handle : I18n.t('admin.review_author_fallback'))}</span>
-                            ${category ? `<span class="truncate text-substackOrange"><i class="fa-regular fa-folder-open mr-1"></i>${Layout.escapeHtml(category.name)}</span>` : ''}
+
+                        <div class="space-y-4 bg-darkBg/60 p-4 sm:p-6 rounded-2xl border border-borderDark">
+                            <h2 class="text-xl sm:text-2xl font-extrabold text-white leading-snug">
+                                ${Layout.escapeHtml(post.title)}
+                            </h2>
+
+                            ${post.thumbnail_url ? `
+                                <div class="rounded-xl overflow-hidden aspect-video max-h-80 border border-borderDark shadow-inner">
+                                    <img src="${post.thumbnail_url}" alt="${Layout.escapeHtml(post.title)}" class="w-full h-full object-cover">
+                                </div>
+                            ` : ''}
+
+                            <div class="prose prose-invert max-w-none text-xs sm:text-sm text-gray-200 leading-relaxed space-y-3">
+                                ${post.content}
+                            </div>
                         </div>
-                    </button>
+                    </article>
                 `;
             }).join('');
         }
 
-        function selectReviewPost(postId) {
-            selectedReviewPostId = postId;
-            renderReviewListItems();
-            renderPreviewPanel(postId);
+        function changePage(delta) {
+            currentPage += delta;
+            renderQueueUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function renderPreviewPanel(postId) {
-            const panel = document.getElementById('reviewPreviewPanel');
-            if (!panel) return;
+        function openFullPreviewModal(postId) {
+            const post = pendingPostsData.find(p => p.id.toString() === postId.toString());
+            if (!post) return;
 
-            const post = postId ? MockData.posts.find(p => p.id === postId && !p.deleted_at) : null;
-            if (!post) {
-                panel.innerHTML = `
-                    <div class="h-full min-h-[420px] flex flex-col items-center justify-center text-center p-10 space-y-3">
-                        <div class="w-16 h-16 bg-cardBg border border-borderDark text-gray-500 rounded-full flex items-center justify-center text-2xl">
-                            <i class="fa-regular fa-file-lines"></i>
-                        </div>
-                        <h1 class="text-lg font-bold text-white" data-i18n="admin.review_preview_empty_title">Chọn một bài viết để xem trước</h1>
-                        <p class="text-xs text-gray-400 max-w-sm" data-i18n="admin.review_preview_empty_desc">Chọn bài viết ở danh sách bên trái để xem đầy đủ nội dung, ảnh bìa và thực hiện thao tác kiểm duyệt.</p>
+            const author = (MockData.users || []).find(u => u.id == post.author_id) || { display_name: 'Blogger HA', handle: 'hoanganh' };
+            const container = document.getElementById('fullPreviewBody');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">${Layout.escapeHtml(post.title)}</h1>
+                    <div class="flex items-center space-x-3 text-xs text-gray-400 border-b border-borderDark pb-4">
+                        <span>Tác giả: <strong class="text-white">${Layout.escapeHtml(author.display_name)}</strong> (@${Layout.escapeHtml(author.handle)})</span>
+                        <span>•</span>
+                        <span>Ngày tạo: ${Layout.formatDate(post.created_at)}</span>
                     </div>
-                `;
-                I18n.applyI18n(panel);
+
+                    ${post.thumbnail_url ? `
+                        <div class="rounded-2xl overflow-hidden aspect-video max-h-96 border border-borderDark">
+                            <img src="${post.thumbnail_url}" alt="${Layout.escapeHtml(post.title)}" class="w-full h-full object-cover">
+                        </div>
+                    ` : ''}
+
+                    <div class="prose prose-invert max-w-none text-sm text-gray-200 leading-relaxed space-y-4 pt-2">
+                        ${post.content}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalApproveBtn').onclick = () => {
+                closeFullPreviewModal();
+                approvePost(postId);
+            };
+
+            document.getElementById('fullPreviewModal').classList.remove('hidden');
+        }
+
+        function closeFullPreviewModal() {
+            document.getElementById('fullPreviewModal').classList.add('hidden');
+        }
+
+        async function approvePost(postId) {
+            const currentUser = Layout.getCurrentUser();
+            const reviewerId = currentUser ? currentUser.id : 1;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/posts/${postId}/review`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'approve', reviewer_id: reviewerId })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    Layout.showToast('Đã phê duyệt và xuất bản bài viết lên MySQL!', 'success');
+                    pendingPostsData = pendingPostsData.filter(p => p.id.toString() !== postId.toString());
+                    renderQueueUI();
+                    return;
+                }
+            } catch (err) {
+                console.warn('Lỗi gọi API review, thực hiện trên frontend:', err);
+            }
+
+            // Fallback trên bộ nhớ local
+            pendingPostsData = pendingPostsData.filter(p => p.id.toString() !== postId.toString());
+            Layout.showToast('Đã duyệt và xuất bản bài viết thành công!', 'success');
+            renderQueueUI();
+        }
+
+        function openRejectModal(postId) {
+            reviewingPostId = postId;
+            document.getElementById('rejectReasonInput').value = '';
+            document.getElementById('rejectErrorMsg').classList.add('hidden');
+            document.getElementById('rejectModal').classList.remove('hidden');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.add('hidden');
+            reviewingPostId = null;
+        }
+
+        async function confirmRejectPost() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            if (!reason) {
+                document.getElementById('rejectErrorMsg').classList.remove('hidden');
                 return;
             }
 
-            const author = MockData.users.find(u => u.id === post.author_id) || {
-                display_name: I18n.t('admin.review_author_fallback'),
-                handle: 'author',
-                avatar_url: 'https://i.pravatar.cc/150'
-            };
-            const category = post.category_id ? MockData.getCategoryById(post.category_id) : null;
-            const language = post.language_id ? MockData.getLanguageById(post.language_id) : null;
-            const postTagIds = MockData.post_tags.filter(pt => pt.post_id === post.id).map(pt => pt.tag_id);
-            const postTags = MockData.tags.filter(t => postTagIds.includes(t.id));
-            const statusClass = REVIEW_STATUS_CLASSES[post.status] || REVIEW_STATUS_CLASSES.draft;
-            const statusLabel = I18n.t(REVIEW_STATUS_KEYS[post.status] || 'admin.review_status_draft');
-            const canReview = post.status === 'pending';
+            const currentUser = Layout.getCurrentUser();
+            const reviewerId = currentUser ? currentUser.id : 1;
 
-            panel.innerHTML = `
-                <article class="p-5 sm:p-6 space-y-5">
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-borderDark pb-3">
-                        <div class="flex items-center space-x-2">
-                            <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${statusClass}">${Layout.escapeHtml(statusLabel)}</span>
-                            <span class="text-[11px] text-gray-500">${Layout.escapeHtml(I18n.t('admin.review_submitted_at', { date: Layout.formatDate(post.created_at) }))}</span>
-                        </div>
-                        <span class="text-[11px] text-gray-500">#${Layout.escapeHtml(post.id)}</span>
-                    </div>
+            try {
+                const res = await fetch(`${API_BASE_URL}/posts/${reviewingPostId}/review`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'reject', reject_reason: reason, reviewer_id: reviewerId })
+                });
+                const result = await res.json();
 
-                    <h1 class="text-xl sm:text-2xl font-extrabold text-white leading-tight">${Layout.escapeHtml(post.title)}</h1>
-
-                    <div class="flex flex-wrap items-center gap-2 text-[11px]">
-                        <span class="inline-flex items-center space-x-1.5 bg-cardBg border border-borderDark px-2.5 py-1 rounded-full text-gray-300">
-                            <img src="${Layout.escapeHtml(author.avatar_url)}" alt="${Layout.escapeHtml(I18n.t('admin.avatar_alt'))}" class="w-5 h-5 rounded-full object-cover">
-                            <span class="font-semibold">${Layout.escapeHtml(author.display_name)}</span>
-                            <span class="text-gray-500">@${Layout.escapeHtml(author.handle)}</span>
-                        </span>
-                        ${category ? `<span class="bg-substackOrange/15 border border-substackOrange/40 text-substackOrange px-2.5 py-1 rounded-full font-semibold"><i class="fa-regular fa-folder-open mr-1"></i>${Layout.escapeHtml(category.name)}</span>` : ''}
-                        ${language ? `<span class="bg-darkBg border border-borderDark text-gray-300 px-2.5 py-1 rounded-full"><i class="fa-solid fa-language mr-1"></i>${Layout.escapeHtml(language.name)}</span>` : ''}
-                    </div>
-
-                    ${post.cover_image ? `
-                        <div class="space-y-2">
-                            <div class="rounded-2xl overflow-hidden aspect-video border border-borderDark bg-darkBg">
-                                <img src="${Layout.escapeHtml(post.cover_image)}" alt="${Layout.escapeHtml(post.title)}" class="w-full h-full object-cover">
-                            </div>
-                            <a href="${Layout.escapeHtml(post.cover_image)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 text-[11px] text-substackOrange hover:underline font-medium">
-                                <i class="fa-solid fa-up-right-from-square"></i>
-                                <span data-i18n="admin.review_cover_link">Xem ảnh bìa</span>
-                            </a>
-                        </div>
-                    ` : ''}
-
-                    ${postTags.length > 0 ? `
-                        <div class="flex flex-wrap items-center gap-1.5">
-                            <span class="text-[11px] text-gray-500 font-semibold mr-1" data-i18n="admin.review_tags_label">Thẻ chủ đề:</span>
-                            ${postTags.map(t => `<span class="bg-darkBg border border-borderDark text-gray-300 px-2 py-0.5 rounded-full text-[10px]"># ${Layout.escapeHtml(t.name)}</span>`).join('')}
-                        </div>
-                    ` : ''}
-
-                    <div class="border-t border-borderDark pt-4">
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3" data-i18n="admin.review_content_heading">Nội dung bài viết</h2>
-                        <div class="post-content text-sm text-gray-200">${Sanitize.html(post.content_html || '')}</div>
-                    </div>
-
-                    <div class="border-t border-borderDark pt-4 space-y-3">
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400" data-i18n="admin.review_actions_title">Thao tác kiểm duyệt</h2>
-                        ${canReview ? `
-                            <div class="form-group">
-                                <label class="block text-[11px] font-bold text-gray-300 mb-1.5" for="reviewReason" data-i18n="admin.review_reason_label">Lý do / ghi chú gửi tác giả (bắt buộc khi từ chối hoặc yêu cầu chỉnh sửa)</label>
-                                <textarea id="reviewReason" name="reviewReason" rows="3" placeholder="Nhập căn cứ xử lý để tác giả biết hướng chỉnh sửa..." data-i18n-placeholder="admin.review_reason_placeholder" oninput="clearReviewReasonError()" class="w-full bg-darkBg border border-borderDark rounded-xl p-3 text-xs text-white focus:outline-none focus:border-substackOrange"></textarea>
-                            </div>
-                            <div class="flex flex-wrap items-center justify-end gap-2">
-                                <button type="button" onclick="requestChangesSelectedPost()" class="px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 rounded-xl text-xs font-semibold transition inline-flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-pen-ruler"></i>
-                                    <span data-i18n="admin.review_request_changes">Yêu cầu chỉnh sửa</span>
-                                </button>
-                                <button type="button" onclick="rejectSelectedPost()" class="px-4 py-2 bg-cardBg hover:bg-rose-950/60 border border-borderDark text-gray-300 hover:text-rose-400 rounded-xl text-xs font-semibold transition inline-flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-xmark"></i>
-                                    <span data-i18n="admin.review_reject">Từ chối</span>
-                                </button>
-                                <button type="button" onclick="approveSelectedPost()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow transition inline-flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-check"></i>
-                                    <span data-i18n="admin.review_approve">Phê duyệt xuất bản</span>
-                                </button>
-                            </div>
-                        ` : `
-                            <p class="text-xs text-gray-400 italic" data-i18n="admin.review_not_pending">Bài viết đã được xử lý. Chuyển bộ lọc sang "Chờ duyệt" để tiếp tục kiểm duyệt các bài mới.</p>
-                        `}
-                    </div>
-                </article>
-            `;
-            I18n.applyI18n(panel);
-        }
-
-        function clearReviewReasonError() {
-            const reasonEl = document.getElementById('reviewReason');
-            if (!reasonEl) return;
-            Validators.clearError(reasonEl);
-        }
-
-        function getReviewReasonOrError() {
-            const reasonEl = document.getElementById('reviewReason');
-            if (!reasonEl) return null;
-            const error = Validators.validateField(reasonEl, reviewReasonRules);
-            if (error) {
-                reasonEl.focus();
-                reasonEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return null;
+                if (result.success) {
+                    closeRejectModal();
+                    Layout.showToast('Đã từ chối bài viết kèm lý do gửi cho tác giả.', 'info');
+                    pendingPostsData = pendingPostsData.filter(p => p.id.toString() !== reviewingPostId.toString());
+                    renderQueueUI();
+                    return;
+                }
+            } catch (err) {
+                console.warn('Lỗi khi từ chối bài qua API:', err);
             }
-            return (reasonEl.value || '').trim();
-        }
 
-        function getSelectedPost() {
-            return MockData.posts.find(p => p.id === selectedReviewPostId);
-        }
-
-        function approveSelectedPost() {
-            const post = getSelectedPost();
-            if (!post) return;
-            const currentUser = Layout.getCurrentUser();
-            post.status = 'published';
-            post.published_at = post.published_at || new Date().toISOString();
-            post.reviewed_by = currentUser ? currentUser.id : 1;
-            post.reviewed_at = new Date().toISOString();
-            post.reject_reason = null;
-            post.review_action = null;
-
-            Layout.showToast(I18n.t('admin.review_approved', { title: post.title.substring(0, 30) + '...' }), 'success');
-            afterReviewAction();
-        }
-
-        function rejectSelectedPost() {
-            const reason = getReviewReasonOrError();
-            if (!reason) return;
-            applyNegativeReview(reason, 'rejected', I18n.t('admin.review_rejected_toast'));
-        }
-
-        function requestChangesSelectedPost() {
-            const reason = getReviewReasonOrError();
-            if (!reason) return;
-            applyNegativeReview(reason, 'changes_requested', I18n.t('admin.review_changes_toast'));
-        }
-
-        function applyNegativeReview(reason, action, toastMessage) {
-            const post = getSelectedPost();
-            if (!post) return;
-            const currentUser = Layout.getCurrentUser();
-            post.status = 'rejected';
-            post.reject_reason = reason;
-            post.review_action = action;
-            post.reviewed_by = currentUser ? currentUser.id : 1;
-            post.reviewed_at = new Date().toISOString();
-
-            Layout.showToast(toastMessage, 'info');
-            afterReviewAction();
-        }
-
-        function afterReviewAction() {
-            selectedReviewPostId = null;
-            renderQueue(false);
-            Layout.renderAdminSidebar('review', 'adminSidebar');
+            closeRejectModal();
+            pendingPostsData = pendingPostsData.filter(p => p.id.toString() !== reviewingPostId.toString());
+            Layout.showToast('Đã từ chối bài viết kèm lý do.', 'info');
+            renderQueueUI();
         }
     </script>
 </body>

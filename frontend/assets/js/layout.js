@@ -44,6 +44,7 @@ window.Layout = (function () {
     // Xóa toàn bộ phiên đăng nhập (dùng chung cho logout & setDemoRole('guest'))
     function clearSession() {
         localStorage.setItem('isLoggedIn', 'false');
+        localStorage.setItem('demo_role', 'guest');
         localStorage.removeItem('userHandle');
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
@@ -51,7 +52,9 @@ window.Layout = (function () {
 
     // Lưu phiên sau khi đăng nhập/đăng ký thành công
     function saveSession(user, token) {
-        const roleName = user.role_id === 1 ? 'admin' : (user.role_id === 2 ? 'blogger' : 'user');
+        const roleId = Number(user.role_id);
+        const roleName = roleId === 1 ? 'admin' : (roleId === 2 ? 'blogger' : 'user');
+        
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('demo_role', roleName);
         localStorage.setItem('userHandle', user.handle);
@@ -61,7 +64,9 @@ window.Layout = (function () {
             email: user.email,
             handle: user.handle,
             display_name: user.display_name,
-            role_id: user.role_id
+            avatar_url: user.avatar_url || `https://i.pravatar.cc/150?u=${user.handle}`,
+            role_id: roleId,
+            role: roleName
         }));
         return roleName;
     }
@@ -79,7 +84,6 @@ window.Layout = (function () {
         const redirect = getRedirectParam();
         if (redirect) return redirect;
 
-        // Chỉ đẩy sang onboarding khi tài khoản đang đăng ký dở khớp với user vừa đăng nhập
         if (localStorage.getItem('onboarding_completed') === 'false') {
             try {
                 const pending = JSON.parse(localStorage.getItem('registered_user') || 'null');
@@ -89,12 +93,12 @@ window.Layout = (function () {
             } catch (e) { /* dữ liệu hỏng thì bỏ qua */ }
         }
 
-        if (user.role_id === 1) return 'admin/post-review.html';
+        if (Number(user.role_id) === 1) return 'admin/post-review.html';
         return 'index.html';
     }
 
     function getDemoState() {
-        return sessionStorage.getItem('demo_data_state') || 'normal'; // 'normal' | 'loading' | 'empty' | 'error'
+        return sessionStorage.getItem('demo_data_state') || 'normal';
     }
 
     function setDemoState(newState) {
@@ -105,15 +109,24 @@ window.Layout = (function () {
         }
     }
 
-    // Lấy thông tin người dùng hiện tại theo vai trò
+    // Lấy thông tin người dùng hiện tại (ưu tiên auth_user đã lưu từ MySQL)
     function getCurrentUser() {
         const role = getDemoRole();
         if (role === 'guest') return null;
+
+        try {
+            const savedUser = JSON.parse(localStorage.getItem('auth_user') || 'null');
+            if (savedUser && savedUser.handle) {
+                return savedUser;
+            }
+        } catch (e) { }
+
         const handle = localStorage.getItem('userHandle') || 'hhoanganh0710';
         if (window.MockData && window.MockData.users) {
             const found = window.MockData.users.find(u => u.handle === handle);
             if (found) return found;
         }
+
         return {
             id: 3,
             handle: handle,
@@ -123,7 +136,6 @@ window.Layout = (function () {
         };
     }
 
-    // Kiểm tra trang hiện tại
     const currentPath = window.location.pathname;
     const isPagesRoot = currentPath.includes('/pages/') && !currentPath.includes('/pages/admin/');
     const isAdminPath = currentPath.includes('/admin/');
@@ -133,7 +145,6 @@ window.Layout = (function () {
     function checkPagePermissions() {
         const role = getDemoRole();
 
-        // Chưa đăng nhập vào trang cần quyền -> chuyển về login kèm ?redirect=
         const authRequiredFiles = ['my-posts.html', 'post-editor.html', 'my-notes.html'];
         const isAuthRequired = isAdminPath || authRequiredFiles.some(f => currentPath.endsWith(f));
         if (isAuthRequired && !isLoggedIn()) {
@@ -145,13 +156,11 @@ window.Layout = (function () {
             return false;
         }
 
-        // Onboarding chỉ cho phép khi đang đăng ký dở hoặc đã đăng nhập
         if (currentPath.endsWith('onboarding.html') && !isLoggedIn() && !sessionStorage.getItem('pending_register_email')) {
             window.location.replace('login.html?redirect=onboarding.html');
             return false;
         }
 
-        // Trang Admin
         if (isAdminPath && role !== 'admin') {
             renderAccessDenied(
                 I18n.t('layout.access_admin_title'),
@@ -160,7 +169,6 @@ window.Layout = (function () {
             return false;
         }
 
-        // Trang Blogger
         const bloggerOnlyFiles = ['my-posts.html', 'post-editor.html', 'my-notes.html'];
         const isBloggerPage = bloggerOnlyFiles.some(f => currentPath.endsWith(f));
         if (isBloggerPage && role !== 'blogger' && role !== 'admin') {
@@ -254,10 +262,8 @@ window.Layout = (function () {
                             </div>
                         </div>
 
-                        <!-- Vùng nút tùy chọn riêng cho từng màn hình -->
                         <div id="pageCustomDemoControls" class="pt-2 border-t border-borderDark hidden"></div>
 
-                        <!-- Chuyển nhanh tới Mục lục Screens -->
                         <div class="pt-2.5 border-t border-borderDark flex items-center justify-between text-[11px]">
                             <a href="${basePath}screens.html" class="text-substackOrange hover:underline flex items-center space-x-1 font-medium">
                                 <i class="fa-solid fa-list-check"></i>
@@ -363,7 +369,6 @@ window.Layout = (function () {
             if (typeof onConfirm === 'function') onConfirm();
         };
 
-        // Đóng bằng Esc
         const escHandler = (e) => {
             if (e.key === 'Escape') {
                 close();
@@ -397,11 +402,11 @@ window.Layout = (function () {
                 <div class="space-y-4 text-left">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1" data-i18n="common.email">Email</label>
-                        <input type="email" id="quickLoginEmail" value="hhoanganh0710@gmail.com" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange">
+                        <input type="email" id="quickLoginEmail" value="" placeholder="name@example.com" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange">
                     </div>
                     <div>
                         <label class="block text-xs text-gray-400 mb-1" data-i18n="common.password">Mật khẩu</label>
-                        <input type="password" id="quickLoginPassword" value="12345678" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange">
+                        <input type="password" id="quickLoginPassword" value="" placeholder="••••••••" class="w-full bg-darkBg border border-borderDark rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-substackOrange">
                     </div>
                     <button onclick="Layout.executeQuickLogin()" class="w-full bg-substackOrange hover:bg-substackOrangeHover text-white font-semibold py-2.5 rounded-lg transition text-sm shadow" data-i18n="layout.auth_continue">
                         Tiếp tục đăng nhập
@@ -421,6 +426,7 @@ window.Layout = (function () {
         if (modal) modal.classList.add('hidden');
     }
 
+    // Xử lý đăng nhập qua API Backend Next.js kết nối MySQL
     async function executeQuickLogin() {
         const email = (document.getElementById('quickLoginEmail')?.value || '').trim().toLowerCase();
         const password = (document.getElementById('quickLoginPassword')?.value || '').trim();
@@ -430,7 +436,6 @@ window.Layout = (function () {
             return;
         }
 
-        // 1. GỌI API BACKEND NEXT.JS (PORT 3000) XÁC THỰC MẬT KHẨU TỪ MYSQL
         try {
             const res = await fetch('http://localhost:3000/api/auth/login', {
                 method: 'POST',
@@ -441,7 +446,6 @@ window.Layout = (function () {
 
             const data = await res.json();
 
-            // Nếu mật khẩu sai hoặc tài khoản bị ban/khóa trong MySQL
             if (!res.ok || !data.success) {
                 showToast(data.message || (window.I18n ? I18n.t('layout.quick_login_failed') : 'Email hoặc mật khẩu không chính xác.'), 'error');
                 const passEl = document.getElementById('quickLoginPassword');
@@ -449,21 +453,29 @@ window.Layout = (function () {
                     passEl.value = '';
                     passEl.focus();
                 }
-                return; // Dừng lại, không cho đăng nhập
+                return;
             }
 
-            // Đăng nhập thành công với MySQL
+            // Lưu session từ MySQL (tự động phân loại role_id: 1 -> admin, 2 -> blogger, 3 -> user)
             saveSession(data.user, data.token);
             closeAuthModal();
             showToast(window.I18n ? I18n.t('layout.quick_login_success') : 'Đăng nhập thành công!', 'success');
-            window.location.href = resolvePostLoginRedirect(data.user);
+            
+            // Tải lại trang chủ hoặc chuyển trang để nhận vai trò mới ngay lập tức
+            setTimeout(() => {
+                const targetUrl = resolvePostLoginRedirect(data.user);
+                window.location.href = targetUrl;
+                if (window.location.pathname.endsWith('index.html')) {
+                    window.location.reload();
+                }
+            }, 300);
             return;
 
         } catch (apiError) {
-            console.warn('Backend API offline hoặc CORS, chuyển sang kiểm tra MockData:', apiError);
+            console.warn('Backend API offline, chuyển sang kiểm tra MockData:', apiError);
         }
 
-        // 2. NHÁNH DỰ PHÒNG MOCKDATA (Chỉ chạy khi không kết nối được server Next.js)
+        // Nhánh fallback MockData khi server dev chưa bật
         const user = (window.MockData?.users || []).find(u => u.email.toLowerCase() === email);
 
         if (!user || !user.is_active || (user.password && user.password !== password)) {
@@ -506,7 +518,6 @@ window.Layout = (function () {
         return Number(num).toLocaleString(locale);
     }
 
-    // Escape chuỗi trước khi chèn vào innerHTML/attribute
     function escapeHtml(value) {
         return String(value === null || value === undefined ? '' : value)
             .replace(/&/g, '&amp;')
@@ -542,7 +553,7 @@ window.Layout = (function () {
                     <span class="text-white text-base tracking-tight font-extrabold hidden sm:inline">Substack</span>
                 </a>
 
-                <!-- Dropdown chọn ngôn ngữ (Dropdown Select Đầy Đủ) -->
+                <!-- Dropdown chọn ngôn ngữ -->
                 <div class="relative inline-block text-left" id="headerLangDropdownWrap">
                     <button type="button" 
                         id="headerLangBtn"
@@ -558,7 +569,6 @@ window.Layout = (function () {
                         <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 ml-0.5"></i>
                     </button>
 
-                    <!-- Danh sách ngôn ngữ dropdown -->
                     <div id="headerLangMenu" 
                         role="listbox" 
                         tabindex="-1"
@@ -567,7 +577,7 @@ window.Layout = (function () {
                             Chọn ngôn ngữ
                         </div>
                         <div class="py-1" id="headerLangItemsList">
-                            ${langList.map((l, idx) => {
+                            ${langList.map((l) => {
                                 const isSelected = l.code === activeLangCode;
                                 return `
                                     <button type="button" 
@@ -589,7 +599,7 @@ window.Layout = (function () {
                 </div>
             </div>
 
-            <!-- Công cụ tìm kiếm nhanh trên header màn hình vừa & lớn -->
+            <!-- Công cụ tìm kiếm -->
             <div class="hidden md:flex items-center flex-1 max-w-xs mx-6">
                 <form action="${basePath}search.html" method="GET" class="w-full relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500 text-xs"></i>
@@ -606,16 +616,16 @@ window.Layout = (function () {
                     <a href="${basePath}my-notes.html" class="hover:text-white text-sm" data-i18n-title="header.notifications" title="Ghi chú nhanh"><i class="fa-regular fa-bell"></i></a>
                     <div class="relative group">
                         <div class="flex items-center space-x-2 cursor-pointer py-1" onclick="document.getElementById('headerUserDropdown')?.classList.toggle('hidden')">
-                            <img src="${user.avatar_url}" alt="${user.display_name}" class="w-7 h-7 rounded-full object-cover border border-borderDark">
-                            <span class="text-xs text-white font-medium hidden sm:inline max-w-[100px] truncate">${user.display_name}</span>
+                            <img src="${user.avatar_url || 'https://i.pravatar.cc/150'}" alt="${Layout.escapeHtml(user.display_name)}" class="w-7 h-7 rounded-full object-cover border border-borderDark">
+                            <span class="text-xs text-white font-medium hidden sm:inline max-w-[100px] truncate">${Layout.escapeHtml(user.display_name)}</span>
                             <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
                         </div>
                         <div id="headerUserDropdown" class="hidden absolute right-0 mt-2 w-48 bg-sidebarBg border border-borderDark rounded-xl shadow-2xl py-1.5 text-xs text-gray-300 z-50">
                             <div class="px-3 py-2 border-b border-borderDark">
-                                <p class="font-bold text-white truncate">${user.display_name}</p>
-                                <p class="text-gray-400 text-[11px] truncate">@${user.handle} • <span class="text-substackOrange font-medium uppercase">${role}</span></p>
+                                <p class="font-bold text-white truncate">${Layout.escapeHtml(user.display_name)}</p>
+                                <p class="text-gray-400 text-[11px] truncate">@${Layout.escapeHtml(user.handle)} • <span class="text-substackOrange font-medium uppercase">${role}</span></p>
                             </div>
-                            <a href="${basePath}profile.html?handle=${user.handle}" class="flex items-center space-x-2 px-3 py-2 hover:bg-borderDark text-gray-300">
+                            <a href="${basePath}profile.html?handle=${encodeURIComponent(user.handle)}" class="flex items-center space-x-2 px-3 py-2 hover:bg-borderDark text-gray-300">
                                 <i class="fa-regular fa-user w-4"></i><span data-i18n="header.profile_page">Xem trang hồ sơ</span>
                             </a>
                             ${role === 'blogger' || role === 'admin' ? `
@@ -650,11 +660,8 @@ window.Layout = (function () {
         menu.classList.remove('hidden');
         btn.setAttribute('aria-expanded', 'true');
         
-        // Focus vào phần tử đang được chọn hoặc phần tử đầu tiên
         const selectedItem = menu.querySelector('[aria-selected="true"]') || menu.querySelector('.lang-dropdown-item');
-        if (selectedItem) {
-            selectedItem.focus();
-        }
+        if (selectedItem) selectedItem.focus();
     }
 
     function closeLangDropdown(focusButton = false) {
@@ -698,7 +705,6 @@ window.Layout = (function () {
 
         if (!changed) return;
 
-        // Đổi ngôn ngữ phải render lại toàn bộ nội dung trang
         if (code !== previousLang) {
             window.location.reload();
             return;
@@ -708,7 +714,7 @@ window.Layout = (function () {
         if (window.I18n) window.I18n.applyI18n();
     }
 
-    // Render Sidebar chính cho độc giả và blogger
+    // Render Sidebar chính
     function renderSidebar(activeNav = 'home', targetId = 'appSidebar') {
         const el = document.getElementById(targetId);
         if (!el) return;
@@ -738,7 +744,7 @@ window.Layout = (function () {
                         <i class="fa-solid fa-hashtag w-5"></i>
                         <span data-i18n="nav.trending_topics">Chủ đề nổi bật</span>
                     </a>
-                    <a href="${role === 'guest' ? '#' : basePath + 'profile.html?handle=' + (user?.handle || 'hhoanganh0710')}" onclick="${role === 'guest' ? 'Layout.openAuthModal()' : ''}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition font-medium ${activeNav === 'profile' ? 'bg-borderDark text-white' : 'text-gray-400 hover:bg-borderDark hover:text-white'}">
+                    <a href="${role === 'guest' ? '#' : basePath + 'profile.html?handle=' + encodeURIComponent(user?.handle || 'hhoanganh0710')}" onclick="${role === 'guest' ? 'Layout.openAuthModal()' : ''}" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition font-medium ${activeNav === 'profile' ? 'bg-borderDark text-white' : 'text-gray-400 hover:bg-borderDark hover:text-white'}">
                         <i class="fa-regular fa-user w-5"></i>
                         <span data-i18n="nav.profile">Hồ sơ cá nhân</span>
                     </a>
@@ -774,7 +780,6 @@ window.Layout = (function () {
                 ` : ''}
             </div>
 
-            <!-- Footer sidebar -->
             <div class="pt-4 border-t border-borderDark text-xs text-gray-500 space-y-2">
                 <div class="flex items-center justify-between">
                     <a href="${basePath}screens.html" class="text-gray-400 hover:text-substackOrange transition font-medium" data-i18n="nav.screens_catalog">Mục lục 16 giao diện</a>
@@ -786,12 +791,11 @@ window.Layout = (function () {
         if (I18n.isReady()) I18n.applyI18n(el);
     }
 
-    // Render Sidebar dành riêng cho Admin
+    // Render Admin Sidebar
     function renderAdminSidebar(activeNav = 'review', targetId = 'adminSidebar') {
         const el = document.getElementById(targetId);
         if (!el) return;
 
-        // Đếm số lượng pending từ mock data
         const pendingPostsCount = (window.MockData?.posts?.filter(p => p.status === 'pending') || []).length;
         const pendingReportsCount = (window.MockData?.reports?.filter(r => r.status === 'pending') || []).length;
         const categoriesCount = (window.MockData?.categories?.length || 6);
@@ -868,7 +872,7 @@ window.Layout = (function () {
         if (I18n.isReady()) I18n.applyI18n(el);
     }
 
-    // Render Mobile Bottom Navigation
+    // Render Mobile Bottom Nav
     function renderBottomNav(activeNav = 'home', targetId = 'appBottomNav') {
         const el = document.getElementById(targetId);
         if (!el) return;
@@ -898,7 +902,7 @@ window.Layout = (function () {
                 <i class="fa-solid fa-hashtag text-base"></i>
                 <span class="text-[10px] mt-1" data-i18n="nav.tags">Chủ đề</span>
             </a>
-            <a href="${role === 'guest' ? '#' : basePath + 'profile.html?handle=' + (user?.handle || 'hhoanganh0710')}" onclick="${role === 'guest' ? 'Layout.openAuthModal()' : ''}" class="flex flex-col items-center py-1 px-3 ${activeNav === 'profile' ? 'text-substackOrange' : 'text-gray-400'}">
+            <a href="${role === 'guest' ? '#' : basePath + 'profile.html?handle=' + encodeURIComponent(user?.handle || 'hhoanganh0710')}" onclick="${role === 'guest' ? 'Layout.openAuthModal()' : ''}" class="flex flex-col items-center py-1 px-3 ${activeNav === 'profile' ? 'text-substackOrange' : 'text-gray-400'}">
                 <i class="fa-regular fa-user text-base"></i>
                 <span class="text-[10px] mt-1" data-i18n="nav.profile">Hồ sơ</span>
             </a>
@@ -906,7 +910,6 @@ window.Layout = (function () {
         if (I18n.isReady()) I18n.applyI18n(el);
     }
 
-    // Mở/đóng sidebar dạng drawer trên mobile
     function toggleMobileSidebar(forceOpen) {
         const aside = document.getElementById('appSidebar') || document.getElementById('adminSidebar');
         if (!aside) return;
@@ -927,7 +930,6 @@ window.Layout = (function () {
         document.body.classList.toggle('overflow-hidden', open);
     }
 
-    // 9. Tự khởi chạy layout
     document.addEventListener('DOMContentLoaded', () => {
         const initLayout = () => {
             if (checkPagePermissions()) {
@@ -940,7 +942,6 @@ window.Layout = (function () {
             initLayout();
         }
 
-        // Đóng dropdown khi click bên ngoài
         document.addEventListener('click', (e) => {
             const wrap = document.getElementById('headerLangDropdownWrap');
             if (wrap && !wrap.contains(e.target)) {
@@ -948,7 +949,6 @@ window.Layout = (function () {
             }
         });
 
-        // Lắng nghe sự kiện phím
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeAuthModal();
@@ -957,7 +957,6 @@ window.Layout = (function () {
                 closeLangDropdown(true);
             }
 
-            // Điều hướng bàn phím trong danh sách ngôn ngữ
             const menu = document.getElementById('headerLangMenu');
             if (menu && !menu.classList.contains('hidden') && menu.contains(document.activeElement)) {
                 const items = Array.from(menu.querySelectorAll('.lang-dropdown-item'));
