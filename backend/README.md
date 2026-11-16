@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Substack Clone - Backend API Service
 
-## Getting Started
+Dịch vụ Backend xây dựng bằng **Next.js (App Router)** và **Prisma ORM**, kết nối cơ sở dữ liệu **MySQL** nhằm cung cấp toàn bộ RESTful API cho nền tảng blog Substack Clone (hỗ trợ xác thực người dùng, quản lý bài viết, danh mục, kiểm duyệt nội dung và hỗ trợ đa ngôn ngữ).
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠 Công nghệ sử dụng
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Runtime & Framework:** Node.js (v18+ / v20+), Next.js 14+ (App Router)
+- **Database ORM:** Prisma Client & Prisma CLI
+- **Cơ sở dữ liệu:** MySQL 8.x (Quản lý qua HeidiSQL / MySQL Workbench)
+- **Mã hóa & Bảo mật:** `bcryptjs` (Hash mật khẩu an toàn với salt rounds = 10)
+- **Ngôn ngữ:** TypeScript
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Cấu trúc thư mục Backend
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+backend/
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── login/route.ts        # POST: Xác thực đăng nhập, kiểm tra ban
+│   │   │   ├── register/route.ts     # POST: Đăng ký user mới & hash mật khẩu
+│   │   │   ├── onboarding/route.ts   # POST: Kiểm tra email & khởi tạo
+│   │   │   └── verify-email/route.ts # POST: Xác thực mã OTP 6 số
+│   │   └── posts/route.ts            # GET / POST: Lấy danh sách & Tạo/sửa bài viết
+│   ├── globals.css                   # Định kiểu toàn cục
+│   └── layout.tsx                    # Root layout
+├── lib/
+│   └── db.ts                         # Khởi tạo singleton Prisma Client
+├── prisma/
+│   └── schema.prisma                 # Lược đồ cơ sở dữ liệu (Database Schema)
+├── .env                              # Biến môi trường kết nối MySQL
+├── package.json                      # Danh sách dependencies & scripts
+└── tsconfig.json                     # Cấu hình TypeScript
