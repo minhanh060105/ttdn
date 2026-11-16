@@ -35,7 +35,7 @@
         </div>
     </header>
 
-    <!-- MAIN CONTAINER CHỨA CÁC BƯỚC -->
+    <!-- MAIN CONTAINER -->
     <main class="w-full flex-1 flex flex-col items-center justify-center px-4 py-6">
 
         <!-- BƯỚC 1: Nhập email & đồng ý điều khoản -->
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <!-- BƯỚC 1.5: Xác thực email (Mã kích hoạt / Kiểm tra hộp thư) -->
+        <!-- BƯỚC 1.5: Xác thực email OTP -->
         <div id="stepVerifyEmail" class="w-full max-w-md text-center space-y-4 hidden">
             <div class="w-14 h-14 bg-substackOrange/10 border border-substackOrange/30 text-substackOrange rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg">
                 <i class="fa-regular fa-envelope-open"></i>
@@ -91,7 +91,7 @@
                     <input 
                         type="text" 
                         id="emailOtpInput" 
-                        maxlength="6"
+                        maxlength="6" 
                         placeholder="123456" 
                         value="123456"
                         class="w-full bg-darkBg border border-borderDark rounded-xl px-4 py-3 text-center text-lg tracking-[0.4em] font-mono font-bold text-white focus:outline-none focus:border-substackOrange transition"
@@ -122,7 +122,7 @@
             <p id="topicsHintText" class="text-xs text-gray-400">Chọn ít nhất 3 chủ đề để tiếp tục.</p>
         </div>
 
-        <!-- BƯỚC 3: Hoàn thiện hồ sơ (Màn hình của bạn) -->
+        <!-- BƯỚC 3: Hoàn thiện hồ sơ -->
         <div id="step3" class="w-full max-w-md text-center space-y-4 hidden">
             <h2 class="text-2xl font-bold text-white">Hoàn thiện hồ sơ của bạn</h2>
             <p class="text-xs text-gray-400">Tên hiển thị, handle và tiểu sử giúp độc giả nhận ra bạn.</p>
@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- BƯỚC 4: Hoàn tất (Done) -->
+        <!-- BƯỚC 4: Hoàn tất -->
         <div id="step4" class="w-full max-w-md text-center space-y-4 hidden">
             <div class="w-16 h-16 bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl mb-2 shadow-lg">
                 <i class="fa-solid fa-check"></i>
@@ -175,7 +175,7 @@
 
     </main>
 
-    <!-- THANH BOTTOM BAR CỐ ĐỊNH CHUẨN SUBSTACK VỚI NÚT CONTINUE TRẢI DÀI -->
+    <!-- THANH BOTTOM BAR CỐ ĐỊNH -->
     <footer class="fixed bottom-0 left-0 right-0 bg-darkBg/95 border-t border-borderDark/80 p-4 z-40 backdrop-blur-md">
         <div class="max-w-2xl mx-auto w-full">
             <button 
@@ -208,7 +208,6 @@
             updateBottomButtonState();
         });
 
-        // Đổi trạng thái nút Continue theo từng bước
         function updateBottomButtonState() {
             const btn = document.getElementById('mainContinueBtn');
             const btnText = document.getElementById('continueBtnText');
@@ -242,12 +241,11 @@
             }
         }
 
-        // Xử lý nút Continue duy nhất ở đáy
         async function handleContinue() {
             if (currentStep === 1) {
                 await processStep1Email();
             } else if (currentStep === 1.5) {
-                processStepVerifyOtp();
+                await processStepVerifyOtp();
             } else if (currentStep === 2) {
                 goToStep(3);
             } else if (currentStep === 3) {
@@ -257,7 +255,6 @@
             }
         }
 
-        // Bước 1: Gửi email xác thực sang Backend
         async function processStep1Email() {
             const emailInput = document.getElementById('userEmail');
             const errorEl = document.getElementById('emailErrorMsg');
@@ -304,10 +301,12 @@
             }
         }
 
-        // Bước 1.5: Xác thực OTP
-        function processStepVerifyOtp() {
+        async function processStepVerifyOtp() {
             const otp = document.getElementById('emailOtpInput').value.trim();
             const errEl = document.getElementById('otpErrorMsg');
+            const email = sessionStorage.getItem('pending_register_email') || document.getElementById('userEmail').value.trim();
+            const btn = document.getElementById('mainContinueBtn');
+
             errEl.classList.add('hidden');
 
             if (!otp || otp.length < 6) {
@@ -316,16 +315,41 @@
                 return;
             }
 
-            // Giả lập xác thực email thành công
-            sessionStorage.setItem('email_verified', 'true');
-            goToStep(2);
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang xác thực OTP...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp }),
+                    signal: AbortSignal.timeout(3000)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    errEl.textContent = data.message || 'Mã xác nhận không hợp lệ.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                sessionStorage.setItem('email_verified', 'true');
+                goToStep(2);
+
+            } catch (err) {
+                console.warn('Backend chưa bật, cho phép sang bước tiếp theo với mã mặc định:', err);
+                sessionStorage.setItem('email_verified', 'true');
+                goToStep(2);
+            } finally {
+                updateBottomButtonState();
+            }
         }
 
         function resendOtp() {
             alert('Mã xác nhận mới đã được gửi lại vào email của bạn!');
         }
 
-        // Bước 2: Chọn topics
         function toggleTopic(btn) {
             btn.classList.toggle('bg-substackOrange');
             btn.classList.toggle('text-white');
@@ -339,7 +363,6 @@
             updateBottomButtonState();
         }
 
-        // Preview ảnh đại diện
         function previewAvatar(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -354,9 +377,10 @@
             reader.readAsDataURL(file);
         }
 
-        // Bước 3: Đăng ký Profile vào MySQL
+        // BƯỚC 3: GỬI MẬT KHẨU VÀ THÔNG TIN PROFILE SANG MYSQL
         async function processStep3Profile() {
             const email = sessionStorage.getItem('pending_register_email') || document.getElementById('userEmail').value.trim() || 'ada@example.com';
+            const password = sessionStorage.getItem('pending_register_password') || 'password123';
             const nameEl = document.getElementById('userName');
             const handleEl = document.getElementById('userHandle');
             const bioEl = document.getElementById('userBio');
@@ -381,44 +405,65 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang lưu hồ sơ...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang lưu hồ sơ vào cơ sở dữ liệu...';
 
             const avatarUrl = uploadedAvatarBase64 || `https://i.pravatar.cc/150?u=${handle}`;
 
             try {
-                await fetch(`${API_BASE_URL}/auth/register`, {
+                const res = await fetch(`${API_BASE_URL}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, name, handle, bio, avatar_url: avatarUrl }),
-                    signal: AbortSignal.timeout(3000)
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        name,
+                        handle,
+                        bio,
+                        avatar_url: avatarUrl
+                    }),
+                    signal: AbortSignal.timeout(5000)
                 });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Hoàn tất thiết lập</span>';
+                    errEl.textContent = data.message || 'Lỗi khi lưu tài khoản vào cơ sở dữ liệu.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                const newUser = {
+                    id: data.user ? data.user.id : Date.now(),
+                    email: email,
+                    handle: handle,
+                    display_name: name,
+                    bio: bio,
+                    avatar_url: avatarUrl,
+                    role_id: 3,
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                };
+
+                localStorage.setItem('registered_user', JSON.stringify(newUser));
+                localStorage.setItem('onboarding_completed', 'false');
+
+                goToStep(4);
+
             } catch (e) {
-                console.warn('Backend offline, lưu thông tin vào mock session:', e);
+                console.warn('Backend offline:', e);
+                errEl.textContent = 'Không kết nối được Backend Next.js (Port 3000). Vui lòng thử lại.';
+                errEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Hoàn tất thiết lập</span>';
             }
-
-            const newUser = {
-                id: Date.now(),
-                email: email,
-                handle: handle,
-                display_name: name,
-                bio: bio,
-                avatar_url: avatarUrl,
-                role_id: 3,
-                is_active: true,
-                created_at: new Date().toISOString()
-            };
-
-            localStorage.setItem('registered_user', JSON.stringify(newUser));
-            localStorage.setItem('onboarding_completed', 'false');
-
-            goToStep(4);
         }
 
         function toggleTermsCheckbox(cb) {
             updateBottomButtonState();
         }
 
-        // Chuyển bước
         function goToStep(step) {
             currentStep = step;
             document.getElementById('step1').classList.add('hidden');
@@ -445,6 +490,7 @@
 
             localStorage.setItem('onboarding_completed', 'true');
             sessionStorage.removeItem('pending_register_email');
+            sessionStorage.removeItem('pending_register_password');
 
             if (pendingUser && window.Layout) {
                 Layout.saveSession(pendingUser);

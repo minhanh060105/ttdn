@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pubPageTitle">Publication | Substack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-[#121212] text-gray-200 min-h-screen flex flex-col font-sans">
+
+    <!-- Header ấn phẩm -->
+    <header class="border-b border-[#2a2a2a] bg-[#181818]/90 backdrop-blur sticky top-0 z-30 px-6 py-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="text-[#ff6719] text-xl font-bold"><i class="fa-solid fa-book-bookmark"></i></a>
+                <span class="text-gray-500">/</span>
+                <span id="pubHeaderName" class="font-bold text-white text-base">Bản tin</span>
+            </div>
+            <button onclick="handleSubscribe()" class="bg-[#ff6719] hover:bg-[#e05b15] text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow">
+                Đăng ký nhận tin
+            </button>
+        </div>
+    </header>
+
+    <!-- Publication Hero Banner -->
+    <section class="max-w-3xl mx-auto w-full px-4 pt-12 pb-8 text-center space-y-4">
+        <div id="pubLogo" class="w-20 h-20 bg-[#1e1e1e] border border-[#2a2a2a] text-[#ff6719] text-3xl font-extrabold rounded-2xl flex items-center justify-center mx-auto shadow-xl">
+            S
+        </div>
+        <h1 id="pubTitle" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Tên Publication</h1>
+        <p id="pubDesc" class="text-sm text-gray-400 max-w-lg mx-auto leading-relaxed">Mô tả định hướng, chủ đề bài viết của ấn phẩm.</p>
+        
+        <!-- Form đăng ký nhanh tại banner -->
+        <div class="max-w-md mx-auto flex gap-2 pt-2">
+            <input type="email" placeholder="Nhập email của bạn..." class="flex-1 bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#ff6719]">
+            <button class="bg-[#ff6719] hover:bg-[#e05b15] text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition whitespace-nowrap">Theo dõi</button>
+        </div>
+    </section>
+
+    <!-- Danh sách bài viết của Publication -->
+    <main class="max-w-3xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-[#2a2a2a] pb-2">Bài viết mới phát hành</h2>
+        <div id="pubPostsList" class="space-y-4">
+            <!-- Bài viết được render tự động qua fetch API -->
+            <p class="text-xs text-gray-500 italic">Đang tải danh sách bài viết...</p>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pubId = urlParams.get('id') || 1;
+
+            try {
+                // Gọi API lấy thông tin ấn phẩm và bài viết liên kết
+                const res = await fetch(`${API_BASE_URL}/publications?id=${pubId}`);
+                const data = await res.json();
+
+                if (data.success && data.publication) {
+                    const pub = data.publication;
+                    document.getElementById('pubPageTitle').textContent = `${pub.name} | Substack`;
+                    document.getElementById('pubHeaderName').textContent = pub.name;
+                    document.getElementById('pubTitle').textContent = pub.name;
+                    document.getElementById('pubDesc').textContent = pub.description || 'Không có mô tả.';
+                    document.getElementById('pubLogo').textContent = pub.name.charAt(0).toUpperCase();
+
+                    renderPosts(pub.posts || []);
+                }
+            } catch (e) {
+                console.warn('Backend API chưa sẵn sàng:', e);
+            }
+        });
+
+        function renderPosts(posts) {
+            const container = document.getElementById('pubPostsList');
+            if (!posts.length) {
+                container.innerHTML = '<p class="text-xs text-gray-500 italic">Ấn phẩm này chưa có bài viết nào.</p>';
+                return;
+            }
+            container.innerHTML = posts.map(p => `
+                <article class="p-5 bg-[#181818] border border-[#2a2a2a] hover:border-[#ff6719] rounded-2xl transition cursor-pointer" onclick="window.location.href='post-detail.html?slug=${p.slug}'">
+                    <h3 class="text-base sm:text-lg font-bold text-white mb-1">${p.title}</h3>
+                    <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">${p.subtitle || p.content?.replace(/<[^>]+>/g, '').slice(0, 120) || ''}...</p>
+                    <div class="flex items-center text-[11px] text-gray-500 space-x-3">
+                        <span><i class="fa-regular fa-clock mr-1"></i>${new Date(p.created_at).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function handleSubscribe() {
+            alert('Đăng ký nhận thông báo từ ấn phẩm thành công!');
+        }
+    </script>
+</body>
+</html>

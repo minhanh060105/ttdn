@@ -421,19 +421,59 @@ window.Layout = (function () {
         if (modal) modal.classList.add('hidden');
     }
 
-    function executeQuickLogin() {
-        const email = (document.getElementById('quickLoginEmail')?.value || '').trim();
+    async function executeQuickLogin() {
+        const email = (document.getElementById('quickLoginEmail')?.value || '').trim().toLowerCase();
         const password = (document.getElementById('quickLoginPassword')?.value || '').trim();
-        const user = (window.MockData?.users || []).find(u => u.email.toLowerCase() === email.toLowerCase());
+
+        if (!email || !password) {
+            showToast('Vui lòng nhập đầy đủ Email và Mật khẩu.', 'warning');
+            return;
+        }
+
+        // 1. GỌI API BACKEND NEXT.JS (PORT 3000) XÁC THỰC MẬT KHẨU TỪ MYSQL
+        try {
+            const res = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                signal: AbortSignal.timeout(4000)
+            });
+
+            const data = await res.json();
+
+            // Nếu mật khẩu sai hoặc tài khoản bị ban/khóa trong MySQL
+            if (!res.ok || !data.success) {
+                showToast(data.message || (window.I18n ? I18n.t('layout.quick_login_failed') : 'Email hoặc mật khẩu không chính xác.'), 'error');
+                const passEl = document.getElementById('quickLoginPassword');
+                if (passEl) {
+                    passEl.value = '';
+                    passEl.focus();
+                }
+                return; // Dừng lại, không cho đăng nhập
+            }
+
+            // Đăng nhập thành công với MySQL
+            saveSession(data.user, data.token);
+            closeAuthModal();
+            showToast(window.I18n ? I18n.t('layout.quick_login_success') : 'Đăng nhập thành công!', 'success');
+            window.location.href = resolvePostLoginRedirect(data.user);
+            return;
+
+        } catch (apiError) {
+            console.warn('Backend API offline hoặc CORS, chuyển sang kiểm tra MockData:', apiError);
+        }
+
+        // 2. NHÁNH DỰ PHÒNG MOCKDATA (Chỉ chạy khi không kết nối được server Next.js)
+        const user = (window.MockData?.users || []).find(u => u.email.toLowerCase() === email);
 
         if (!user || !user.is_active || (user.password && user.password !== password)) {
-            showToast(I18n.t('layout.quick_login_failed'), 'error');
+            showToast(window.I18n ? I18n.t('layout.quick_login_failed') : 'Email hoặc mật khẩu không chính xác.', 'error');
             return;
         }
 
         saveSession(user);
         closeAuthModal();
-        showToast(I18n.t('layout.quick_login_success'), 'success');
+        showToast(window.I18n ? I18n.t('layout.quick_login_success') : 'Đăng nhập thành công!', 'success');
         window.location.href = resolvePostLoginRedirect(user);
     }
 
